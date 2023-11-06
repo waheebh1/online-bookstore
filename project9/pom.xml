@@ -9,11 +9,11 @@
       <version>3.1.0</version>
       <relativePath/> <!-- lookup parent from repository -->
   </parent>
-  <groupId>com.example.project9</groupId>
+  <groupId>project9</groupId>
   <artifactId>project9</artifactId>
   <version>1.0</version>
-  
   <name>project9</name>
+
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
