@@ -1,4 +1,4 @@
-package com.example.project9;
+package bookstore;
 
 import static org.junit.Assert.assertTrue;
 
