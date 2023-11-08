@@ -12,14 +12,14 @@ import java.util.ArrayList;
 @Entity
 public class Book {
     @Id
-    private Integer isbn = null;
+    private String isbn = null;
     private String title = null;
     private String picture = null;
     @ManyToMany(fetch = FetchType.EAGER)
     private ArrayList<Author> author = new ArrayList<>();
     private String publisher = null;
     private String genre = null;
-    private Float price = null;
+    private Double price = null;
     private String description = null;
 
     /**
@@ -34,7 +34,7 @@ public class Book {
      * @param author book author
      * @param price cost of book
      */
-    public Book(Integer isbn, String title, ArrayList<Author> author, Float price){
+    public Book(String isbn, String title, ArrayList<Author> author, Double price){
         this.isbn = isbn;
         this.title = title;
         this.author = author;
@@ -52,7 +52,7 @@ public class Book {
      * @param price cost of book
      * @param description short summary
      */
-    public Book(Integer isbn, String title, String picture, ArrayList<Author> author, String publisher, String genre, Float price, String description){
+    public Book(String isbn, String title, String picture, ArrayList<Author> author, String publisher, String genre, Double price, String description){
         this(isbn, title, author, price); //call basic constructor
         this.picture = picture;
         this.publisher = publisher;
@@ -64,7 +64,7 @@ public class Book {
      * Get isbn
      * @return isbn
      */
-    public Integer getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
@@ -72,7 +72,7 @@ public class Book {
      * Set isbn
      * @param isbn unique code for book
      */
-    public void setIsbn(Integer isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 
@@ -160,7 +160,7 @@ public class Book {
      * Get price
      * @return price
      */
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
@@ -168,7 +168,7 @@ public class Book {
      * Set price
      * @param price cost of book
      */
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
