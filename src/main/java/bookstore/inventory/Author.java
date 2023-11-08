@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class Author {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id = null;
+    private Long id;
     private String firstName = null;
     private String lastName = null;
     @ManyToMany(fetch = FetchType.EAGER)
