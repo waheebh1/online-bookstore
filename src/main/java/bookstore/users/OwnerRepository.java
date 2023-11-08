@@ -4,8 +4,12 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-// is this even needed?
-
+/**
+ * Bookstore Owner Repository
+ * NOTE: this class might not be necessary
+ *
+ * @author Thanuja Sivaananthan
+ */
 public interface OwnerRepository extends CrudRepository<BookOwner, Long> {
 
     List<BookOwner> findByUsername(String username);

@@ -15,6 +15,13 @@ public class App
     public static void main(String[] args) {SpringApplication.run(App.class);
     }
 
+    /**
+     * Setup sample users
+     * @author Thanuja Sivaananthan
+     *
+     * @param repository    user repository
+     * @return              CommandLineRunner object
+     */
     @Bean
     public CommandLineRunner demoUsers(UserRepository repository) {
         return (args) -> {
