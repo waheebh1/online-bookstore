@@ -8,8 +8,6 @@ package bookstore.inventory;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 public class AuthorTest {
     @Test
     public void testAuthorCreation(){
