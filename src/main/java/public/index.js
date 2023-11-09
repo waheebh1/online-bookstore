@@ -6,15 +6,13 @@ $(document).ready(function () {
     }).then(function (data) {
         if (data) {
             data.books.forEach(function (book) {
-                $('.books-info').append(
-                    "<div>Name: " + book.name +
-                    ", Author: " + book.author + "</div>"
-                );
+                $('.books-cover').append(book.cover);
+                $('.books-title').append(book.title);
+                $('.books-author').append(book.author);
             });
         }
     });
 });
-
 
 $(document).ready(function () {
     $.ajax({

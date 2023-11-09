@@ -22,13 +22,32 @@
             <input type="submit" value="Checkout" class="button" />
         </a>
     </div>
+    
     <div class="books-quantity">
         <h2>Total in Cart:</h2>
         <h2 class="books-quantity"></h2>
     </div>
     <div class="books-list">
         <h2>List of Books</h2>
-        <h2 class="books-info"></h2>
     </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Cover</th>
+                <th>Title</th>
+                <th>Author</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <tr th:each="book : ${books}">
+                    <td><input type="checkbox"></td>
+                    <td th:image="${book.cover}" alt="Book Cover"></td>
+                    <td th:text="${book.title}"></td>
+                    <td th:text="${book.author}"></td>
+                </tr>
+        </tbody>
+    </table> 
 </body>
 </html>
