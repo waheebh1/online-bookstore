@@ -1,42 +1,11 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title>Home Page</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="index.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #bffad970;
-            position: relative;
-        }
-        h1, h2 {
-            color:rgb(87, 87, 87);
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 100px;
-            margin-bottom: 20px; 
-        }
-        .button {
-            padding: 10px;
-            background-color: rgb(89, 89, 100);
-            color: white;
-        }
-        .button:hover {
-            background-color: black;
-        }
-        .books-quantity {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .books-list {
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="/src/main/java/public/stylesheets/general.css">
 </head>
 <body>
     <div class="header">
@@ -55,11 +24,11 @@
     </div>
     <div class="books-quantity">
         <h2>Total in Cart:</h2>
-        <h2><p class="books-quantity"></p></h2>
+        <h2 class="books-quantity"></h2>
     </div>
     <div class="books-list">
         <h2>List of Books</h2>
-        <h2><p class="books-info"></p></h2>
+        <h2 class="books-info"></h2>
     </div>
 </body>
 </html>
