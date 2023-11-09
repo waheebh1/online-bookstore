@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<head>
+    <title>Register</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #bffad970;
+        }
+        .container {
+            position: fixed;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        h1, h2 {
+            color:rgb(87, 87, 87);
+        }
+        .input-div {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        .button {
+            padding: 10px;
+            background-color: rgb(89, 89, 100);
+            color: white;
+        }
+        .button:hover {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Online Book Store</h1>
+    </div>
+    <div class="container">
+        <div>
+            <h1>Register</h1>
+        </div>
+        <form action="/register" method="post">
+            <div class="input-div">
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-div">
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-field">
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <input type="submit" value="Register" class="button" />
+        </form>
+    </div>
+</body>
+</html>
