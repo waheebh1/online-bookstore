@@ -16,7 +16,7 @@ public enum UserType {
      * @author Thanuja Sivaananthan
      * @param label usertype label
      */
-    private UserType(String label) {
+    UserType(String label) {
         this.label = label;
     }
 
