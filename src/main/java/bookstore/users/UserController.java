@@ -45,6 +45,23 @@ public class UserController {
         return "createAccountForm";
     }
 
+
+    /**
+     * Save a user
+     * @param bookUser      the book user to add
+     * @return              the modified/saved user
+     */
+    private BookUser saveUser(BookUser bookUser){
+//        if (UserType.valueOf(bookUser.getUserType()) == UserType.BOOKOWNER) {
+        if (bookUser.getUserType() == UserType.BOOKOWNER) {
+            // setup as owner if specified
+            BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
+            bookUser = bookOwner;
+        }
+        userRepository.save(bookUser);
+        return bookUser;
+    }
+
     /**
      * Submit new account
      *
@@ -66,15 +83,8 @@ public class UserController {
             model.addAttribute("error", "Username or password cannot be empty.");
             return "createAccountAccountError";
         } else {
-            if (bookUser.getUserType().equals("O")) {
-                // setup as owner if specified
-                BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
-                bookUser = bookOwner;
-            } else {
-                bookUser.setUserType(UserType.BOOKUSER.toString());
-            }
-            userRepository.save(bookUser);
 
+            bookUser = saveUser(bookUser);
             model.addAttribute("user", bookUser);
 
             return "createAccountResult";

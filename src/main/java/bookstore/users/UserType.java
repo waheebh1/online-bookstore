@@ -6,8 +6,8 @@ package bookstore.users;
  * @author Thanuja Sivaananthan
  */
 public enum UserType {
-    BOOKUSER("U"),
-    BOOKOWNER("O");
+    BOOKUSER("BOOKUSER"),
+    BOOKOWNER("BOOKOWNER");
 
     public final String label;
 

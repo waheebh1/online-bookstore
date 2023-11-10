@@ -12,8 +12,8 @@
     <p>Password: <input type="text" th:field="*{password}" /></p>
 
     <td><label path = "userType">UserType</label></td>
-        <input id = "userType1" name = "userType" type = "radio" value = "U" checked = "checked" th:field="*{userType}"/><label for = "userType1">Bookstore User</label>
-        <input id = "userType2" name = "userType" type = "radio" value = "O"/><label for = "userType1" th:field="*{userType}">Bookstore Owner</label>
+        <input id = "userType1" name = "userType" type = "radio" value = "BOOKUSER" checked = "checked" th:field="*{userType}"/><label for = "userType1">Bookstore User</label>
+        <input id = "userType2" name = "userType" type = "radio" value = "BOOKOWNER"/><label for = "userType1" th:field="*{userType}">Bookstore Owner</label>
     </td>
     <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
 </form>

@@ -28,7 +28,7 @@ public class BookOwner extends BookUser {
      */
     public BookOwner(Long id, String username, String password) {
         super(id, username, password);
-        this.userType = UserType.BOOKOWNER.toString();
+        this.userType = UserType.BOOKOWNER;
     }
 
     /**
@@ -51,7 +51,11 @@ public class BookOwner extends BookUser {
     }
 
     // add other methods here
-    public void uploadBookInfo(){}
-    public void editBookInfo(){}
+    public void uploadBookInfo(){
+        throw new UnsupportedOperationException("uploadBookInfo not yet supported");
+    }
+    public void editBookInfo(){
+        throw new UnsupportedOperationException("editBookInfo not yet supported");
+    }
 
 }

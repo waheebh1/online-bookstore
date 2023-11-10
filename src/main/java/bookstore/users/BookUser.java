@@ -21,7 +21,7 @@ public class BookUser {
     private String username;
     private String password;
 
-    public String userType;
+    public UserType userType;
 
     /**
      * Create bookstore user
@@ -35,7 +35,7 @@ public class BookUser {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.userType = UserType.BOOKUSER.toString();
+        this.userType = UserType.BOOKUSER;
     }
 
     /**
@@ -116,8 +116,17 @@ public class BookUser {
      * @author Thanuja Sivaananthan
      * @return user type
      */
-    public String getUserType() {
-        return userType.toString();
+    public UserType getUserType() {
+        return userType;
+    }
+
+    /**
+     * Set user type
+     * @author Thanuja Sivaananthan
+     * @param userType user type
+     */
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     /**
@@ -126,7 +135,7 @@ public class BookUser {
      * @param userTypeString user type
      */
     public void setUserType(String userTypeString) {
-        this.userType = userTypeString;//UserType.valueOf(userTypeString);
+        this.userType = UserType.valueOf(userTypeString);
     }
 
     // add other methods here
