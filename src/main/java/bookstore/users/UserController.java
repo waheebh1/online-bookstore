@@ -103,24 +103,30 @@ public class UserController {
      */
     @PostMapping("/account")
     public String handleUserLogin(@ModelAttribute BookUser formUser, Model model) {
-        // Check if user exists
-        List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
+        try {
+            // Check if user exists
+            List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
 
-        if (existingUsers.isEmpty()) {
-            model.addAttribute("loginError", "Username " + formUser.getUsername() +  " does not exist. Please register for a new account or use a different username");
-            return "accountForm"; // Redirect to an account created confirmation page
-        } else {
-            // User exists and is attempting to log in, check password
-            BookUser existingUser = existingUsers.get(0); // Assuming unique usernames
-            if (existingUser.getPassword().equals(formUser.getPassword())) {
-                // Passwords match, login successful
-                model.addAttribute("user", existingUser);
-                return "userProfile"; // Redirect to user profile page
+            if (existingUsers.isEmpty()) {
+                model.addAttribute("loginError", "Username " + formUser.getUsername() + " does not exist. Please register for a new account or use a different username");
+                return "accountForm"; // Redirect to an account created confirmation page
             } else {
-                // Passwords do not match, return login error
-                model.addAttribute("loginError", "Invalid username/password");
-                return "accountForm"; // Stay on the login/create account page
+                // User exists and is attempting to log in, check password
+                BookUser existingUser = existingUsers.get(0); // Assuming unique usernames
+                if (existingUser.getPassword().equals(formUser.getPassword())) {
+                    // Passwords match, login successful
+                    model.addAttribute("user", existingUser);
+                    return "userProfile"; // Redirect to user profile page
+                } else {
+                    // Passwords do not match, return login error
+                    model.addAttribute("loginError", "Invalid username/password");
+                    return "accountForm"; // Stay on the login/create account page
+                }
             }
+        } catch (Exception e) {
+            //Handle general exceptions
+                model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
+                return  "accountForm"; // Redirecting back to account form.
         }
     }
 }
