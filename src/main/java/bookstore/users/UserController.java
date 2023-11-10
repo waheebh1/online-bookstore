@@ -57,25 +57,49 @@ public class UserController {
     public String createAccountSubmit(@ModelAttribute BookUser bookUser,
                                       Model model) {
 
-        if (bookUser.getUserType().equals("O")) {
-            BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
-            bookUser = bookOwner;
+        List<BookUser> existingUsers = userRepository.findByUsername(bookUser.getUsername());
+
+        if (!existingUsers.isEmpty()) {
+            model.addAttribute("error", "Username or password cannot be empty.");
+            return "createAccountAccountError";
+        } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) {
+            model.addAttribute("error", "Username or password cannot be empty.");
+            return "createAccountAccountError";
         } else {
-            bookUser.setUserType(UserType.BOOKUSER.toString());
+            if (bookUser.getUserType().equals("O")) {
+                BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
+                bookUser = bookOwner;
+            } else {
+                bookUser.setUserType(UserType.BOOKUSER.toString());
+            }
+            userRepository.save(bookUser);
+
+            model.addAttribute("user", bookUser);
+
+            return "createAccountResult";
         }
-        userRepository.save(bookUser);
-
-        model.addAttribute("user", bookUser);
-
-        return "createAccountResult";
     }
 
+    /**
+     * Go to account
+     *
+     * @param model model to use
+     * @return form page
+     * @author Sabah Samwatin
+     */
     @GetMapping("/account")
     public String accountForm(Model model) {
         model.addAttribute("user", new BookUser());
         return "accountForm"; // one form for both account creation and login
     }
 
+    /**
+     * Login to account
+     *
+     * @param model model to use
+     * @return form page
+     * @author Sabah Samwatin
+     */
     @PostMapping("/account")
     public String handleUserLoginOrCreation(@ModelAttribute BookUser formUser, Model model) {
         // Check if user exists
