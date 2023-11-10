@@ -16,13 +16,15 @@ import java.util.List;
 @Controller
 public class UserController {
 
+    @Autowired
     private final UserRepository userRepository;
 
 
     /**
      * Create new user controller
+     *
+     * @param userRepository user repository
      * @author Thanuja Sivaananthan
-     * @param userRepository   user repository
      */
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -30,9 +32,10 @@ public class UserController {
 
     /**
      * Create new account
-     * @author Thanuja Sivaananthan
+     *
      * @param model model to use
      * @return form page
+     * @author Thanuja Sivaananthan
      */
     @GetMapping("/createAccount")
     public String createAccountForm(Model model) {
@@ -44,17 +47,17 @@ public class UserController {
 
     /**
      * Submit new account
+     *
+     * @param bookUser user to add
+     * @param model    model
+     * @return result page
      * @author Thanuja Sivaananthan
-     * @param bookUser  user to add
-     * @param model     model
-     * @return          result page
      */
     @PostMapping("/createAccount")
     public String createAccountSubmit(@ModelAttribute BookUser bookUser,
-                                       Model model)
-    {
+                                      Model model) {
 
-        if (bookUser.getUserType().equals("O")){
+        if (bookUser.getUserType().equals("O")) {
             BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
             bookUser = bookOwner;
         } else {
@@ -68,10 +71,11 @@ public class UserController {
     }
 
     @GetMapping("/account")
-    public String accountForm (Model model){
+    public String accountForm(Model model) {
         model.addAttribute("user", new BookUser());
         return "accountForm"; // one form for both account creation and login
     }
+
     @PostMapping("/account")
     public String handleUserLoginOrCreation(@ModelAttribute BookUser formUser, Model model) {
         // Check if user exists
@@ -79,11 +83,20 @@ public class UserController {
 
         if (existingUsers.isEmpty()) {
             // No existing user, create a new one
+            if (formUser.getUsername().isEmpty() || formUser.getPassword().isEmpty()) {
+                model.addAttribute("error", "Username or password cannot be empty.");
+                return "accountForm"; // Redirect back to account form with error message
+            }
             userRepository.save(formUser);
             model.addAttribute("user", formUser);
             return "accountCreated"; // Redirect to an account created confirmation page
         } else {
-            // User exists, check password
+            // Check if the user is trying to create a new account with an existing username
+            if (formUser.getId() == null || formUser.getId() == 0) {
+                model.addAttribute("error", "Username already exists. Please choose a different one.");
+                return "accountForm"; // Redirect back to account form with error message
+            }
+            // User exists and is attempting to log in, check password
             BookUser existingUser = existingUsers.get(0); // Assuming unique usernames
             if (existingUser.getPassword().equals(formUser.getPassword())) {
                 // Passwords match, login successful
