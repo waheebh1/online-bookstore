@@ -74,20 +74,26 @@ public class UserController {
     public String createAccountSubmit(@ModelAttribute BookUser bookUser,
                                       Model model) {
 
-        List<BookUser> existingUsers = userRepository.findByUsername(bookUser.getUsername());
+        try {
+            List<BookUser> existingUsers = userRepository.findByUsername(bookUser.getUsername());
 
-        if (!existingUsers.isEmpty()) { // only allow accounts with unique usernames
-            model.addAttribute("error", "Username already exists. Please use a new username or login with the current username.");
-            return "createAccountAccountError";
-        } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) { // username/password should not be empty
-            model.addAttribute("error", "Username or password cannot be empty.");
-            return "createAccountAccountError";
-        } else {
+            if (!existingUsers.isEmpty()) { // only allow accounts with unique usernames
+                model.addAttribute("error", "Username already exists. Please use a new username or login with the current username.");
+                return "createAccountAccountError";
+            } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) { // username/password should not be empty
+                model.addAttribute("error", "Username or password cannot be empty.");
+                return "createAccountAccountError";
+            } else {
 
-            bookUser = saveUser(bookUser);
-            model.addAttribute("user", bookUser);
+                bookUser = saveUser(bookUser);
+                model.addAttribute("user", bookUser);
 
-            return "createAccountResult";
+                return "createAccountResult";
+            }
+        } catch (Exception e) {
+            // Handle general exceptions
+            model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
+            return  "createAccountAccountError";
         }
     }
 
