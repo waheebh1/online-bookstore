@@ -126,7 +126,7 @@ public class UserController {
         } catch (Exception e) {
             // Handle general exceptions
                 model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
-                return  "accountForm"; // Redirecting back to account form.
+                return  "accountForm"; // Redirecting back to account form
         }
     }
 }
