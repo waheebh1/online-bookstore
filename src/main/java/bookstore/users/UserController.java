@@ -59,14 +59,15 @@ public class UserController {
 
         List<BookUser> existingUsers = userRepository.findByUsername(bookUser.getUsername());
 
-        if (!existingUsers.isEmpty()) {
-            model.addAttribute("error", "Username or password cannot be empty.");
+        if (!existingUsers.isEmpty()) { // only allow accounts with unique usernames
+            model.addAttribute("error", "Username already exists. Please use a new username or login with the current username.");
             return "createAccountAccountError";
-        } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) {
+        } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) { // username/password should not be empty
             model.addAttribute("error", "Username or password cannot be empty.");
             return "createAccountAccountError";
         } else {
             if (bookUser.getUserType().equals("O")) {
+                // setup as owner if specified
                 BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
                 bookUser = bookOwner;
             } else {
@@ -97,29 +98,18 @@ public class UserController {
      * Login to account
      *
      * @param model model to use
-     * @return form page
+     * @return form/result page
      * @author Sabah Samwatin
      */
     @PostMapping("/account")
-    public String handleUserLoginOrCreation(@ModelAttribute BookUser formUser, Model model) {
+    public String handleUserLogin(@ModelAttribute BookUser formUser, Model model) {
         // Check if user exists
         List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
 
         if (existingUsers.isEmpty()) {
-            // No existing user, create a new one
-            if (formUser.getUsername().isEmpty() || formUser.getPassword().isEmpty()) {
-                model.addAttribute("error", "Username or password cannot be empty.");
-                return "accountForm"; // Redirect back to account form with error message
-            }
-            userRepository.save(formUser);
-            model.addAttribute("user", formUser);
-            return "accountCreated"; // Redirect to an account created confirmation page
+            model.addAttribute("loginError", "Username " + formUser.getUsername() +  " does not exist. Please register for a new account or use a different username");
+            return "accountForm"; // Redirect to an account created confirmation page
         } else {
-            // Check if the user is trying to create a new account with an existing username
-            if (formUser.getId() == null || formUser.getId() == 0) {
-                model.addAttribute("error", "Username already exists. Please choose a different one.");
-                return "accountForm"; // Redirect back to account form with error message
-            }
             // User exists and is attempting to log in, check password
             BookUser existingUser = existingUsers.get(0); // Assuming unique usernames
             if (existingUser.getPassword().equals(formUser.getPassword())) {
@@ -128,7 +118,7 @@ public class UserController {
                 return "userProfile"; // Redirect to user profile page
             } else {
                 // Passwords do not match, return login error
-                model.addAttribute("loginError", "Invalid password");
+                model.addAttribute("loginError", "Invalid username/password");
                 return "accountForm"; // Stay on the login/create account page
             }
         }
