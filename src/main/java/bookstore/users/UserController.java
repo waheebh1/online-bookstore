@@ -37,12 +37,12 @@ public class UserController {
      * @return form page
      * @author Thanuja Sivaananthan
      */
-    @GetMapping("/createAccount")
+    @GetMapping("/register")
     public String createAccountForm(Model model) {
         BookUser bookUser = new BookUser();
 
         model.addAttribute("user", bookUser);
-        return "createAccountForm";
+        return "register";
     }
 
 
@@ -68,7 +68,7 @@ public class UserController {
      * @return result page
      * @author Thanuja Sivaananthan
      */
-    @PostMapping("/createAccount")
+    @PostMapping("/register")
     public String createAccountSubmit(@ModelAttribute BookUser bookUser,
                                       Model model) {
 
@@ -76,11 +76,13 @@ public class UserController {
             List<BookUser> existingUsers = userRepository.findByUsername(bookUser.getUsername());
 
             if (!existingUsers.isEmpty()) { // only allow accounts with unique usernames
+                model.addAttribute("errorType", "registration");
                 model.addAttribute("error", "Username already exists. Please use a new username or login with the current username.");
-                return "createAccountAccountError";
+                return "accountError";
             } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) { // username/password should not be empty
+                model.addAttribute("errorType", "registration");
                 model.addAttribute("error", "Username or password cannot be empty.");
-                return "createAccountAccountError";
+                return "accountError";
             } else {
 
                 bookUser = saveUser(bookUser);
@@ -90,8 +92,9 @@ public class UserController {
             }
         } catch (Exception e) {
             // Handle general exceptions
+            model.addAttribute("errorType", "registration");
             model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
-            return  "createAccountAccountError";
+            return "accountError";
         }
     }
 
@@ -102,10 +105,10 @@ public class UserController {
      * @return form page
      * @author Sabah Samwatin
      */
-    @GetMapping("/account")
+    @GetMapping("/login")
     public String accountForm(Model model) {
         model.addAttribute("user", new BookUser());
-        return "accountForm"; // one form for both account creation and login
+        return "login"; // one form for both account creation and login
     }
 
     /**
@@ -115,32 +118,46 @@ public class UserController {
      * @return form/result page
      * @author Sabah Samwatin
      */
-    @PostMapping("/account")
+    @PostMapping("/login")
     public String handleUserLogin(@ModelAttribute BookUser formUser, Model model) {
         try {
             // Check if user exists
             List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
 
             if (existingUsers.isEmpty()) {
-                model.addAttribute("loginError", "Username " + formUser.getUsername() + " does not exist. Please register for a new account or use a different username");
-                return "accountForm"; // Redirect to an account created confirmation page
+                model.addAttribute("errorType", "login");
+                model.addAttribute("error", "Username " + formUser.getUsername() + " does not exist. Please register for a new account or use a different username");
+                return "accountError"; // Redirect to an account created confirmation page
             } else {
                 // User exists and is attempting to log in, check password
                 BookUser existingUser = existingUsers.get(0); // Assuming unique usernames
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    return "userProfile"; // Redirect to user profile page
+                    return "home"; // Redirect to user profile page // TODO - redirect:/home
                 } else {
                     // Passwords do not match, return login error
-                    model.addAttribute("loginError", "Invalid username/password");
-                    return "accountForm"; // Stay on the login/create account page
+                    model.addAttribute("errorType", "login");
+                    model.addAttribute("error", "Invalid username/password");
+                    return "accountError"; // Stay on the login/create account page
                 }
             }
         } catch (Exception e) {
             // Handle general exceptions
+            model.addAttribute("errorType", "login");
                 model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
-                return  "accountForm"; // Redirecting back to account form
+                return  "accountError"; // Redirecting back to account form
         }
+    }
+
+    /**
+     * Default page is the register-login page
+     * @param model     model
+     * @return register-login page
+     * @author Thanuja Sivaananthan
+     */
+    @GetMapping("/")
+    public String registerLogin(Model model) {
+        return "register-login";
     }
 }
