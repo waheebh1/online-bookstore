@@ -8,12 +8,13 @@ package bookstore.inventory;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Inventory {
 
     @OneToMany(fetch = FetchType.EAGER)
-    private ArrayList<InventoryItem> availableBooks;
+    private List<InventoryItem> availableBooks;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -105,7 +106,7 @@ public class Inventory {
      * Method to retrieve the inventory items
      * @return  an arraylist of all inventory items.
      */
-    public ArrayList<InventoryItem> getAvailableBooks() {
+    public List<InventoryItem> getAvailableBooks() {
         return availableBooks;
     }
 
