@@ -13,7 +13,7 @@
         <div>
             <h1>Login</h1>
         </div>
-        <form action="/login" th:action="@{/login}" th:object="${user}" method="post">
+        <form th:action="@{/login}" th:object="${user}" method="post">
             <div class="input-div">
                 <label for="username">Username:</label><br>
                 <input type="text" id="username" name="username" th:field="*{username}" required>
