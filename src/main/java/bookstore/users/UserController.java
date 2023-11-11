@@ -52,11 +52,9 @@ public class UserController {
      * @return              the modified/saved user
      */
     private BookUser saveUser(BookUser bookUser){
-//        if (UserType.valueOf(bookUser.getUserType()) == UserType.BOOKOWNER) {
         if (bookUser.getUserType() == UserType.BOOKOWNER) {
             // setup as owner if specified
-            BookOwner bookOwner = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
-            bookUser = bookOwner;
+            bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
         }
         userRepository.save(bookUser);
         return bookUser;
