@@ -12,6 +12,7 @@ public class CheckoutController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final InventoryRepository inventoryRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private ShoppingCart shoppingCart;
 
     /**
      * Constructor for checkout controller
@@ -24,6 +25,7 @@ public class CheckoutController {
         this.shoppingCartRepository = cartRepo;
         this.inventoryRepository = inventoryRepo;
         this.inventoryItemRepository = inventoryItemRepo;
+        this.shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
     }
 
     /**
@@ -38,4 +40,35 @@ public class CheckoutController {
         return "home";
     }
 
+    @GetMapping("/addToCart")
+    public String addToCartForm(Model model){
+        model.addAttribute("inventory", inventoryItemRepository.findAll());
+        return "home";
+    }
+    @PostMapping("/addToCart")
+    public String addToCart(@ModelAttribute InventoryItem inventoryItem, Model model){
+//        ShoppingCart shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
+//        Book book = bookRepository.findByIsbn("0446310786");
+//        System.out.println(shoppingCart.addToCart(book, 1));
+//        System.out.println(inventoryItemRepository.);
+
+        //TODO - if user does not already have a shopping cart
+        //ShoppingCart shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
+
+        //shoppingCartRepository.save(shoppingCart);
+
+        //TODO - change template to allow user to select a book
+        InventoryItem invItem = inventoryItemRepository.findById(1);
+        shoppingCart.addToCart(invItem.getBook(), 1);
+        System.out.println(invItem.getQuantity());
+        System.out.println(shoppingCart.getBooksInCart());
+
+        inventoryItemRepository.save(invItem);
+        //TODO - saving the shopping cart does not work (Inventory Item is not saved?)
+        //shoppingCartRepository.save(shoppingCart);
+        //inventoryRepository.save(inventoryRepository.findById(1));
+
+        model.addAttribute("inventory",inventoryItemRepository.findAll());
+        return "home";
+    }
 }

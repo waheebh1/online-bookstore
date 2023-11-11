@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class ShoppingCart {
@@ -19,7 +20,7 @@ public class ShoppingCart {
     private Long id;
 
     @OneToMany(fetch = FetchType.EAGER)
-    private ArrayList<InventoryItem> booksInCart = new ArrayList<>();
+    private List<InventoryItem> booksInCart = new ArrayList<>();
     @ManyToOne (fetch = FetchType.EAGER)
     private Inventory inventory;
     private float totalPrice;
@@ -77,7 +78,9 @@ public class ShoppingCart {
                 //does not exist, add new item if it exists in inventory
                 for (InventoryItem inventoryItems : inventory.getAvailableBooks()){
                     if (inventoryItems.getBook().equals(book)){
-                        booksInCart.add(new InventoryItem(book, quantity));
+                        InventoryItem newItem = new InventoryItem(book, quantity);
+                        inventoryItems.setQuantity(inventoryItems.getQuantity() - quantity);
+                        booksInCart.add(newItem);
                         bookAdded = true;
                     }
                 }
@@ -149,7 +152,7 @@ public class ShoppingCart {
      * Method to get the books in cart
      * @return  books in cart
      */
-    public ArrayList<InventoryItem> getBooksInCart() {
+    public List<InventoryItem> getBooksInCart() {
         return booksInCart;
     }
 

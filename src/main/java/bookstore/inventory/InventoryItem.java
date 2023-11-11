@@ -79,6 +79,8 @@ public class InventoryItem {
      * @param quantity  the quantity
      */
     public void setQuantity(int quantity) {
-        this.quantity = quantity;
+        if(quantity >= 0) {
+            this.quantity = quantity;
+        }
     }
 }
