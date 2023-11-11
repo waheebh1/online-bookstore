@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>Register</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/src/main/resources/static/register-login.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Online Book Store</h1>
+    </div>
+    <div class="container-user">
+        <div>
+            <h1>Register</h1>
+        </div>
+        <form action="/register" method="post">
+            <div class="input-div">
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-div">
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-div">
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <input type="submit" value="Register" class="button" />
+        </form>
+    </div>
+</body>
+</html>

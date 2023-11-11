@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<htmL lang="en">
+<head>
+    <title>Login</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/src/main/resources/static/register-login.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Online Book Store</h1>
+    </div>
+    <div class="container-user">
+        <div>
+            <h1>Login</h1>
+        </div>
+        <form action="/login" method="post">
+            <div class="input-div">
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-div">
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <input type="submit" value="Login" class="button" />
+        </form>
+    </div>
+</body>
+</html>
