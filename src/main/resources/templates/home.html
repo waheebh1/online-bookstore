@@ -11,6 +11,7 @@
     <div class="header">
         <h1>Online Book Store</h1>
     </div>
+    <p th:text="'Logged in as: ' + ${user.getUsername()}" />
     <div class="container">
         <form action="/addToCart" method="post">
             <input type="submit" value="Add to cart" class="button" />

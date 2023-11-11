@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Created User</title>
+    <title>User Creation Error</title>
 </head>
 <body>
 <div class="header">
     <h1>Online Book Store</h1>
 </div>
-<p th:text="'Created new user: ' + ${user.getUsername()}" />
+<p th:text="'ERROR with account ' + ${errorType} + ': ' + ${error}"></p>
 <div class="container-register-login">
     <a href="http://localhost:8080/register">
         <input type="submit" value="Register" class="button" />
