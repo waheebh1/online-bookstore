@@ -129,4 +129,17 @@ public class ShoppingCartTest {
         assertEquals(1, shoppingCart.getBooksInCart().size());
         assertEquals(22.00, shoppingCart.getTotalPrice(), 0.2);
     }
+
+    @Test
+    public void testCheckout(){
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+        shoppingCart.addToCart(book1, 10);
+        shoppingCart.addToCart(book2, 10);
+
+        assertEquals(2, shoppingCart.getBooksInCart().size());
+
+        shoppingCart.checkout();
+
+        assertTrue(shoppingCart.getBooksInCart().isEmpty());
+    }
 }

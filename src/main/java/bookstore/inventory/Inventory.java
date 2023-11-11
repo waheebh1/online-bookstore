@@ -31,6 +31,7 @@ public class Inventory {
      * Default constructor
      */
     public Inventory() {
+        this.availableBooks = new ArrayList<>();
     }
 
     /**

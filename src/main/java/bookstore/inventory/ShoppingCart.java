@@ -21,7 +21,7 @@ public class ShoppingCart {
     @OneToMany(fetch = FetchType.EAGER)
     private ArrayList<InventoryItem> booksInCart = new ArrayList<>();
     @ManyToOne (fetch = FetchType.EAGER)
-    private Inventory inventory = new Inventory();
+    private Inventory inventory;
     private float totalPrice;
 
     /**
@@ -30,13 +30,15 @@ public class ShoppingCart {
      */
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
-        this.totalPrice = 0; //redundant?
+        this.totalPrice = 0;
     }
 
     /**
      * Default Constructor
      */
     public ShoppingCart() {
+        this.inventory = new Inventory();
+        this.totalPrice = 0;
     }
 
     /**
@@ -157,5 +159,21 @@ public class ShoppingCart {
     //im confusion?
     public void checkout(){
         booksInCart.clear();
+    }
+
+    /**
+     * Method to get the inventory of shopping cart
+     * @return  the inventory
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    /**
+     * Method to set the inventory of shopping cart
+     * @param inventory the inventory
+     */
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 }
