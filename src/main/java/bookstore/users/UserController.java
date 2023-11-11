@@ -37,12 +37,12 @@ public class UserController {
      * @return form page
      * @author Thanuja Sivaananthan
      */
-    @GetMapping("/createAccount")
+    @GetMapping("/register")
     public String createAccountForm(Model model) {
         BookUser bookUser = new BookUser();
 
         model.addAttribute("user", bookUser);
-        return "createAccountForm";
+        return "register";
     }
 
 
@@ -68,7 +68,7 @@ public class UserController {
      * @return result page
      * @author Thanuja Sivaananthan
      */
-    @PostMapping("/createAccount")
+    @PostMapping("/register")
     public String createAccountSubmit(@ModelAttribute BookUser bookUser,
                                       Model model) {
 
@@ -102,10 +102,10 @@ public class UserController {
      * @return form page
      * @author Sabah Samwatin
      */
-    @GetMapping("/account")
+    @GetMapping("/login")
     public String accountForm(Model model) {
         model.addAttribute("user", new BookUser());
-        return "accountForm"; // one form for both account creation and login
+        return "login"; // one form for both account creation and login
     }
 
     /**
@@ -115,7 +115,7 @@ public class UserController {
      * @return form/result page
      * @author Sabah Samwatin
      */
-    @PostMapping("/account")
+    @PostMapping("/login")
     public String handleUserLogin(@ModelAttribute BookUser formUser, Model model) {
         try {
             // Check if user exists
@@ -130,7 +130,7 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    return "userProfile"; // Redirect to user profile page
+                    return "home"; // Redirect to user profile page
                 } else {
                     // Passwords do not match, return login error
                     model.addAttribute("loginError", "Invalid username/password");
