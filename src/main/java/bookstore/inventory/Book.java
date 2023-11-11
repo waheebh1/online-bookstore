@@ -8,15 +8,16 @@ package bookstore.inventory;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Book {
     @Id
     private String isbn = null;
     private String title = null;
-    private String picture = null;
+    private String cover = null;
     @ManyToMany(fetch = FetchType.EAGER)
-    private ArrayList<Author> author = new ArrayList<>();
+    private List<Author> author = new ArrayList<>();
     private String publisher = null;
     private String genre = null;
     private Double price = null;
@@ -45,16 +46,16 @@ public class Book {
      * Constructor with all parameters
      * @param isbn unique ID
      * @param title book title
-     * @param picture cover picture
+     * @param cover cover picture
      * @param author book author
      * @param publisher publishing company
      * @param genre genre
      * @param price cost of book
      * @param description short summary
      */
-    public Book(String isbn, String title, String picture, ArrayList<Author> author, String publisher, String genre, Double price, String description){
+    public Book(String isbn, String title, String cover, ArrayList<Author> author, String publisher, String genre, Double price, String description){
         this(isbn, title, author, price); //call basic constructor
-        this.picture = picture;
+        this.cover = cover;
         this.publisher = publisher;
         this.genre = genre;
         this.description = description;
@@ -96,23 +97,23 @@ public class Book {
      * Get picture of book cover
      * @return picture
      */
-    public String getPicture() {
-        return picture;
+    public String getCover() {
+        return cover;
     }
 
     /**
      * Set picture
      * @param picture book cover image
      */
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setCover(String picture) {
+        this.cover = picture;
     }
 
     /**
      * Get author
      * @return author
      */
-    public ArrayList<Author> getAuthor() {
+    public List<Author> getAuthor() {
         return author;
     }
 

@@ -21,7 +21,7 @@ public class BookTest {
 
         assertEquals("0446310786", book1.getIsbn());
         assertEquals("To Kill a Mockingbird", book1.getTitle());
-        assertEquals("https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", book1.getPicture());
+        assertEquals("https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", book1.getCover());
         assertEquals(1, book1.getAuthor().size());
         for (Author author : book1.getAuthor()){
             assertEquals("Harper", author.getFirstName());
