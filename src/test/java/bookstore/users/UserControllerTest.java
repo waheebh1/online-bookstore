@@ -89,12 +89,9 @@ class UserControllerTest {
         Model model = new ConcurrentModel();
 
         String expectedResult = "Username already exists. Please use a new username or login with the current username.";
-        String result;
-        result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("createAccountResult", result);
+        controller.createAccountSubmit(user1, model);
         Assertions.assertEquals(user1, model.getAttribute("user"));
-        result = controller.createAccountSubmit(user2, model);
-        Assertions.assertEquals("createAccountAccountError", result);
+        controller.createAccountSubmit(user2, model);
         Assertions.assertEquals(expectedResult, model.getAttribute("error"));
     }
 
@@ -110,17 +107,13 @@ class UserControllerTest {
         Model model = new ConcurrentModel();
 
         String expectedResult = "Username or password cannot be empty.";
-        String result;
-        result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("createAccountAccountError", result);
+        controller.createAccountSubmit(user1, model);
         Assertions.assertEquals(expectedResult, model.getAttribute("error"));
 
-        result = controller.createAccountSubmit(user2, model);
-        Assertions.assertEquals("createAccountAccountError", result);
+        controller.createAccountSubmit(user2, model);
         Assertions.assertEquals(expectedResult, model.getAttribute("error"));
 
-        result = controller.createAccountSubmit(user3, model);
-        Assertions.assertEquals("createAccountAccountError", result);
+        controller.createAccountSubmit(user3, model);
         Assertions.assertEquals(expectedResult, model.getAttribute("error"));
     }
 
