@@ -28,6 +28,7 @@ public class BookOwner extends BookUser {
      */
     public BookOwner(Long id, String username, String password) {
         super(id, username, password);
+        this.userType = UserType.BOOKOWNER;
     }
 
     /**
@@ -38,7 +39,7 @@ public class BookOwner extends BookUser {
      * @param password      password of owner
      */
     public BookOwner(String username, String password) {
-        super(username, password);
+        this(null, username, password);
     }
 
     /**
@@ -46,11 +47,15 @@ public class BookOwner extends BookUser {
      * @author Thanuja Sivaananthan
      */
     public BookOwner() {
-        super(0L, "", "");
+        this(0L, "", "");
     }
 
     // add other methods here
-    public void uploadBookInfo(){}
-    public void editBookInfo(){}
+    public void uploadBookInfo(){
+        throw new UnsupportedOperationException("uploadBookInfo not yet supported");
+    }
+    public void editBookInfo(){
+        throw new UnsupportedOperationException("editBookInfo not yet supported");
+    }
 
 }
