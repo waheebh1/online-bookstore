@@ -11,10 +11,10 @@
 </div>
 <p th:text="'Created new user: ' + ${user.getUsername()}" />
 <div class="container-register-login">
-    <a href="http://localhost:8080/register">
+    <a th:href="@{register}">
         <input type="submit" value="Register" class="button" />
     </a>
-    <a href="http://localhost:8080/login">
+    <a th:href="@{login}">
         <input type="submit" value="Login" class="button" />
     </a>
 </div>
