@@ -134,7 +134,7 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    return "home"; // Redirect to user profile page
+                    return "home"; // Redirect to user profile page // TODO - redirect:/home
                 } else {
                     // Passwords do not match, return login error
                     model.addAttribute("errorType", "login");
@@ -148,5 +148,16 @@ public class UserController {
                 model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
                 return  "accountError"; // Redirecting back to account form
         }
+    }
+
+    /**
+     * Default page is the register-login page
+     * @param model     model
+     * @return register-login page
+     * @author Thanuja Sivaananthan
+     */
+    @GetMapping("/")
+    public String registerLogin(Model model) {
+        return "register-login";
     }
 }
