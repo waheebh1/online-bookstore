@@ -82,6 +82,14 @@ public class Author {
     }
 
     /**
+     * Get author's full name
+     * @return LastName, Firstname
+     */
+    public String getFullName(){
+        return this.lastName + ", " + this.firstName;
+    }
+
+    /**
      * Get list of author's works
      * @return bibliography
      */
