@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Created User</title>
+    <link rel="stylesheet" th:href="@{../css/register-login.css}" />
+</head>
+<body>
+<div class="header">
+    <h1>Online Book Store</h1>
+</div>
+<p th:text="'Created new user: ' + ${user.getUsername()}" />
+<div class="container-register-login">
+    <a th:href="@{register}">
+        <input type="submit" value="Register" class="button" />
+    </a>
+    <a th:href="@{login}">
+        <input type="submit" value="Login" class="button" />
+    </a>
+</div>
+</body>
+</html>
