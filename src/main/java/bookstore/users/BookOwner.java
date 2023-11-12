@@ -1,8 +1,6 @@
 package bookstore.users;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -13,10 +11,6 @@ import org.springframework.stereotype.Controller;
 @Entity
 @Controller
 public class BookOwner extends BookUser {
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     /**
      * Create bookstore owner
