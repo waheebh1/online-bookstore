@@ -88,10 +88,10 @@ class UserControllerTest {
 
     /**
      * Test that duplicate usernames are rejected
-     * @author Thanuja Sivaananthan
+     * @author Thanuja Sivaananthan, Sabah Samwatin
      */
     @Test
-    void rejectCreateDuplicateUsername() {
+    /*void rejectCreateDuplicateUsername() {
         BookUser user1 = new BookUser("Duplicate1", "password123");
         BookUser user2 = new BookUser("Duplicate1", "password123");
         Model model = new ConcurrentModel();
@@ -101,6 +101,27 @@ class UserControllerTest {
         Assertions.assertEquals(user1, model.getAttribute("user"));
         controller.createAccountSubmit(user2, model);
         Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+    }*/
+
+    void rejectCreateDuplicateUsername() {
+        // User with duplicate username
+        BookUser duplicateUser = new BookUser("Duplicate1", "password123");
+
+        // Mock userRepository to simulate finding an existing user
+        Mockito.when(userRepository.findByUsername("Duplicate1")).thenReturn(Collections.singletonList(duplicateUser));
+
+        Model model = new ConcurrentModel();
+
+        // First attempt to create user
+        controller.createAccountSubmit(duplicateUser, model);
+
+        // Second attempt with the same username
+        Model model2 = new ConcurrentModel();
+        controller.createAccountSubmit(duplicateUser, model2);
+
+        // The expected error message
+        String expectedResult = "Username already exists. Please use a new username or login with the current username.";
+        Assertions.assertEquals(expectedResult, model2.getAttribute("error"));
     }
 
     /**
