@@ -8,6 +8,7 @@ package bookstore.inventory;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Book {
@@ -16,7 +17,7 @@ public class Book {
     private String title = null;
     private String picture = null;
     @ManyToMany(fetch = FetchType.EAGER)
-    private ArrayList<Author> author = new ArrayList<>();
+    private List<Author> author = new ArrayList<>();
     private String publisher = null;
     private String genre = null;
     private Double price = null;
@@ -112,7 +113,7 @@ public class Book {
      * Get author
      * @return author
      */
-    public ArrayList<Author> getAuthor() {
+    public List<Author> getAuthor() {
         return author;
     }
 
