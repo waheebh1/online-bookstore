@@ -48,15 +48,7 @@ public class CheckoutController {
         return "book-info";
     }
 
-    /**
-     * View checkout page
-     * @param model container
-     * @return route to html page to display checkout page
-     */
-    @GetMapping("/checkout")
-    public String viewCheckoutPage(Model model) {
-        return "checkout";
-    }
+
 
 
 
