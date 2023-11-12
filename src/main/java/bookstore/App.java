@@ -41,7 +41,7 @@ public class App
             Author author2 = new Author("Khaled", "Hosseini");
             author_list2.add(author2);
             String description2 = "The Kite Runner tells the story of Amir, a young boy from the Wazir Akbar Khan district of Kabul";
-            book2 = new Book("1573222453", "The Kite Runner", "29/05/2003", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", author_list2,"Riverhead Books", "Historical fiction", 22.00, description2);
+            book2 = new Book("1573222453", "The Kite Runner", "29/05/2003", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", author_list2, "Riverhead Books", "Historical fiction", 22.00, description2);
             authorRepo.save(author2);
             bookRepo.save(book2);
             item2 = new InventoryItem(book2, 10);
@@ -53,6 +53,8 @@ public class App
             inventory.addItemToInventory(item2);
 
             inventoryRepository.save(inventory);
+        };
+    }
     /**
      * Setup sample users
      * @author Thanuja Sivaananthan
