@@ -15,13 +15,14 @@ public class Book {
     @Id
     private String isbn = null;
     private String title = null;
-    private String picture = null;
+    private String cover = null;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Author> author = new ArrayList<>();
     private String publisher = null;
     private String genre = null;
     private Double price = null;
     private String description = null;
+    private String date = null;
 
     /**
      * Default constructor
@@ -34,28 +35,30 @@ public class Book {
      * @param title book title
      * @param author book author
      * @param price cost of book
+     * @param date date that book was published
      */
-    public Book(String isbn, String title, ArrayList<Author> author, Double price){
+    public Book(String isbn, String title, ArrayList<Author> author, Double price, String date){
         this.isbn = isbn;
         this.title = title;
         this.author = author;
         this.price = price;
+        this.date = date;
     }
 
     /**
      * Constructor with all parameters
      * @param isbn unique ID
      * @param title book title
-     * @param picture cover picture
+     * @param cover cover picture
      * @param author book author
      * @param publisher publishing company
      * @param genre genre
      * @param price cost of book
      * @param description short summary
      */
-    public Book(String isbn, String title, String picture, ArrayList<Author> author, String publisher, String genre, Double price, String description){
-        this(isbn, title, author, price); //call basic constructor
-        this.picture = picture;
+    public Book(String isbn, String title, String date, String cover, ArrayList<Author> author, String publisher, String genre, Double price, String description){
+        this(isbn, title, author, price, date); //call basic constructor
+        this.cover = cover;
         this.publisher = publisher;
         this.genre = genre;
         this.description = description;
@@ -97,16 +100,16 @@ public class Book {
      * Get picture of book cover
      * @return picture
      */
-    public String getPicture() {
-        return picture;
+    public String getCover() {
+        return cover;
     }
 
     /**
      * Set picture
      * @param picture book cover image
      */
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setCover(String picture) {
+        this.cover = picture;
     }
 
     /**
@@ -139,6 +142,22 @@ public class Book {
      */
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    /**
+     * Get date that book was released
+     * @return release date
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * Set date that book was released
+     * @param date release date
+     */
+    public void setDate(String date) {
+        this.date = date;
     }
 
     /**

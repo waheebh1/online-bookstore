@@ -8,29 +8,30 @@
     <link rel="stylesheet" th:href="@{/css/general.css}" />
 </head>
 <body>
-    <div class="header">
-        <h1>Online Book Store</h1>
+<div class="header">
+    <h1>Online Book Store</h1>
+</div>
+<div class="book-info">
+    <img src="book-cover.jpg" alt="Book Cover">
+    <div>
+        <h1 th:text="${book.getTitle()}"> </h1>
+
     </div>
-    <div class="book-info">
-        <img src="book-cover.jpg" alt="Book Cover">
+    <div class="book-title"></div>
+    <div class="book-author" th:text="${book.getAuthor()}"></div>
+    <div>
+        <p>Year: </p>
+    </div>
+    <div class="book-year" th:text="${book.getDate()}"></div>
+    <div>
+        <p>Genre: </p>
+    </div>
+    <div class="book-genre" th:text="${book.getGenre()}"></div>
+    <div class="book-description">
         <div>
-            <h1>Title: </h1>
-        </div>
-        <div class="book-title"></div>
-        <div class="book-author"></div>
-        <div>
-            <p>Year: </p>
-        </div>
-        <div class="book-year"></div>
-        <div>
-            <p>Genre: </p>
-        </div>
-        <div class="book-genre"></div>
-        <div class="book-description">
-            <div>
-                <h2>Description</h2>
-            </div>
+            <h2 th:text="${book.getDescription()}"></h2>
         </div>
     </div>
+</div>
 </body>
 </html>

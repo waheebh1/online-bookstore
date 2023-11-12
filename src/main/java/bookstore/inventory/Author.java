@@ -16,7 +16,7 @@ public class Author {
     private Long id;
     private String firstName = null;
     private String lastName = null;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Book> bibliography = new ArrayList<>();
 
     /**
