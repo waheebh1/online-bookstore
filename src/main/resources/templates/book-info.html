@@ -12,7 +12,7 @@
     <h1>Online Book Store</h1>
 </div>
 <div class="book-info">
-    <img src="book-cover.jpg" alt="Book Cover">
+    <img th:src="${book.getCover()}" alt="Book Cover">
     <div>
         <h1 th:text="${book.getTitle()}"> </h1>
 

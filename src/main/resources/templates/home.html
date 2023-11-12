@@ -44,8 +44,12 @@
     <tr>
     <tr th:each="inventoryItem : ${inventory}">
         <td><input type="checkbox"></td>
-        <td th:image="${inventoryItem.getBook().getCover()}" alt="Book Cover"></td>
-        <td th:text="${inventoryItem.getBook().getTitle()}"></td>
+        <td>
+            <img th:src="${inventoryItem.getBook().getCover()}" alt="Book Cover">
+        </td>
+        <td>
+            <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
+        </td>
         <td th:text="${inventoryItem.getBook().getAuthor()[0].fullName}"></td>
     </tr>
     </tbody>
