@@ -1,4 +1,4 @@
-# online-bookstore
+# Amazin Bookstore
  
 online-bookstore-4806.azurewebsites.net
 
