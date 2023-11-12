@@ -39,7 +39,7 @@ public class CheckoutController {
     /**
      * View details for a single book
      * @param model container
-     * @return route ot html page to display contents of a book when clicked
+     * @return route to html page to display contents of a book when clicked
      */
     @GetMapping("/viewBook")
     public String viewBook(@RequestParam(name="isbn") String isbn, Model model) { //TODO pass in isbn when calling this endpoint
@@ -47,4 +47,9 @@ public class CheckoutController {
         model.addAttribute("book", bookToDisplay);
         return "book-info";
     }
+
+
+
+
+
 }
