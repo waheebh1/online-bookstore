@@ -84,11 +84,9 @@ public class UserController {
                 model.addAttribute("error", "Username or password cannot be empty.");
                 return "accountError";
             } else {
-
                 bookUser = saveUser(bookUser);
                 model.addAttribute("user", bookUser);
-
-                return "createAccountResult";
+                return "redirect:/login";
             }
         } catch (Exception e) {
             // Handle general exceptions
@@ -134,7 +132,7 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    return "home"; // Redirect to user profile page // TODO - redirect:/home
+                    return "redirect:/listAvailableBooks"; // Redirect to user profile page // TODO - redirect:/home
                 } else {
                     // Passwords do not match, return login error
                     model.addAttribute("errorType", "login");

@@ -47,4 +47,17 @@ public class CheckoutController {
         model.addAttribute("book", bookToDisplay);
         return "book-info";
     }
+
+    /**
+     * View checkout page
+     * @param model container
+     * @return route ot html page to display checkout page
+     */
+    @GetMapping("/checkout")
+    public String viewCheckoutPage(Model model) {
+        return "checkout";
+    }
+
+
+
 }
