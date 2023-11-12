@@ -22,6 +22,7 @@ public class Book {
     private String genre = null;
     private Double price = null;
     private String description = null;
+    private String date = null;
 
     /**
      * Default constructor
@@ -34,12 +35,14 @@ public class Book {
      * @param title book title
      * @param author book author
      * @param price cost of book
+     * @param date date that book was published
      */
-    public Book(String isbn, String title, ArrayList<Author> author, Double price){
+    public Book(String isbn, String title, ArrayList<Author> author, Double price, String date){
         this.isbn = isbn;
         this.title = title;
         this.author = author;
         this.price = price;
+        this.date = date;
     }
 
     /**
@@ -53,8 +56,8 @@ public class Book {
      * @param price cost of book
      * @param description short summary
      */
-    public Book(String isbn, String title, String cover, ArrayList<Author> author, String publisher, String genre, Double price, String description){
-        this(isbn, title, author, price); //call basic constructor
+    public Book(String isbn, String title, String date, String cover, ArrayList<Author> author, String publisher, String genre, Double price, String description){
+        this(isbn, title, author, price, date); //call basic constructor
         this.cover = cover;
         this.publisher = publisher;
         this.genre = genre;
@@ -139,6 +142,22 @@ public class Book {
      */
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    /**
+     * Get date that book was released
+     * @return release date
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * Set date that book was released
+     * @param date release date
+     */
+    public void setDate(String date) {
+        this.date = date;
     }
 
     /**

@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Home Page</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="index.js"></script>
+    <link rel="stylesheet" th:href="@{/css/general.css}" />
+</head>
+<body>
+<div class="header">
+    <h1>Online Book Store</h1>
+</div>
+<!--<p th:text="'Logged in as: ' + ${user.getUsername()}" />-->
+<div class="container">
+    <form action="/addToCart" method="post">
+        <input type="submit" value="Add to cart" class="button" />
+    </form>
+    <form action="/removeFromCart" method="post">
+        <input type="submit" value="Remove from cart" class="button" />
+    </form>
+    <a href="checkout.html">
+        <input type="submit" value="Checkout" class="button" />
+    </a>
+</div>
+
+<div class="books-quantity">
+    <h2>Total in Cart:</h2>
+    <h2 class="books-quantity"></h2>
+</div>
+<div class="books-list">
+    <h2>List of Books</h2>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Select</th>
+        <th>Cover</th>
+        <th>Title</th>
+        <th>Author</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <tr th:each="inventoryItem : ${inventory}">
+        <td><input type="checkbox"></td>
+        <td th:image="${inventoryItem.getBook().getCover()}" alt="Book Cover"></td>
+        <td th:text="${inventoryItem.getBook().getTitle()}"></td>
+        <td th:text="${inventoryItem.getBook().getAuthor()[0].fullName}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
