@@ -56,7 +56,7 @@ public class Book {
      * @param price cost of book
      * @param description short summary
      */
-    public Book(String isbn, String title, String date, String cover, ArrayList<Author> author, String publisher, String genre, Double price, String description){
+    public Book(String isbn, String title, ArrayList<Author> author, Double price, String date, String cover, String publisher, String genre, String description){
         this(isbn, title, author, price, date); //call basic constructor
         this.cover = cover;
         this.publisher = publisher;

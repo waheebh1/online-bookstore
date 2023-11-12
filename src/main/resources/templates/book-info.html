@@ -12,24 +12,26 @@
     <h1>Online Book Store</h1>
 </div>
 <div class="book-info">
-    <img src="book-cover.jpg" alt="Book Cover">
-    <div>
-        <h1 th:text="${book.getTitle()}"> </h1>
+    <div class="book-title">
+        <h2 th:text="${book.getTitle()}"> </h2>
+    </div>
+    <div class="book-author">
+        <p th:text="${book.getAuthor()[0].getFullName()}"> </p>
+    </div>
+    <img th:src="${book.getCover()}" alt="Book Cover">
+    <div class="book-year">
+        <p th:text="'Date of publication: ' + ${book.getDate()}"> </p>
+    </div>
+    <div class="book-publisher">
+        <p th:text="'Publisher: ' + ${book.getPublisher()}"> </p>
+    </div>
+    <div class="book-genre">
+        <p th:text="'Genre: ' + ${book.getGenre()}"></p>
+    </div>
 
-    </div>
-    <div class="book-title"></div>
-    <div class="book-author" th:text="${book.getAuthor()}"></div>
-    <div>
-        <p>Year: </p>
-    </div>
-    <div class="book-year" th:text="${book.getDate()}"></div>
-    <div>
-        <p>Genre: </p>
-    </div>
-    <div class="book-genre" th:text="${book.getGenre()}"></div>
     <div class="book-description">
         <div>
-            <h2 th:text="${book.getDescription()}"></h2>
+            <p th:text="${book.getDescription()}"></p>
         </div>
     </div>
 </div>
