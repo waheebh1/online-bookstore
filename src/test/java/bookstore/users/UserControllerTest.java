@@ -43,7 +43,7 @@ class UserControllerTest {
         BookUser user1 = new BookUser("AddUser", "password123");
         Model model = new ConcurrentModel();
         String result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("createAccountResult", result);
+        Assertions.assertEquals("redirect:/login", result);
         Assertions.assertEquals(user1, model.getAttribute("user"));
     }
 
@@ -56,7 +56,7 @@ class UserControllerTest {
         BookUser user1 = new BookOwner("AddOwnerDirectly", "password123");
         Model model = new ConcurrentModel();
         String result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("createAccountResult", result);
+        Assertions.assertEquals("redirect:/login", result);
 
         BookUser modelUser = (BookUser) model.getAttribute("user");
         Assertions.assertNotNull(modelUser);
@@ -76,7 +76,7 @@ class UserControllerTest {
         Model model = new ConcurrentModel();
         user1.setUserType(UserType.BOOKOWNER);
         String result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("createAccountResult", result);
+        Assertions.assertEquals("redirect:/login", result);
 
         BookUser modelUser = (BookUser) model.getAttribute("user");
         Assertions.assertNotNull(modelUser);
@@ -157,7 +157,7 @@ class UserControllerTest {
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(existingUser, model);
-        Assertions.assertEquals("home", result);
+        Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(existingUser, model.getAttribute("user"));
     }
     /**
@@ -275,12 +275,12 @@ class UserControllerTest {
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(user1, model);
-        Assertions.assertEquals("home", result);
+        Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(user1, model.getAttribute("user"));
 
         model = new ConcurrentModel();
         result = controller.handleUserLogin(user2, model);
-        Assertions.assertEquals("home", result);
+        Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(user2, model.getAttribute("user"));
     }
 
