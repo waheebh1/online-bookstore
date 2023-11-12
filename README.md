@@ -3,4 +3,4 @@
 online-bookstore-4806.azurewebsites.net
 
 Database Schema:
-![online-bookstore](https://github.com/waheebh1/online-bookstore/assets/49663595/b0628875-e6a7-427c-811c-a521dddf7efa)
+![online-bookstore1](https://github.com/waheebh1/online-bookstore/assets/49663595/875f839f-f2bf-4455-99f9-bc977d10bd37)
