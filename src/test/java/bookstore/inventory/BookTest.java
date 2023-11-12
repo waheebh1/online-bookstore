@@ -17,7 +17,7 @@ public class BookTest {
         Author author1 = new Author("Harper", "Lee");
         author_list.add(author1);
         String description = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
-        Book book1 = new Book("0446310786", "To Kill a Mockingbird", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", author_list, "Grand Central Publishing", "Classical", 12.99, description);
+        Book book1 = new Book("0446310786", "To Kill a Mockingbird", author_list, 12.99, "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description);
 
         assertEquals("0446310786", book1.getIsbn());
         assertEquals("To Kill a Mockingbird", book1.getTitle());

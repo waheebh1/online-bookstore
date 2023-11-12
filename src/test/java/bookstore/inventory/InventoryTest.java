@@ -28,14 +28,14 @@ public class InventoryTest {
         author_list.add(author1);
 
         String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
-        this.book1 = new Book("0446310786", "To Kill a Mockingbird", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", author_list, "Grand Central Publishing", "Classical", 12.99, description1);
+        this.book1 = new Book("0446310786", "To Kill a Mockingbird", author_list, 12.99, "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
         this.item1 = new InventoryItem(book1, 5);
 
         ArrayList<Author> author_list2 = new ArrayList<>();
         Author author2 = new Author("Khaled", "Hosseini");
         author_list2.add(author2);
         String description2 = "The Kite Runner tells the story of Amir, a young boy from the Wazir Akbar Khan district of Kabul";
-        this.book2 = new Book("1573222453", "The Kite Runner", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", author_list2,"Riverhead Books", "Historical fiction", 22.00, description2);
+        this.book2 = new Book("1573222453", "The Kite Runner", author_list2, 22.00, "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg","Riverhead Books", "Historical fiction", description2);
         this.item2 = new InventoryItem(book2, 10);
     }
 

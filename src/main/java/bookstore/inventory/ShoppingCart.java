@@ -22,7 +22,7 @@ public class ShoppingCart {
     private ArrayList<InventoryItem> booksInCart = new ArrayList<>();
     @ManyToOne (fetch = FetchType.EAGER)
     private Inventory inventory;
-    private float totalPrice;
+    private Double totalPrice;
 
     /**
      * Constructor for ShoppingCart
@@ -30,7 +30,7 @@ public class ShoppingCart {
      */
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
-        this.totalPrice = 0;
+        this.totalPrice = 0.0;
     }
 
     /**
@@ -38,7 +38,7 @@ public class ShoppingCart {
      */
     public ShoppingCart() {
         this.inventory = new Inventory();
-        this.totalPrice = 0;
+        this.totalPrice = 0.0;
     }
 
     /**
@@ -130,7 +130,7 @@ public class ShoppingCart {
      * Method to update total price
      */
     private void updateTotalPrice(){
-        totalPrice = 0;
+        totalPrice = 0.0;
         //update price
         for (InventoryItem item : booksInCart){
             totalPrice += (float) (item.getBook().getPrice() * item.getQuantity());
@@ -141,7 +141,7 @@ public class ShoppingCart {
      * Method to get the total price of cart
      * @return  the total price
      */
-    public float getTotalPrice() {
+    public Double getTotalPrice() {
         return totalPrice;
     }
 
