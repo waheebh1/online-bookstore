@@ -1,6 +1,8 @@
 # Amazin Bookstore
+
+[![Java CI with Maven](https://github.com/waheebh1/online-bookstore/actions/workflows/maven.yml/badge.svg)](https://github.com/waheebh1/online-bookstore/actions/workflows/maven.yml)
  
-online-bookstore-4806.azurewebsites.net
+[online-bookstore-4806.azurewebsites.net](online-bookstore-4806.azurewebsites.net)
 
 ## Project Description
 
