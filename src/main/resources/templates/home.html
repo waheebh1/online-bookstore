@@ -12,6 +12,12 @@
     <h1>Online Book Store</h1>
 </div>
 <!--<p th:text="'Logged in as: ' + ${user.getUsername()}" />-->
+<div class="search-container">
+    <form action="/listAvailableBooks">
+        <input type="text" placeholder="Search" name="searchValue">
+        <button type="submit">Submit</button>
+    </form>
+</div>
 <div class="container">
     <form action="/addToCart" method="post">
         <input type="submit" value="Add to cart" class="button" />
