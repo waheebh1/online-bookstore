@@ -118,14 +118,19 @@ public class Inventory {
      * @author Thanuja Sivaananthan
      */
     public List<InventoryItem> getBooksMatchingSearch(String searchValue) {
-        // TODO - order based on best match to least match (ie check description last)
+
+        if (searchValue.isEmpty()){
+            return availableBooks;
+        }
+
         List<InventoryItem> searchedBooks = new ArrayList<>();
         searchValue = searchValue.toLowerCase();
+
+        // most related search items
         for (InventoryItem inventoryItem : availableBooks){
             Book book = inventoryItem.getBook();
-            // check title, genre, description
-            if (book.getTitle().toLowerCase().contains(searchValue) || book.getGenre().toLowerCase().contains(searchValue)
-                || book.getDescription().toLowerCase().contains(searchValue)){
+            // check title, genre
+            if (book.getTitle().toLowerCase().contains(searchValue) || book.getGenre().toLowerCase().contains(searchValue)){
                 searchedBooks.add(inventoryItem);
             } else {
                 // check authors
@@ -137,6 +142,18 @@ public class Inventory {
 
             }
         }
+
+        // less related search items
+        for (InventoryItem inventoryItem : availableBooks){
+            if (!searchedBooks.contains(inventoryItem)) {
+                Book book = inventoryItem.getBook();
+                // check description
+                if (book.getDescription().toLowerCase().contains(searchValue)) {
+                    searchedBooks.add(inventoryItem);
+                }
+            }
+        }
+
         return searchedBooks;
     }
 
