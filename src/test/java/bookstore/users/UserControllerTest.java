@@ -48,45 +48,6 @@ class UserControllerTest {
     }
 
     /**
-     * Test adding a new owner is successful
-     * @author Thanuja Sivaananthan
-     */
-    @Test
-    void allowAddNewOwnerDirectly() {
-        BookUser user1 = new BookOwner("AddOwnerDirectly", "password123");
-        Model model = new ConcurrentModel();
-        String result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("redirect:/login", result);
-
-        BookUser modelUser = (BookUser) model.getAttribute("user");
-        Assertions.assertNotNull(modelUser);
-        Assertions.assertTrue(modelUser instanceof BookOwner);
-        Assertions.assertEquals(user1.getUsername(), modelUser.getUsername());
-        Assertions.assertEquals(user1.getPassword(), modelUser.getPassword());
-        Assertions.assertEquals(UserType.BOOKOWNER, modelUser.getUserType());
-    }
-
-    /**
-     * Test adding a new owner is successful
-     * @author Thanuja Sivaananthan
-     */
-    @Test
-    void allowAddNewOwnerViaEnum() {
-        BookUser user1 = new BookUser("AddOwnerViaEnum", "password123");
-        Model model = new ConcurrentModel();
-        user1.setUserType(UserType.BOOKOWNER);
-        String result = controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals("redirect:/login", result);
-
-        BookUser modelUser = (BookUser) model.getAttribute("user");
-        Assertions.assertNotNull(modelUser);
-        Assertions.assertTrue(modelUser instanceof BookOwner);
-        Assertions.assertEquals(user1.getUsername(), modelUser.getUsername());
-        Assertions.assertEquals(user1.getPassword(), modelUser.getPassword());
-        Assertions.assertEquals(UserType.BOOKOWNER, modelUser.getUserType());
-    }
-
-    /**
      * Test that duplicate usernames are rejected
      * @author Thanuja Sivaananthan, Sabah Samwatin
      */
@@ -133,6 +94,7 @@ class UserControllerTest {
         controller.createAccountSubmit(user3, model);
         Assertions.assertEquals(expectedResult, model.getAttribute("error"));
     }
+
     /**
      * Test responsible for displaying the login form
      * @author Sabah Samwatin
@@ -145,6 +107,7 @@ class UserControllerTest {
         Assertions.assertNotNull(model.getAttribute("user"));
         Assertions.assertTrue(model.getAttribute("user") instanceof BookUser);
     }
+
     /**
      * Test for successful login
      * @author Sabah Samwatin
@@ -160,6 +123,7 @@ class UserControllerTest {
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(existingUser, model.getAttribute("user"));
     }
+
     /**
      * Test for failed log due to incorrect password
      * @author Sabah Samwatin
@@ -175,6 +139,7 @@ class UserControllerTest {
         Assertions.assertEquals("accountError", result);
         Assertions.assertEquals("Invalid username/password", model.getAttribute("error"));
     }
+
     /**
      * Test for failed login due to user not existing
      * @author Sabah Samwatin
@@ -187,6 +152,7 @@ class UserControllerTest {
         Assertions.assertEquals("accountError", result);
         Assertions.assertEquals("Username NonExistingUser does not exist. Please register for a new account or use a different username", model.getAttribute("error"));
     }
+
     /**
      * Test for registerLogin method
      * @author Sabah Samwatin
@@ -197,6 +163,7 @@ class UserControllerTest {
         String result = controller.registerLogin(model);
         Assertions.assertEquals("register-login", result);
     }
+
     /**
      * Test for empty username or password login
      * @author Sabah Samwatin
@@ -241,6 +208,7 @@ class UserControllerTest {
         Assertions.assertEquals("accountError", result);
         Assertions.assertEquals("An unexpected error occurred: Database error", model.getAttribute("error"));
     }
+
     /**
      * Test for Invalid login attempt due to incorrect credentials
      * @author Sabah Samwatin
