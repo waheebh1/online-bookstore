@@ -42,7 +42,7 @@
     </thead>
     <tbody>
     <tr>
-    <tr th:each="inventoryItem : ${inventory}">
+    <tr th:each="inventoryItem : ${inventoryItems}">
         <td><input type="checkbox"></td>
         <td>
             <img th:src="${inventoryItem.getBook().getCover()}" alt="Book Cover">

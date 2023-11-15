@@ -28,11 +28,23 @@ public class CheckoutController {
      * List all books in inventory
      * @param model container
      * @return reroute to html page to display all books
+     * @author Maisha Abduallah
+     * @author Thanuja Sivaananthan
      */
     @GetMapping("/listAvailableBooks")
-    public String listAvailableBooks(Model model) {
-        Iterable<InventoryItem> inventory = inventoryItemRepository.findAll();
-        model.addAttribute("inventory", inventory);
+    public String listAvailableBooks(@RequestParam(name="searchValue", required=false, defaultValue="") String searchValue, Model model) {
+
+        Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
+
+        Iterable<InventoryItem> inventoryItems;
+        if (searchValue.isEmpty()){
+            inventoryItems = inventory.getAvailableBooks();
+        } else {
+            System.out.println("SEARCH FOR " + searchValue);
+            inventoryItems = inventory.getBooksMatchingSearch(searchValue);
+        }
+
+        model.addAttribute("inventoryItems", inventoryItems);
         return "home";
     }
 

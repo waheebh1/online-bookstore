@@ -110,6 +110,37 @@ public class Inventory {
         return availableBooks;
     }
 
+
+    /**
+     * Search for specific inventory items
+     * @param searchValue   value to search with
+     * @return              list of matching inventory items
+     * @author Thanuja Sivaananthan
+     */
+    public List<InventoryItem> getBooksMatchingSearch(String searchValue) {
+        // TODO - order based on best match to least match (ie check description last)
+        List<InventoryItem> searchedBooks = new ArrayList<>();
+        searchValue = searchValue.toLowerCase();
+        for (InventoryItem inventoryItem : availableBooks){
+            Book book = inventoryItem.getBook();
+            // check title, genre, description
+            if (book.getTitle().toLowerCase().contains(searchValue) || book.getGenre().toLowerCase().contains(searchValue)
+                || book.getDescription().toLowerCase().contains(searchValue)){
+                searchedBooks.add(inventoryItem);
+            } else {
+                // check authors
+                for (Author author : book.getAuthor()){
+                    if (author.getFullName().toLowerCase().contains(searchValue)){
+                        searchedBooks.add(inventoryItem);
+                    }
+                }
+
+            }
+        }
+        return searchedBooks;
+    }
+
+
     /**
      * Method to set the ID of the inventory
      * @param id    the ID
