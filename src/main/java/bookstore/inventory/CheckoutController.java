@@ -54,7 +54,7 @@ public class CheckoutController {
         } else {
             inventoryItems = inventory.getBooksMatchingSearch(searchValue);
             if (inventoryItems.isEmpty()){
-                model.addAttribute("error", "no items match \"" + searchValue + "\".");
+                model.addAttribute("error", "No items match \"" + searchValue + "\".");
             }
         }
 

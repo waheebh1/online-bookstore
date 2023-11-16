@@ -129,8 +129,10 @@ public class Inventory {
         // most related search items
         for (InventoryItem inventoryItem : availableBooks){
             Book book = inventoryItem.getBook();
-            // check title, genre
-            if (book.getTitle().toLowerCase().contains(searchValue) || book.getGenre().toLowerCase().contains(searchValue)){
+            // check title, genre, publisher
+            if (book.getTitle().toLowerCase().contains(searchValue)
+                    || book.getGenre().toLowerCase().contains(searchValue)
+                    || book.getPublisher().toLowerCase().contains(searchValue)){
                 searchedBooks.add(inventoryItem);
             } else {
                 // check authors
