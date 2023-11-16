@@ -24,6 +24,8 @@ public class App
             Book book2;
             InventoryItem item1;
             InventoryItem item2;
+            Inventory inventory = new Inventory();
+            inventoryRepository.save(inventory);
 
             ArrayList<Author> author_list = new ArrayList<>();
             Author author1 = new Author("Harper", "Lee");
@@ -34,7 +36,7 @@ public class App
             author1.addBook(book1); //add to bibliography
             authorRepo.save(author1);
             bookRepo.save(book1);
-            item1 = new InventoryItem(book1, 5);
+            item1 = new InventoryItem(book1, 5, inventory);
             itemRepository.save(item1);
 
             ArrayList<Author> author_list2 = new ArrayList<>();
@@ -44,11 +46,11 @@ public class App
             book2 = new Book("1573222453", "The Kite Runner", author_list2, 22.00, "29/05/2003", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", "Riverhead Books", "Historical fiction", description2);
             authorRepo.save(author2);
             bookRepo.save(book2);
-            item2 = new InventoryItem(book2, 10);
+            item2 = new InventoryItem(book2, 10, inventory);
             itemRepository.save(item2);
 
 
-            Inventory inventory = new Inventory();
+
             inventory.addItemToInventory(item1);
             inventory.addItemToInventory(item2);
 

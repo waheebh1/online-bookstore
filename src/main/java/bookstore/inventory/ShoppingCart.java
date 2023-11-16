@@ -5,6 +5,7 @@
 
 package bookstore.inventory;
 
+import bookstore.users.BookUser;
 import jakarta.persistence.*;
 
 
@@ -14,14 +15,16 @@ import java.util.List;
 @Entity
 public class ShoppingCart {
 
-    //add user
+    @OneToOne
+    private BookUser user;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    private List<InventoryItem> booksInCart = new ArrayList<>();
-    @ManyToOne (fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
+    private List<CartItem> booksInCart = new ArrayList<>();
+    @OneToOne
     private Inventory inventory;
     private Double totalPrice;
 
@@ -32,6 +35,12 @@ public class ShoppingCart {
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
         this.totalPrice = 0.0;
+    }
+
+    public ShoppingCart(Inventory inventory, BookUser user){
+        this.inventory = inventory;
+        this.totalPrice = 0.0;
+        this.user = user;
     }
 
     /**
@@ -48,48 +57,45 @@ public class ShoppingCart {
      * @param quantity  the quantity of books
      * @return          returns if book was added to cart
      */
-    public boolean addToCart(Book book, int quantity){
+    public CartItem addToCart(Book book, int quantity){
         //this.totalPrice = 0;
 
         boolean bookExists = false;
         boolean bookAdded = false;
+        CartItem itemAdded = null;
 
-        if (quantity > 0){ //quantity must be positive
+        if (quantity <= 0) {
+            // Handle invalid quantity
+            return null;
+        }
 
-            for (InventoryItem itemInCart : booksInCart) {
-                //item exists in cart, increase the quantity
-                if (itemInCart.getBook().equals(book)) {
-                    itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
-                    bookAdded = true;
-                    bookExists = true;
-                    break;
-                }
-
-                //reduce from inventory
-                for (InventoryItem itemInInventory : inventory.getAvailableBooks()){
-                    if (itemInInventory.equals(itemInCart)){
-                        itemInInventory.setQuantity(itemInInventory.getQuantity() - itemInCart.getQuantity());
-                        break;
-                    }
-                }
+        for (CartItem itemInCart : booksInCart) {
+            //item exists in cart, increase the quantity
+            if (itemInCart.getBook().getIsbn().equals(book.getIsbn())) {
+                itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
+                bookAdded = true;
+                bookExists = true;
+                itemAdded = itemInCart;
+                break;
             }
+        }
 
-            if (!bookExists){
-                //does not exist, add new item if it exists in inventory
-                for (InventoryItem inventoryItems : inventory.getAvailableBooks()){
-                    if (inventoryItems.getBook().equals(book)){
-                        InventoryItem newItem = new InventoryItem(book, quantity);
-                        inventoryItems.setQuantity(inventoryItems.getQuantity() - quantity);
-                        booksInCart.add(newItem);
-                        bookAdded = true;
-                    }
-                }
+        if (itemAdded == null) {
+            // Book does not exist in the cart, check if it's in the inventory
+            InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
+            if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
+                // Book is available in the inventory
+                CartItem newItem = new CartItem(book, quantity, this);
+                booksInCart.add(newItem);
+                itemAdded = newItem;
+
+                // Reduce quantity from the inventory
+                inventory.reduceFromInventory(book, quantity);
             }
         }
 
         updateTotalPrice();
-
-        return bookAdded;
+        return itemAdded;
     }
 
 
@@ -105,7 +111,7 @@ public class ShoppingCart {
 
         if (quantity > 0) { //quantity must be positive
 
-            for (InventoryItem itemInCart : booksInCart) {
+            for (CartItem itemInCart : booksInCart) {
                 if (itemInCart.getBook().equals(book) && quantity <= itemInCart.getQuantity()) {
                     itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
                     if (itemInCart.getQuantity() == 0){
@@ -116,7 +122,7 @@ public class ShoppingCart {
                 }
 
                 //put back into inventory
-                for (InventoryItem itemInInventory : inventory.getAvailableBooks()) {
+                for (Item itemInInventory : inventory.getAvailableBooks()) {
                     if (itemInInventory.equals(itemInCart)) {
                         itemInInventory.setQuantity(itemInInventory.getQuantity() + itemInCart.getQuantity());
                         break;
@@ -135,7 +141,7 @@ public class ShoppingCart {
     private void updateTotalPrice(){
         totalPrice = 0.0;
         //update price
-        for (InventoryItem item : booksInCart){
+        for (CartItem item : booksInCart){
             totalPrice += (float) (item.getBook().getPrice() * item.getQuantity());
         }
     }
@@ -152,7 +158,7 @@ public class ShoppingCart {
      * Method to get the books in cart
      * @return  books in cart
      */
-    public List<InventoryItem> getBooksInCart() {
+    public List<CartItem> getBooksInCart() {
         return booksInCart;
     }
 
@@ -178,5 +184,13 @@ public class ShoppingCart {
      */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
+    }
+
+    public BookUser getUser() {
+        return user;
+    }
+
+    public void setUser(BookUser user) {
+        this.user = user;
     }
 }
