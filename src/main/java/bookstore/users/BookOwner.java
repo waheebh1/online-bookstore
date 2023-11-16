@@ -1,5 +1,6 @@
 package bookstore.users;
 
+import bookstore.inventory.ShoppingCart;
 import jakarta.persistence.Entity;
 import org.springframework.stereotype.Controller;
 
@@ -22,6 +23,11 @@ public class BookOwner extends BookUser {
      */
     public BookOwner(Long id, String username, String password) {
         super(id, username, password);
+        this.userType = UserType.BOOKOWNER;
+    }
+
+    public BookOwner(Long id, String username, String password, ShoppingCart shoppingCart) {
+        super(id, username, password, shoppingCart);
         this.userType = UserType.BOOKOWNER;
     }
 

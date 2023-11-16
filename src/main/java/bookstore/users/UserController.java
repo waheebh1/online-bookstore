@@ -1,5 +1,7 @@
 package bookstore.users;
 
+import bookstore.inventory.ShoppingCart;
+import bookstore.inventory.ShoppingCartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,8 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserRepository loggedInUserRepository;
 
+    private final ShoppingCartRepository shoppingCartRepository;
+
 
     /**
      * Create new user controller
@@ -27,8 +31,9 @@ public class UserController {
      * @param userRepository user repository
      * @author Thanuja Sivaananthan
      */
-    public UserController(UserRepository userRepository, UserRepository loggedInUserRepository) {
+    public UserController(UserRepository userRepository, UserRepository loggedInUserRepository, ShoppingCartRepository shoppingCartRepository) {
         this.userRepository = userRepository;
+        this.shoppingCartRepository = shoppingCartRepository;
         this.loggedInUserRepository = loggedInUserRepository;
     }
 
@@ -42,6 +47,9 @@ public class UserController {
     @GetMapping("/register")
     public String createAccountForm(Model model) {
         BookUser bookUser = new BookUser();
+        ShoppingCart shoppingCart= new ShoppingCart();
+        bookUser.setShoppingCart(shoppingCart);
+        shoppingCart.setUser(bookUser);
 
         model.addAttribute("user", bookUser);
         return "register";
@@ -56,8 +64,10 @@ public class UserController {
     private BookUser saveUser(BookUser bookUser){
         if (bookUser.getUserType() == UserType.BOOKOWNER) {
             // setup as owner if specified
-            bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword());
+            bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword(), bookUser.getShoppingCart());
         }
+
+        shoppingCartRepository.save(bookUser.getShoppingCart());
         userRepository.save(bookUser);
         return bookUser;
     }

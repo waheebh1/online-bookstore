@@ -1,8 +1,10 @@
 package bookstore.users;
 
+import bookstore.inventory.ShoppingCart;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -23,6 +25,9 @@ public class BookUser {
 
     public UserType userType;
 
+    @OneToOne
+    private ShoppingCart shoppingCart;
+
     /**
      * Create bookstore user
      * @author Thanuja Sivaananthan
@@ -36,6 +41,14 @@ public class BookUser {
         this.username = username;
         this.password = password;
         this.userType = UserType.BOOKUSER;
+    }
+
+    public BookUser(Long id, String username, String password, ShoppingCart shoppingCart){
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.userType = UserType.BOOKUSER;
+        this.shoppingCart = shoppingCart;
     }
 
     /**
@@ -136,6 +149,14 @@ public class BookUser {
      */
     public void setUserType(String userTypeString) {
         this.userType = UserType.valueOf(userTypeString);
+    }
+
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
+    }
+
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
     }
 
     // add other methods here

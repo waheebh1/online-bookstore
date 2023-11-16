@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 public class Inventory {
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "inventory", cascade = CascadeType.MERGE)
     private List<InventoryItem> availableBooks;
 
     @Id
@@ -100,6 +100,44 @@ public class Inventory {
         }
 
         return bookRemovedSuccessfully;
+    }
+
+    public boolean reduceFromInventory(Book book, int quantity){
+        boolean bookExists = false;
+        boolean bookRemovedSuccessfully = false;
+
+        if (quantity > 0) { //quantity must be positive
+            for (InventoryItem existingItem : availableBooks) {
+
+                //book exists in the inventory
+                if (existingItem.getBook().getIsbn().equals(book.getIsbn()) && quantity <= existingItem.getQuantity()) {
+                    existingItem.setQuantity(existingItem.getQuantity() - quantity);
+                    if (existingItem.getQuantity() == 0){
+                        availableBooks.remove(existingItem);
+                    }
+                    bookRemovedSuccessfully = true;
+                    bookExists = true;
+                    break; // Exit the loop since the book has been found and updated
+                }
+            }
+
+            //book does not exist
+            if (!bookExists) {
+                return false;
+            }
+        }
+
+        return bookRemovedSuccessfully;
+    }
+
+
+    public InventoryItem findAvailableBook(String isbn){
+        for (InventoryItem existingItem : availableBooks) {
+            if (existingItem.getBook().getIsbn().equals(isbn)){
+                return existingItem;
+            }
+        }
+        return null;
     }
 
     /**
