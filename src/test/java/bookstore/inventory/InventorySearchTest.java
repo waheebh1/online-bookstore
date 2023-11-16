@@ -35,7 +35,7 @@ public class InventorySearchTest {
 
 
     /**
-     * Test book search
+     * Test empty book search
      * @author Thanuja Sivaananthan
      */
     @Test
@@ -52,6 +52,22 @@ public class InventorySearchTest {
 
         searchedBooks = inventory.getBooksMatchingSearch("");
         assertEquals(inventory.getAvailableBooks(), searchedBooks);
+    }
+
+    /**
+     * Test book search with no results
+     * @author Thanuja Sivaananthan
+     */
+    @Test
+    public void testSearchBookNoResults(){
+        ArrayList<InventoryItem> availableBooks = new ArrayList<>();
+        Inventory inventory = new Inventory(availableBooks);
+
+        availableBooks.add(item1);
+        availableBooks.add(item2);
+
+        List<InventoryItem> searchedBooks = inventory.getBooksMatchingSearch("invalid");
+        assertEquals(0, searchedBooks.size());
     }
 
     /**

@@ -18,6 +18,7 @@ public class UserController {
 
     @Autowired
     private final UserRepository userRepository;
+    private final UserRepository loggedInUserRepository;
 
 
     /**
@@ -26,8 +27,9 @@ public class UserController {
      * @param userRepository user repository
      * @author Thanuja Sivaananthan
      */
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, UserRepository loggedInUserRepository) {
         this.userRepository = userRepository;
+        this.loggedInUserRepository = loggedInUserRepository;
     }
 
     /**
@@ -132,7 +134,9 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    return "redirect:/listAvailableBooks"; // Redirect to user profile page // TODO - redirect:/home
+                    loggedInUserRepository.deleteAll(); // TODO - remove the current user in the log out
+                    loggedInUserRepository.save(existingUser);
+                    return "redirect:/listAvailableBooks"; // Redirect to user profile page
                 } else {
                     // Passwords do not match, return login error
                     model.addAttribute("errorType", "login");
