@@ -25,7 +25,6 @@ public class CheckoutController {
      * @param bookRepo repository of books
      */
     public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, CartItemRepository cartItemRepository,  UserRepository loggedInUserRepository) {
-        {
             this.authorRepository = authorRepo;
             this.bookRepository = bookRepo;
             this.inventoryRepository = inventoryRepo;
@@ -84,7 +83,7 @@ public class CheckoutController {
 
         @GetMapping("/addToCart")
         public String addToCartForm (Model model){
-            model.addAttribute("inventory", itemRepository.findAll());
+            model.addAttribute("inventory", inventoryItemRepository.findAll());
             return "home";
         }
         @PostMapping("/addToCart")
@@ -109,7 +108,7 @@ public class CheckoutController {
             }
 
             //TODO - change template to allow user to select a book
-            InventoryItem invItem = itemRepository.findById(1);
+            InventoryItem invItem = inventoryItemRepository.findById(1);
             CartItem cartItem = shoppingCart.addToCart(invItem.getBook(), 1);
 
             shoppingCartRepository.save(shoppingCart);
@@ -118,16 +117,13 @@ public class CheckoutController {
             System.out.println(invItem.getQuantity());
             System.out.println(shoppingCart.getBooksInCart());
 
-            itemRepository.save(invItem);
+            inventoryItemRepository.save(invItem);
 
             //TODO - saving the shopping cart does not work (Inventory Item is not saved?)
             inventoryRepository.save(inventoryRepository.findById(1));
 
-            model.addAttribute("inventory", itemRepository.findAll());
+            model.addAttribute("inventory", inventoryItemRepository.findAll());
             return "home";
         }
     }
 
-
-
-}
