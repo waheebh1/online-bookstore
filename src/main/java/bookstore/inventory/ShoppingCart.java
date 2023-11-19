@@ -57,22 +57,26 @@ public class ShoppingCart {
      * @param quantity  the quantity of books
      * @return          returns if book was added to cart
      */
-    public CartItem addToCart(Book book, int quantity){
+    public boolean addToCart(Book book, int quantity){
         //this.totalPrice = 0;
 
         boolean bookExists = false;
         boolean bookAdded = false;
         CartItem itemAdded = null;
+        InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
         if (quantity <= 0) {
             // Handle invalid quantity
-            return null;
+            return false;
         }
 
         for (CartItem itemInCart : booksInCart) {
             //item exists in cart, increase the quantity
-            if (itemInCart.getBook().getIsbn().equals(book.getIsbn())) {
+            if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
                 itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
+
+                // Reduce quantity from the inventory
+                inventory.reduceFromInventory(book, quantity);
                 bookAdded = true;
                 bookExists = true;
                 itemAdded = itemInCart;
@@ -82,7 +86,6 @@ public class ShoppingCart {
 
         if (itemAdded == null) {
             // Book does not exist in the cart, check if it's in the inventory
-            InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
             if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
                 // Book is available in the inventory
                 CartItem newItem = new CartItem(book, quantity, this);
@@ -91,11 +94,13 @@ public class ShoppingCart {
 
                 // Reduce quantity from the inventory
                 inventory.reduceFromInventory(book, quantity);
+
+                bookAdded = true;
             }
         }
 
         updateTotalPrice();
-        return itemAdded;
+        return bookAdded;
     }
 
 
@@ -192,5 +197,13 @@ public class ShoppingCart {
 
     public void setUser(BookUser user) {
         this.user = user;
+    }
+
+    public int getTotalQuantityOfCart(){
+        int total = 0;
+        for (CartItem itemInCart : booksInCart) {
+            total += itemInCart.getQuantity();
+        }
+        return total;
     }
 }

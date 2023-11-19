@@ -2,6 +2,8 @@ package bookstore.inventory;
 
 import bookstore.users.BookUser;
 import bookstore.users.UserRepository;
+
+import java.util.Arrays;
 import java.util.List;
 import bookstore.users.UserRepository;
 import org.springframework.stereotype.Controller;
@@ -90,40 +92,59 @@ public class CheckoutController {
         public String addToCart (@RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
         model){
 
-        /*
-        if (selectedItems != null) {
-            for (String selectedItem : selectedItems) {
-                System.out.println("Selected Item: " + selectedItem);
-                // Perform logic based on selected items
+            System.out.println("going into add to cart");
+            System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
+
+            if (selectedItems != null) {
+                for (String selectedItem : selectedItems) {
+
+                    //TODO - if user does not already have a shopping cart
+                    //TODO - allow multiple carts (currently 1 total)
+                    ShoppingCart shoppingCart;
+                    shoppingCart = shoppingCartRepository.findById(1);
+                    if (shoppingCart == null) {
+                        shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
+                    }
+
+
+                    InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
+                    System.out.println("INVENTORY ITEM QUANTITY --BEFORE-- ADD TO CART: " + invItem.getQuantity());
+                    shoppingCart.addToCart(invItem.getBook(), 1);
+                    System.out.println("INVENTORY ITEM QUANTITY --AFTER-- ADD TO CART: " + invItem.getQuantity());
+
+                    shoppingCartRepository.save(shoppingCart);
+                    cartItemRepository.saveAll(shoppingCart.getBooksInCart());
+
+                    inventoryItemRepository.save(invItem);
+
+                    System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
+                    if (shoppingCart.getBooksInCart().size()>1){
+                        System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
+                    }
+
+                    System.out.println(" TOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
+
+
+                    inventoryRepository.save(inventoryRepository.findById(1));
+
+                }
+                //return "home";
             }
-        }
-         */
-
-            //TODO - if user does not already have a shopping cart
-            //TODO - allow multiple carts (currently 1 total)
-            ShoppingCart shoppingCart;
-            shoppingCart = shoppingCartRepository.findById(1);
-            if (shoppingCart == null) {
-                shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
-            }
-
-            //TODO - change template to allow user to select a book
-            InventoryItem invItem = inventoryItemRepository.findById(1);
-            CartItem cartItem = shoppingCart.addToCart(invItem.getBook(), 1);
-
-            shoppingCartRepository.save(shoppingCart);
-            cartItemRepository.saveAll(shoppingCart.getBooksInCart());
-
-            System.out.println(invItem.getQuantity());
-            System.out.println(shoppingCart.getBooksInCart());
-
-            inventoryItemRepository.save(invItem);
-
-            //TODO - saving the shopping cart does not work (Inventory Item is not saved?)
-            inventoryRepository.save(inventoryRepository.findById(1));
-
-            model.addAttribute("inventory", inventoryItemRepository.findAll());
+            model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
             return "home";
         }
+
+    @GetMapping("/getTotalInCart")
+    @ResponseBody
+    public int getTotalInCart() {
+        // Logic to get the total in the cart from the server-side
+        // This can be retrieved from the database, session, or any other source
+        System.out.println("going into get total in cart");
+
+        ShoppingCart shoppingCart = shoppingCartRepository.findById(1);
+        return shoppingCart.getTotalQuantityOfCart();
+    }
+
+
     }
 
