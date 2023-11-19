@@ -51,6 +51,7 @@ public class UserController {
         bookUser.setShoppingCart(shoppingCart);
         shoppingCart.setUser(bookUser);
 
+        model.addAttribute("shoppingCart", shoppingCart);
         model.addAttribute("user", bookUser);
         return "register";
     }
@@ -66,8 +67,6 @@ public class UserController {
             // setup as owner if specified
             bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword(), bookUser.getShoppingCart());
         }
-
-        shoppingCartRepository.save(bookUser.getShoppingCart());
         userRepository.save(bookUser);
         return bookUser;
     }

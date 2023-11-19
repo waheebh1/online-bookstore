@@ -86,6 +86,7 @@ public class CheckoutController {
         @GetMapping("/addToCart")
         public String addToCartForm (Model model){
             model.addAttribute("inventory", inventoryItemRepository.findAll());
+            //model.addAttribute("user", loggedInUser);
             return "home";
         }
         @PostMapping("/addToCart")
@@ -94,6 +95,12 @@ public class CheckoutController {
 
             System.out.println("going into add to cart");
             System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
+
+            List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
+            BookUser loggedInUser = null;
+            if (!loggedInUsers.isEmpty()) {
+                loggedInUser = loggedInUsers.get(0);
+            }
 
             if (selectedItems != null) {
                 for (String selectedItem : selectedItems) {
@@ -130,6 +137,7 @@ public class CheckoutController {
                 }
                 //return "home";
             }
+            model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
             return "home";
         }
