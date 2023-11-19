@@ -40,7 +40,7 @@
     <form th:action="@{/addToCart}" method="post">
         <table>
             <input type="submit" value="Add to Cart" class="button" />
-            <tr th:each="inventoryItem : ${inventoryItems}">
+            <tr th:each="inventoryItem : ${inventoryItems}" th:if="${inventoryItem.quantity > 0}">
                 <td><input type="checkbox" th:name="'selectedItems'" th:value="${inventoryItem.getId()}" /></td>
                 <td>
                     <img th:src="${inventoryItem.getBook().getCover()}" alt="Book Cover">
