@@ -130,6 +130,31 @@ public class Inventory {
         return bookRemovedSuccessfully;
     }
 
+    public boolean putBackIntoInventory(Book book, int quantity){
+        boolean bookExists = false;
+        boolean bookAddedSuccessfully = false;
+
+        if (quantity > 0) { //quantity must be positive
+            for (InventoryItem existingItem : availableBooks) {
+
+                //book exists in the inventory
+                if (existingItem.getBook().getIsbn().equals(book.getIsbn())) {
+                    existingItem.setQuantity(existingItem.getQuantity() + quantity);
+                    bookAddedSuccessfully = true;
+                    bookExists = true;
+                    break; // Exit the loop since the book has been found and updated
+                }
+            }
+
+            //book does not exist
+            if (!bookExists) {
+                return false;
+            }
+        }
+
+        return bookAddedSuccessfully;
+    }
+
 
     public InventoryItem findAvailableBook(String isbn){
         for (InventoryItem existingItem : availableBooks) {

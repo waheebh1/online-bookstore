@@ -114,27 +114,31 @@ public class ShoppingCart {
 
         boolean bookRemoved = false;
 
-        if (quantity > 0) { //quantity must be positive
+        boolean bookExists = false;
+        boolean bookAdded = false;
+        CartItem itemAdded = null;
 
-            for (CartItem itemInCart : booksInCart) {
-                if (itemInCart.getBook().equals(book) && quantity <= itemInCart.getQuantity()) {
-                    itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
-                    if (itemInCart.getQuantity() == 0){
-                        booksInCart.remove(itemInCart);
-                    }
-                    bookRemoved = true;
-                    break;
-                }
+        InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
-                //put back into inventory
-                for (Item itemInInventory : inventory.getAvailableBooks()) {
-                    if (itemInInventory.equals(itemInCart)) {
-                        itemInInventory.setQuantity(itemInInventory.getQuantity() + itemInCart.getQuantity());
-                        break;
-                    }
-                }
+        if (quantity <= 0) {
+            // Handle invalid quantity
+            return false;
+        }
+
+        for (CartItem itemInCart : booksInCart) {
+            //item exists in cart, increase the quantity
+            if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
+                itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
+
+                // Reduce quantity from the inventory
+                inventory.putBackIntoInventory(book, quantity);
+                bookAdded = true;
+                bookExists = true;
+                itemAdded = itemInCart;
+                break;
             }
         }
+
         updateTotalPrice();
 
         return bookRemoved;

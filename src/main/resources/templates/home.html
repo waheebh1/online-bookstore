@@ -23,19 +23,19 @@
             updateTotalInCart();
 
             // Handle form submission
-            $('#addToCartForm').submit(function(event) {
+            $('#addToCartForm, #removeFromCartForm').submit(function(event) {
                 // Collect selected items
                 var selectedItems = [];
                 $('input[name="selectedItems"]:checked').each(function() {
                     selectedItems.push($(this).val());
                 });
 
-                // Add selected items to a hidden field
+                // Add selected items to a hidden field within the form
                 $('<input>').attr({
                     type: 'hidden',
                     name: 'selectedItems',
                     value: selectedItems.join(',')
-                }).appendTo('#addToCartForm');
+                }).appendTo($(this)); // Append to the current form
             });
         });
     </script>
@@ -54,7 +54,7 @@
 </div>
 
 <div class="books-quantity">
-    <h2>Total in Cart: <span th:id="totalInCart" class="books-quantity"></span></h2>
+    <h2>Total in Cart: <span th:id="totalInCart"></span></h2>
 </div>
 
 <div class="books-list">
@@ -62,17 +62,18 @@
 </div>
 
 <div class="container">
-    <div class="buttons-container">
-        <form th:action="@{/addToCart}" method="post" id="addToCartForm">
-            <input type="submit" value="Add to Cart" class="button" />
-        </form>
-        <form action="/removeFromCart" method="post">
-            <input type="submit" value="Remove from cart" class="button" />
-        </form>
-        <a href="checkout.html">
-            <input type="submit" value="Checkout" class="button" />
-        </a>
-    </div>
+    <form th:action="@{/addToCart}" method="post" th:id="addToCartForm">
+        <input type="submit" value="Add to Cart" class="button" />
+    </form>
+    <form th:action="@{/removeFromCart}" method="post" th:id="removeFromCartForm">
+        <input type="submit" value="Remove from cart" class="button" />
+    </form>
+    <a href="checkout.html">
+        <input type="submit" value="Checkout" class="button" />
+    </a>
+</div>
+
+<div class="container">
 
     <table>
         <thead>
