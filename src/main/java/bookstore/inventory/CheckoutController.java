@@ -42,7 +42,7 @@ public class CheckoutController {
      *
      * @param model container
      * @return reroute to html page to display all books
-     * @author Maisha Abduallah
+     * @author Maisha Abdullah
      * @author Thanuja Sivaananthan
      */
     @GetMapping("/listAvailableBooks")
@@ -85,6 +85,12 @@ public class CheckoutController {
         return "book-info";
     }
 
+    /**
+     * Method to go to an add to cart form
+     * @param model container
+     * @return route to html page to display home page with list of available books
+     * @author Maisha Abdullah
+     */
     @GetMapping("/addToCart")
     public String addToCartForm(Model model) {
         model.addAttribute("inventory", inventoryItemRepository.findAll());
@@ -92,6 +98,13 @@ public class CheckoutController {
         return "home";
     }
 
+    /**
+     * Method to submit an add to cart form
+     * @param selectedItems the items selected from the checklist in the form
+     * @param model container
+     * @return route to html page to display home page with list of available books
+     * @author Maisha Abdullah
+     */
     @PostMapping("/addToCart")
     public String addToCart(@RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
             model) {
@@ -136,7 +149,6 @@ public class CheckoutController {
                 inventoryRepository.save(inventoryRepository.findById(1));
 
             }
-            //return "home";
         }
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
@@ -144,12 +156,14 @@ public class CheckoutController {
         return "home";
     }
 
-
+    /**
+     * Method to get the total in cart and update it on the html
+     * @return the total in the cart
+     * @author Maisha Abdullah
+     */
     @GetMapping("/getTotalInCart")
     @ResponseBody
     public int getTotalInCart() {
-        // Logic to get the total in the cart from the server-side
-        // This can be retrieved from the database, session, or any other source
         System.out.println("going into get total in cart");
 
         ShoppingCart shoppingCart;
@@ -161,12 +175,25 @@ public class CheckoutController {
         return shoppingCart.getTotalQuantityOfCart();
     }
 
+    /**
+     * Method to go to remove from cart form
+     * @param model container
+     * @return route to html page to display home page with list of available books
+     * @author Maisha Abdullah
+     */
     @GetMapping("/removeFromCart")
     public String removeFromCartForm (Model model){
         model.addAttribute("inventory", inventoryItemRepository.findAll());
-        //model.addAttribute("user", loggedInUser);
         return "home";
     }
+
+    /**
+     * Method to submit a remove from cart form
+     * @param selectedItems the items selected from the checklist in the form
+     * @param model container
+     * @return route to html page to display home page with list of available books
+     * @author Maisha Abdullah
+     */
     @PostMapping("/removeFromCart")
     public String removeFromCart (@RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
             model){
@@ -211,7 +238,6 @@ public class CheckoutController {
                 inventoryRepository.save(inventoryRepository.findById(1));
 
             }
-            //return "home";
         }
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());

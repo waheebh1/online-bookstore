@@ -31,12 +31,18 @@ public class ShoppingCart {
     /**
      * Constructor for ShoppingCart
      * @param inventory     the inventory from which the cart shops from
+     * @author Maisha Abdullah
      */
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
         this.totalPrice = 0.0;
     }
 
+    /**
+     * Constructor for ShoppingCart
+     * @param inventory     the inventory from which the cart shops from
+     * @author Maisha Abdullah
+     */
     public ShoppingCart(Inventory inventory, BookUser user){
         this.inventory = inventory;
         this.totalPrice = 0.0;
@@ -45,6 +51,7 @@ public class ShoppingCart {
 
     /**
      * Default Constructor
+     * @author Maisha Abdullah
      */
     public ShoppingCart() {
         this.inventory = new Inventory();
@@ -56,13 +63,12 @@ public class ShoppingCart {
      * @param book      the Book user wishes to add to cart
      * @param quantity  the quantity of books
      * @return          returns if book was added to cart
+     * @author Maisha Abdullah
      */
     public boolean addToCart(Book book, int quantity){
-        //this.totalPrice = 0;
-
         boolean bookExists = false;
         boolean bookAdded = false;
-        CartItem itemAdded = null;
+
         InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
         if (quantity <= 0) {
@@ -79,18 +85,16 @@ public class ShoppingCart {
                 inventory.reduceFromInventory(book, quantity);
                 bookAdded = true;
                 bookExists = true;
-                itemAdded = itemInCart;
                 break;
             }
         }
 
-        if (itemAdded == null) {
+        if (!bookExists) {
             // Book does not exist in the cart, check if it's in the inventory
             if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
                 // Book is available in the inventory
                 CartItem newItem = new CartItem(book, quantity, this);
                 booksInCart.add(newItem);
-                itemAdded = newItem;
 
                 // Reduce quantity from the inventory
                 inventory.reduceFromInventory(book, quantity);
@@ -109,14 +113,10 @@ public class ShoppingCart {
      * @param book      the Book user wishes to remove from cart
      * @param quantity  the quantity of books
      * @return          returns if book was added to cart
+     * @author Maisha Abdullah
      */
     public boolean removeFromCart(Book book, int quantity){
-
         boolean bookRemoved = false;
-
-        boolean bookExists = false;
-        boolean bookAdded = false;
-        CartItem itemAdded = null;
 
         InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
@@ -132,20 +132,19 @@ public class ShoppingCart {
 
                 // Reduce quantity from the inventory
                 inventory.putBackIntoInventory(book, quantity);
-                bookAdded = true;
-                bookExists = true;
-                itemAdded = itemInCart;
+                bookRemoved = true;
                 break;
             }
         }
 
         updateTotalPrice();
-
         return bookRemoved;
     }
 
     /**
      * Method to update total price
+     * @author Maisha Abdullah
+     * @author Shrimei Chock
      */
     private void updateTotalPrice(){
         totalPrice = 0.0;
@@ -158,6 +157,8 @@ public class ShoppingCart {
     /**
      * Method to get the total price of cart
      * @return  the total price
+     * @author Maisha Abdullah
+     * @author Shrimei Chock
      */
     public Double getTotalPrice() {
         return totalPrice;
@@ -166,6 +167,7 @@ public class ShoppingCart {
     /**
      * Method to get the books in cart
      * @return  books in cart
+     * @author Maisha Abdullah
      */
     public List<CartItem> getBooksInCart() {
         return booksInCart;
@@ -173,6 +175,7 @@ public class ShoppingCart {
 
     /**
      * Method to clear cart once checkout is completed?
+     * @author Maisha Abdullah
      */
     //im confusion?
     public void checkout(){
@@ -182,6 +185,7 @@ public class ShoppingCart {
     /**
      * Method to get the inventory of shopping cart
      * @return  the inventory
+     * @author Maisha Abdullah
      */
     public Inventory getInventory() {
         return inventory;
@@ -190,19 +194,35 @@ public class ShoppingCart {
     /**
      * Method to set the inventory of shopping cart
      * @param inventory the inventory
+     * @author Maisha Abdullah
      */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
     }
 
+    /**
+     * Method to get the user of this shopping cart
+     * @return the user
+     * @author Maisha Abdullah
+     */
     public BookUser getUser() {
         return user;
     }
 
+    /**
+     * Method to set the user of this shopping cart
+     * @param user the user
+     * @author Maisha Abdullah
+     */
     public void setUser(BookUser user) {
         this.user = user;
     }
 
+    /**
+     * Method to get the total quantity of the shopping cart
+     * @return the total quantity
+     * @author Maisha Abdullah
+     */
     public int getTotalQuantityOfCart(){
         int total = 0;
         for (CartItem itemInCart : booksInCart) {

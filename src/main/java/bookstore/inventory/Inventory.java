@@ -23,6 +23,7 @@ public class Inventory {
     /**
      * Constructor for Inventory
      * @param availableBooks    the list of all available books in Inventory
+     * @author Maisha Abdullah
      */
     public Inventory(ArrayList<InventoryItem> availableBooks){
         this.availableBooks = availableBooks;
@@ -30,6 +31,7 @@ public class Inventory {
 
     /**
      * Default constructor
+     * @author Maisha Abdullah
      */
     public Inventory() {
         this.availableBooks = new ArrayList<>();
@@ -37,8 +39,9 @@ public class Inventory {
 
     /**
      * Method to add books into the inventory
-     * @param newItem   Inventory Item to be added
-     * @return          returns whether book was successfully added
+     * @param newItem Inventory Item to be added
+     * @return returns whether book was successfully added
+     * @author Maisha Abdullah
      */
     public boolean addItemToInventory(InventoryItem newItem){
 
@@ -69,8 +72,9 @@ public class Inventory {
 
     /**
      * Method to remove books from the inventory
-     * @param removeItem    item to be removed
-     * @return              returns whether book was successfully removed
+     * @param removeItem item to be removed
+     * @return returns whether book was successfully removed
+     * @author Maisha Abdullah
      */
     public boolean removeItemFromInventory(InventoryItem removeItem) {
 
@@ -102,6 +106,13 @@ public class Inventory {
         return bookRemovedSuccessfully;
     }
 
+    /**
+     * Method to take an item out of the inventory with adjusted quantity
+     * @param book the book
+     * @param quantity the quantity
+     * @return if book was removed successfully
+     * @author Maisha Abdullah
+     */
     public boolean reduceFromInventory(Book book, int quantity){
         boolean bookExists = false;
         boolean bookRemovedSuccessfully = false;
@@ -130,6 +141,13 @@ public class Inventory {
         return bookRemovedSuccessfully;
     }
 
+    /**
+     * Method to put an item back into inventory with adjusted quantity
+     * @param book the book
+     * @param quantity the quantity
+     * @return if book was added successfully
+     * @author Maisha Abdullah
+     */
     public boolean putBackIntoInventory(Book book, int quantity){
         boolean bookExists = false;
         boolean bookAddedSuccessfully = false;
@@ -156,6 +174,12 @@ public class Inventory {
     }
 
 
+    /**
+     * Method to find an available book in Inventory by checking the isbn
+     * @param isbn the isbn
+     * @return the inventory item
+     * @author Maisha Abdullah
+     */
     public InventoryItem findAvailableBook(String isbn){
         for (InventoryItem existingItem : availableBooks) {
             if (existingItem.getBook().getIsbn().equals(isbn)){
@@ -168,6 +192,7 @@ public class Inventory {
     /**
      * Method to retrieve the inventory items
      * @return  an arraylist of all inventory items.
+     * @author Maisha Abdullah
      */
     public List<InventoryItem> getAvailableBooks() {
         return availableBooks;
@@ -225,7 +250,8 @@ public class Inventory {
 
     /**
      * Method to set the ID of the inventory
-     * @param id    the ID
+     * @param id the ID
+     * @author Maisha Abdullah
      */
     public void setId(Long id) {
         this.id = id;
@@ -233,7 +259,8 @@ public class Inventory {
 
     /**
      * Method to get the ID of the inventory
-     * @return  the ID
+     * @return the ID
+     * @author Maisha Abdullah
      */
     public Long getId() {
         return id;
