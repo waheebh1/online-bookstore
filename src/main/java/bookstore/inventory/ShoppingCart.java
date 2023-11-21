@@ -60,15 +60,12 @@ public class ShoppingCart {
 
     /**
      * Method to add to cart
-     * @param book      the Book user wishes to add to cart
-     * @param quantity  the quantity of books
-     * @return          returns if book was added to cart
+     * @param book the Book user wishes to add to cart
+     * @param quantity the quantity of books
+     * @return returns if book was added to cart
      * @author Maisha Abdullah
      */
     public boolean addToCart(Book book, int quantity){
-        boolean bookExists = false;
-        boolean bookAdded = false;
-
         InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
         if (quantity <= 0) {
@@ -83,28 +80,24 @@ public class ShoppingCart {
 
                 // Reduce quantity from the inventory
                 inventory.reduceFromInventory(book, quantity);
-                bookAdded = true;
-                bookExists = true;
-                break;
+                return true;
             }
         }
 
-        if (!bookExists) {
-            // Book does not exist in the cart, check if it's in the inventory
-            if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
-                // Book is available in the inventory
-                CartItem newItem = new CartItem(book, quantity, this);
-                booksInCart.add(newItem);
+        // Book does not exist in the cart, check if it's in the inventory
+        if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
+            // Book is available in the inventory
+            CartItem newItem = new CartItem(book, quantity, this);
+            booksInCart.add(newItem);
 
-                // Reduce quantity from the inventory
-                inventory.reduceFromInventory(book, quantity);
+            // Reduce quantity from the inventory
+            inventory.reduceFromInventory(book, quantity);
 
-                bookAdded = true;
-            }
+            return true;
         }
 
         updateTotalPrice();
-        return bookAdded;
+        return false;
     }
 
 
@@ -116,8 +109,6 @@ public class ShoppingCart {
      * @author Maisha Abdullah
      */
     public boolean removeFromCart(Book book, int quantity){
-        boolean bookRemoved = false;
-
         InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
         if (quantity <= 0) {
@@ -132,13 +123,12 @@ public class ShoppingCart {
 
                 // Reduce quantity from the inventory
                 inventory.putBackIntoInventory(book, quantity);
-                bookRemoved = true;
-                break;
+                return true;
             }
         }
 
         updateTotalPrice();
-        return bookRemoved;
+        return false;
     }
 
     /**
