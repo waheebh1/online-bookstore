@@ -8,15 +8,12 @@ package bookstore.inventory;
 import jakarta.persistence.*;
 
 @Entity
-public class InventoryItem {
+public class InventoryItem extends Item{
 
-    @OneToOne
-    private Book book;
-    private int quantity;
 
-    @Id
-    @GeneratedValue (strategy = GenerationType.AUTO)
-    private Long id;
+    @ManyToOne
+    @JoinColumn (name = "inventory_id")
+    private Inventory inventory;
 
     /**
      * Default constructor
@@ -30,57 +27,19 @@ public class InventoryItem {
      * @param quantity  Quantity of that item
      */
     public InventoryItem (Book book, int quantity){
-        this.book = book;
-        this.quantity = quantity;
+        super(book,quantity);
     }
 
-    /**
-     * Method to set the ID
-     * @param id    the ID
-     */
-    public void setId(Long id) {
-        this.id = id;
+    public InventoryItem (Book book, int quantity, Inventory inventory){
+        super(book,quantity);
+        this.inventory = inventory;
     }
 
-    /**
-     * Method to get the ID
-     * @return  the ID
-     */
-    public Long getId() {
-        return id;
+    public Inventory getInventory() {
+        return inventory;
     }
 
-    /**
-     * Method to get the Book object from the inventory item
-     * @return  the Book object
-     */
-    public Book getBook() {
-        return book;
-    }
-
-    /**
-     * Method to set the Book object of the inventory item
-     * @param book  the Book object
-     */
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-    /**
-     * Method to get the quantity of the inventory item
-     * @return  the quantity
-     */
-    public int getQuantity() {
-        return quantity;
-    }
-
-    /**
-     * Method to set the quantity of the inventory item
-     * @param quantity  the quantity
-     */
-    public void setQuantity(int quantity) {
-        if(quantity >= 0) {
-            this.quantity = quantity;
-        }
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 }

@@ -5,6 +5,7 @@
 
 package bookstore.inventory;
 
+import bookstore.users.BookUser;
 import jakarta.persistence.*;
 
 
@@ -14,20 +15,23 @@ import java.util.List;
 @Entity
 public class ShoppingCart {
 
-    //add user
+    @OneToOne
+    private BookUser user;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    private List<InventoryItem> booksInCart = new ArrayList<>();
-    @ManyToOne (fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
+    private List<ShoppingCartItem> booksInCart = new ArrayList<>();
+    @OneToOne
     private Inventory inventory;
     private Double totalPrice;
 
     /**
      * Constructor for ShoppingCart
      * @param inventory     the inventory from which the cart shops from
+     * @author Maisha Abdullah
      */
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
@@ -35,7 +39,19 @@ public class ShoppingCart {
     }
 
     /**
+     * Constructor for ShoppingCart
+     * @param inventory     the inventory from which the cart shops from
+     * @author Maisha Abdullah
+     */
+    public ShoppingCart(Inventory inventory, BookUser user){
+        this.inventory = inventory;
+        this.totalPrice = 0.0;
+        this.user = user;
+    }
+
+    /**
      * Default Constructor
+     * @author Maisha Abdullah
      */
     public ShoppingCart() {
         this.inventory = new Inventory();
@@ -44,52 +60,44 @@ public class ShoppingCart {
 
     /**
      * Method to add to cart
-     * @param book      the Book user wishes to add to cart
-     * @param quantity  the quantity of books
-     * @return          returns if book was added to cart
+     * @param book the Book user wishes to add to cart
+     * @param quantity the quantity of books
+     * @return returns if book was added to cart
+     * @author Maisha Abdullah
      */
     public boolean addToCart(Book book, int quantity){
-        //this.totalPrice = 0;
+        InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
-        boolean bookExists = false;
-        boolean bookAdded = false;
+        if (quantity <= 0) {
+            // Handle invalid quantity
+            return false;
+        }
 
-        if (quantity > 0){ //quantity must be positive
+        for (ShoppingCartItem itemInCart : booksInCart) {
+            //item exists in cart, increase the quantity
+            if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
+                itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
 
-            for (InventoryItem itemInCart : booksInCart) {
-                //item exists in cart, increase the quantity
-                if (itemInCart.getBook().equals(book)) {
-                    itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
-                    bookAdded = true;
-                    bookExists = true;
-                    break;
-                }
-
-                //reduce from inventory
-                for (InventoryItem itemInInventory : inventory.getAvailableBooks()){
-                    if (itemInInventory.equals(itemInCart)){
-                        itemInInventory.setQuantity(itemInInventory.getQuantity() - itemInCart.getQuantity());
-                        break;
-                    }
-                }
-            }
-
-            if (!bookExists){
-                //does not exist, add new item if it exists in inventory
-                for (InventoryItem inventoryItems : inventory.getAvailableBooks()){
-                    if (inventoryItems.getBook().equals(book)){
-                        InventoryItem newItem = new InventoryItem(book, quantity);
-                        inventoryItems.setQuantity(inventoryItems.getQuantity() - quantity);
-                        booksInCart.add(newItem);
-                        bookAdded = true;
-                    }
-                }
+                // Reduce quantity from the inventory
+                inventory.reduceFromInventory(book, quantity);
+                return true;
             }
         }
 
-        updateTotalPrice();
+        // Book does not exist in the cart, check if it's in the inventory
+        if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
+            // Book is available in the inventory
+            ShoppingCartItem newItem = new ShoppingCartItem(book, quantity, this);
+            booksInCart.add(newItem);
 
-        return bookAdded;
+            // Reduce quantity from the inventory
+            inventory.reduceFromInventory(book, quantity);
+
+            return true;
+        }
+
+        updateTotalPrice();
+        return false;
     }
 
 
@@ -98,44 +106,40 @@ public class ShoppingCart {
      * @param book      the Book user wishes to remove from cart
      * @param quantity  the quantity of books
      * @return          returns if book was added to cart
+     * @author Maisha Abdullah
      */
     public boolean removeFromCart(Book book, int quantity){
+        InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
-        boolean bookRemoved = false;
+        if (quantity <= 0) {
+            // Handle invalid quantity
+            return false;
+        }
 
-        if (quantity > 0) { //quantity must be positive
+        for (ShoppingCartItem itemInCart : booksInCart) {
+            //item exists in cart, increase the quantity
+            if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
+                itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
 
-            for (InventoryItem itemInCart : booksInCart) {
-                if (itemInCart.getBook().equals(book) && quantity <= itemInCart.getQuantity()) {
-                    itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
-                    if (itemInCart.getQuantity() == 0){
-                        booksInCart.remove(itemInCart);
-                    }
-                    bookRemoved = true;
-                    break;
-                }
-
-                //put back into inventory
-                for (InventoryItem itemInInventory : inventory.getAvailableBooks()) {
-                    if (itemInInventory.equals(itemInCart)) {
-                        itemInInventory.setQuantity(itemInInventory.getQuantity() + itemInCart.getQuantity());
-                        break;
-                    }
-                }
+                // Reduce quantity from the inventory
+                inventory.putBackIntoInventory(book, quantity);
+                return true;
             }
         }
-        updateTotalPrice();
 
-        return bookRemoved;
+        updateTotalPrice();
+        return false;
     }
 
     /**
      * Method to update total price
+     * @author Maisha Abdullah
+     * @author Shrimei Chock
      */
     private void updateTotalPrice(){
         totalPrice = 0.0;
         //update price
-        for (InventoryItem item : booksInCart){
+        for (ShoppingCartItem item : booksInCart){
             totalPrice += (float) (item.getBook().getPrice() * item.getQuantity());
         }
     }
@@ -143,6 +147,8 @@ public class ShoppingCart {
     /**
      * Method to get the total price of cart
      * @return  the total price
+     * @author Maisha Abdullah
+     * @author Shrimei Chock
      */
     public Double getTotalPrice() {
         return totalPrice;
@@ -151,13 +157,15 @@ public class ShoppingCart {
     /**
      * Method to get the books in cart
      * @return  books in cart
+     * @author Maisha Abdullah
      */
-    public List<InventoryItem> getBooksInCart() {
+    public List<ShoppingCartItem> getBooksInCart() {
         return booksInCart;
     }
 
     /**
      * Method to clear cart once checkout is completed?
+     * @author Maisha Abdullah
      */
     //im confusion?
     public void checkout(){
@@ -167,6 +175,7 @@ public class ShoppingCart {
     /**
      * Method to get the inventory of shopping cart
      * @return  the inventory
+     * @author Maisha Abdullah
      */
     public Inventory getInventory() {
         return inventory;
@@ -175,8 +184,40 @@ public class ShoppingCart {
     /**
      * Method to set the inventory of shopping cart
      * @param inventory the inventory
+     * @author Maisha Abdullah
      */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
+    }
+
+    /**
+     * Method to get the user of this shopping cart
+     * @return the user
+     * @author Maisha Abdullah
+     */
+    public BookUser getUser() {
+        return user;
+    }
+
+    /**
+     * Method to set the user of this shopping cart
+     * @param user the user
+     * @author Maisha Abdullah
+     */
+    public void setUser(BookUser user) {
+        this.user = user;
+    }
+
+    /**
+     * Method to get the total quantity of the shopping cart
+     * @return the total quantity
+     * @author Maisha Abdullah
+     */
+    public int getTotalQuantityOfCart(){
+        int total = 0;
+        for (ShoppingCartItem itemInCart : booksInCart) {
+            total += itemInCart.getQuantity();
+        }
+        return total;
     }
 }
