@@ -23,6 +23,7 @@ public class UserController {
     private final UserRepository loggedInUserRepository;
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private boolean userAccess = false;
 
 
     /**
@@ -37,6 +38,14 @@ public class UserController {
         this.loggedInUserRepository = loggedInUserRepository;
     }
 
+    /**
+     * Gets status of user access (true meaning has access to system, false meaning not logged in)
+     * @author Waheeb Hashmi
+     */
+    public boolean getUserAccess(){
+        return userAccess;
+    }
+    
     /**
      * Create new account
      *
@@ -145,6 +154,7 @@ public class UserController {
                     model.addAttribute("user", existingUser);
                     loggedInUserRepository.deleteAll(); // TODO - remove the current user in the log out
                     loggedInUserRepository.save(existingUser);
+                    this.userAccess = true;
                     return "redirect:/listAvailableBooks"; // Redirect to user profile page
                 } else {
                     // Passwords do not match, return login error
@@ -159,6 +169,17 @@ public class UserController {
                 model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
                 return  "accountError"; // Redirecting back to account form
         }
+    }
+
+    /**
+     * Post mapping for logout request
+     * @return register-login page
+     * @author Waheeb Hashmi
+     */
+    @PostMapping("/logout")
+    public String handleUserLogout() {
+        this.userAccess = false;
+        return "redirect:/";
     }
 
     /**
