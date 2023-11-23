@@ -258,7 +258,6 @@ public class CheckoutController {
     public String viewCart(Model model) {
         ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
-
         //Calculate total price
         double totalPrice = 0;
         for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
@@ -292,13 +291,6 @@ public class CheckoutController {
         String confirmationNumber = UUID.randomUUID().toString();
         model.addAttribute("confirmationNumber", confirmationNumber);
         
-
-        ShoppingCart shoppingCart;
-        shoppingCart = shoppingCartRepository.findById(1);
-        if (shoppingCart == null) {
-            shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
-        }
-
         shoppingCartRepository.deleteAll();
 
         return "order-confirmation";
