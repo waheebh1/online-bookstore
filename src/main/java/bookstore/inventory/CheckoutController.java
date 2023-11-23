@@ -119,11 +119,7 @@ public class CheckoutController {
         }
 
         //TODO - if user does not already have a shopping cart
-        ShoppingCart shoppingCart;
-        shoppingCart = shoppingCartRepository.findById(1);
-        if (shoppingCart == null) {
-            shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
-        }
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
@@ -166,11 +162,7 @@ public class CheckoutController {
     public int getTotalInCart() {
         System.out.println("going into get total in cart");
 
-        ShoppingCart shoppingCart;
-        shoppingCart = shoppingCartRepository.findById(1);
-        if (shoppingCart == null) {
-            shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
-        }
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
         return shoppingCart.getTotalQuantityOfCart();
     }
@@ -208,11 +200,7 @@ public class CheckoutController {
         }
 
         //TODO - if user does not already have a shopping cart
-        ShoppingCart shoppingCart;
-        shoppingCart = shoppingCartRepository.findById(1);
-        if (shoppingCart == null) {
-            shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
-        }
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
@@ -243,6 +231,14 @@ public class CheckoutController {
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
         return "home";
+    }
+
+    /**
+     * Method to retrieve shopping cart for user
+     * @return the shopping cart
+     */
+    private ShoppingCart getOrCreateShoppingCart(){
+        return shoppingCartRepository.findById(1) != null ? shoppingCartRepository.findById(1) : new ShoppingCart(inventoryRepository.findById(1));
     }
 
 }
