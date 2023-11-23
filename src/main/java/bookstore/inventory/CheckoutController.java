@@ -267,7 +267,7 @@ public class CheckoutController {
 
         double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
 
-        model.addAttribute("items", shoppingCart.getBooksInCart()); //List<CartItem> //CartItem has Book book, int quantity
+        model.addAttribute("items", shoppingCart.getBooksInCart());
         model.addAttribute("totalPrice", roundedPrice);
 
         if (this.userController.getUserAccess()) {
