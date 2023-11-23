@@ -23,7 +23,7 @@ public class ShoppingCart {
     private Long id;
 
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
-    private List<CartItem> booksInCart = new ArrayList<>();
+    private List<ShoppingCartItem> booksInCart = new ArrayList<>();
     @OneToOne
     private Inventory inventory;
     private Double totalPrice;
@@ -73,7 +73,7 @@ public class ShoppingCart {
             return false;
         }
 
-        for (CartItem itemInCart : booksInCart) {
+        for (ShoppingCartItem itemInCart : booksInCart) {
             //item exists in cart, increase the quantity
             if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
                 itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
@@ -87,7 +87,7 @@ public class ShoppingCart {
         // Book does not exist in the cart, check if it's in the inventory
         if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
             // Book is available in the inventory
-            CartItem newItem = new CartItem(book, quantity, this);
+            ShoppingCartItem newItem = new ShoppingCartItem(book, quantity, this);
             booksInCart.add(newItem);
 
             // Reduce quantity from the inventory
@@ -116,7 +116,7 @@ public class ShoppingCart {
             return false;
         }
 
-        for (CartItem itemInCart : booksInCart) {
+        for (ShoppingCartItem itemInCart : booksInCart) {
             //item exists in cart, increase the quantity
             if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
                 itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
@@ -139,7 +139,7 @@ public class ShoppingCart {
     private void updateTotalPrice(){
         totalPrice = 0.0;
         //update price
-        for (CartItem item : booksInCart){
+        for (ShoppingCartItem item : booksInCart){
             totalPrice += (float) (item.getBook().getPrice() * item.getQuantity());
         }
     }
@@ -159,7 +159,7 @@ public class ShoppingCart {
      * @return  books in cart
      * @author Maisha Abdullah
      */
-    public List<CartItem> getBooksInCart() {
+    public List<ShoppingCartItem> getBooksInCart() {
         return booksInCart;
     }
 
@@ -215,7 +215,7 @@ public class ShoppingCart {
      */
     public int getTotalQuantityOfCart(){
         int total = 0;
-        for (CartItem itemInCart : booksInCart) {
+        for (ShoppingCartItem itemInCart : booksInCart) {
             total += itemInCart.getQuantity();
         }
         return total;

@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
  */
 
 @Entity
-public class CartItem extends Item {
+public class ShoppingCartItem extends Item {
 
     @ManyToOne
     @JoinColumn(name = "shopping_cart_id")
@@ -19,27 +19,27 @@ public class CartItem extends Item {
     /**
      * Default constructor
      */
-    public CartItem(){
+    public ShoppingCartItem(){
 
     }
 
     /**
-     * Constructor for CartItem
+     * Constructor for ShoppingCartItem
      * @param book      Book that is the item
      * @param quantity  Quantity of that item
      */
-    public CartItem(Book book, int quantity){
+    public ShoppingCartItem(Book book, int quantity){
         super(book, quantity);
     }
 
 
     /**
-     * Constructor for CartItem
+     * Constructor for ShoppingCartItem
      * @param book book
      * @param quantity quantity
      * @param shoppingCart shopping cart
      */
-    public CartItem (Book book, int quantity, ShoppingCart shoppingCart){
+    public ShoppingCartItem(Book book, int quantity, ShoppingCart shoppingCart){
         super(book,quantity);
         this.shoppingCart = shoppingCart;
     }

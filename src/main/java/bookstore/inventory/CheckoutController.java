@@ -5,7 +5,7 @@ import bookstore.users.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
-import bookstore.users.UserRepository;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -17,7 +17,7 @@ public class CheckoutController {
     private final BookRepository bookRepository;
     private final InventoryRepository inventoryRepository;
     private final ShoppingCartRepository shoppingCartRepository;
-    private final CartItemRepository cartItemRepository;
+    private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository loggedInUserRepository;
 
@@ -27,14 +27,14 @@ public class CheckoutController {
      * @param authorRepo repository of authors
      * @param bookRepo   repository of books
      */
-    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, CartItemRepository cartItemRepository, UserRepository loggedInUserRepository) {
+    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserRepository loggedInUserRepository) {
         this.authorRepository = authorRepo;
         this.bookRepository = bookRepo;
         this.inventoryRepository = inventoryRepo;
         this.inventoryItemRepository = inventoryItemRepo;
         this.loggedInUserRepository = loggedInUserRepository;
         this.shoppingCartRepository = shoppingCartRepository;
-        this.cartItemRepository = cartItemRepository;
+        this.shoppingCartItemRepository = shoppingCartItemRepository;
     }
 
     /**
@@ -130,7 +130,7 @@ public class CheckoutController {
                 System.out.println("INVENTORY ITEM QUANTITY --AFTER-- ADD TO CART: " + invItem.getQuantity());
 
                 shoppingCartRepository.save(shoppingCart);
-                cartItemRepository.saveAll(shoppingCart.getBooksInCart());
+                shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
 
                 inventoryItemRepository.save(invItem);
 
@@ -211,7 +211,7 @@ public class CheckoutController {
                 System.out.println("INVENTORY ITEM QUANTITY --AFTER-- REMOVE FROM CART: " + invItem.getQuantity());
 
                 shoppingCartRepository.save(shoppingCart);
-                cartItemRepository.saveAll(shoppingCart.getBooksInCart());
+                shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
 
                 inventoryItemRepository.save(invItem);
 
