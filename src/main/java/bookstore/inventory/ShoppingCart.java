@@ -186,6 +186,7 @@ public class ShoppingCart {
         for (ShoppingCartItem itemInCart : booksInCart) {
             itemInCart.setQuantity(0);
         }
+        booksInCart.clear();
     }
 
     /**
