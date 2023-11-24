@@ -100,7 +100,6 @@ public class ShoppingCart {
         return false;
     }
 
-
     /**
      * Method to remove from cart
      * @param book      the Book user wishes to remove from cart
@@ -167,9 +166,10 @@ public class ShoppingCart {
      * Method to clear cart once checkout is completed?
      * @author Maisha Abdullah
      */
-    //im confusion?
     public void checkout(){
-        booksInCart.clear();
+        for (ShoppingCartItem itemInCart : booksInCart) {
+            itemInCart.setQuantity(0);
+        }
     }
 
     /**
@@ -219,5 +219,9 @@ public class ShoppingCart {
             total += itemInCart.getQuantity();
         }
         return total;
+    }
+
+    public ShoppingCart orElseThrow(Object object) {
+        return null;
     }
 }

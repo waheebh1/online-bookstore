@@ -3,6 +3,9 @@ package bookstore.inventory;
 import bookstore.users.BookUser;
 import bookstore.users.UserController;
 import bookstore.users.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +26,7 @@ public class CheckoutController {
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository loggedInUserRepository;
     private UserController userController;
+    private boolean checkoutFlag = false;
 
     /**
      * Constructor for checkout controller
@@ -115,10 +119,9 @@ public class CheckoutController {
     @PostMapping("/addToCart")
     public String addToCart(@RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
             model) {
-
+        
         System.out.println("going into add to cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
-
         List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
         BookUser loggedInUser = null;
         if (!loggedInUsers.isEmpty()) {
@@ -196,7 +199,7 @@ public class CheckoutController {
     @PostMapping("/removeFromCart")
     public String removeFromCart (@RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
             model){
-    
+
         System.out.println("going into remove from cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
 
@@ -234,11 +237,32 @@ public class CheckoutController {
 
             }
         }
+
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
-        return "home";
-    }
+        
+        if(checkoutFlag){
+    
+            //Calculate total price again
+            double totalPrice = 0;
+            for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
+                totalPrice += item.getBook().getPrice() * item.getQuantity();
+            }
+    
+            double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
+            
+            model.addAttribute("items", shoppingCart.getBooksInCart());
+            model.addAttribute("totalPrice", roundedPrice);
+    
+            if (this.userController.getUserAccess()) {
+                return "checkout";
+            } else {
+                return "access-denied";
+            }
+        }
+        return "home";    
+}
 
     /**
      * Method to retrieve shopping cart for user
@@ -256,6 +280,7 @@ public class CheckoutController {
     */
     @GetMapping("/checkout")
     public String viewCart(Model model) {
+        checkoutFlag = true;
         ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
         //Calculate total price
@@ -265,7 +290,7 @@ public class CheckoutController {
         }
 
         double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
-
+        
         model.addAttribute("items", shoppingCart.getBooksInCart());
         model.addAttribute("totalPrice", roundedPrice);
 
@@ -290,8 +315,14 @@ public class CheckoutController {
         // Generate a random confirmation number
         String confirmationNumber = UUID.randomUUID().toString();
         model.addAttribute("confirmationNumber", confirmationNumber);
-        
-        shoppingCartRepository.deleteAll();
+
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+
+        shoppingCart.checkout();
+
+        shoppingCartRepository.save(shoppingCart);
+        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
+        inventoryRepository.save(inventoryRepository.findById(1));
 
         return "order-confirmation";
     }

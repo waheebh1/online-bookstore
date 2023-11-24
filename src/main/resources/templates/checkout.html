@@ -4,11 +4,50 @@
     <title>Checkout</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" th:href="@{/css/register-login.css}" />
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            function updateTotalInCart() {
+                $.ajax({
+                    url: '/getTotalInCart',
+                    method: 'GET',
+                    success: function (totalInCart) {
+                        // Update the HTML element with the new total in the cart
+                        $('#totalInCart').text(totalInCart);
+                    },
+                    error: function () {
+                        console.error('Error fetching total in cart');
+                    }
+                });
+            }
+            updateTotalInCart();
+
+            // Handle form submission
+            $('#addToCartForm, #removeFromCartForm').submit(function(event) {
+                // Collect selected items
+                var selectedItems = [];
+                $('input[name="selectedItems"]:checked').each(function() {
+                    selectedItems.push($(this).val());
+                });
+
+                // Add selected items to a hidden field within the form
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'selectedItems',
+                    value: selectedItems.join(',')
+                }).appendTo($(this)); // Append to the current form
+            });
+        });
+        session.setAttribute("currentPage", "checkout");
+
+    </script>
 </head>
 <body>
     <div class="header">
         <h1>Online Book Store</h1>
     </div>
+    <form th:action="@{/listAvailableBooks}" method="get">
+        <button type="submit">Back to Home</button>
+    </form>
     <div class="layout-container">
         <div class="form-container">
             <h1>Checkout</h1>
@@ -54,20 +93,27 @@
         </div>
         <div class="cart-info-container">
             <h2>Cart Information:</h2>
-            
+        
             <table>
                 <thead>
                     <tr>
                         <th>Book Title</th>
                         <th>Quantity</th>
                         <th>Price</th>
+                        <th>Remove</th> 
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="item : ${items}">
+                    <tr th:each="item, stat : ${items}">
                             <td th:text="${item.getBook().getTitle()}"></td>
                             <td th:text="${item.quantity}"></td>
                             <td>$<span th:text="${item.getBook().getPrice()}"></span></td>
+                            <td>
+                                <form th:action="@{/removeFromCart}" method="post" th:id="removeFromCartForm">
+                                    <input type="hidden" th:name="'selectedItems'" th:value="${stat.index + 1}">
+                                    <button type="submit">-</button>
+                                </form>
+                            </td>
                     </tr>
                 </tbody>
                 <tfoot>
