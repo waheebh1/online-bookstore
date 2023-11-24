@@ -207,6 +207,24 @@ public class ShoppingCart {
     }
 
     /**
+     * Method to set the ID of the shopping cart
+     * @param id the ID
+     * @author Maisha Abdullah
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * Method to get the ID of the shopping cart
+     * @return the ID
+     * @author Maisha Abdullah
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
      * Method to get the user of this shopping cart
      * @return the user
      * @author Maisha Abdullah
