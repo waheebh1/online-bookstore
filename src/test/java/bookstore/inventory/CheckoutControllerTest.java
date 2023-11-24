@@ -37,6 +37,12 @@ class CheckoutControllerTest {
     @Mock
     private InventoryRepository inventoryRepository;
 
+    @Mock
+    private ShoppingCart shoppingCart;
+
+    @Mock
+    private ShoppingCartItemRepository shoppingCartItemRepository;
+
     private Book book1;
     private Book book2;
     private Inventory inventory;
@@ -85,13 +91,22 @@ class CheckoutControllerTest {
      */
     @Test
     void testConfirmOrder() {
+        when(shoppingCartRepository.findById(1)).thenReturn(shoppingCart);
+
         Model model = new ConcurrentModel();
 
         String view = controller.confirmOrder(model);
 
+        // Verify that the shopping cart is checked out
+        verify(shoppingCart).checkout();
+
         Assertions.assertEquals("order-confirmation", view);
         Assertions.assertTrue(model.containsAttribute("confirmationNumber"));
-        verify(shoppingCartRepository).deleteAll();
+
+        verify(shoppingCartRepository).save(shoppingCart);
+        verify(shoppingCartItemRepository).saveAll(shoppingCart.getBooksInCart());
+        verify(inventoryRepository).save(inventoryRepository.findById(1));
+
     }
 
     /**
