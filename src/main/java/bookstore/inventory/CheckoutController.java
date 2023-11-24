@@ -53,6 +53,7 @@ public class CheckoutController {
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
     (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, Model model) {
+       checkoutFlag = false;
         if(this.userController.getUserAccess()){
             List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
             BookUser loggedInUser = null;
@@ -222,9 +223,11 @@ public class CheckoutController {
 
                 inventoryItemRepository.save(invItem);
 
-                System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
-                if (shoppingCart.getBooksInCart().size()>1){
-                    System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
+                if (!shoppingCart.getBooksInCart().isEmpty()) {
+                    System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
+                    if (shoppingCart.getBooksInCart().size() > 1) {
+                        System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
+                    }
                 }
 
                 System.out.println(" TOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
