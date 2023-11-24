@@ -5,10 +5,10 @@
 
 package bookstore.inventory;
 
-import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 
@@ -19,7 +19,7 @@ public class InventoryItemTest {
     private String description1;
     private String description2;
 
-    @Before
+    @BeforeEach
     public void setUp(){
         ArrayList<Author> author_list = new ArrayList<>();
         Author author1 = new Author("Harper", "Lee");
