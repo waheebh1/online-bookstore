@@ -65,35 +65,6 @@ public class Inventory {
     }
 
     /**
-     * Method to remove books from the inventory
-     * @param removeItem item to be removed
-     * @return returns whether book was successfully removed
-     * @author Maisha Abdullah
-     */
-    public boolean removeItemFromInventory(InventoryItem removeItem) {
-
-        if (removeItem.getQuantity() > 0) { //quantity must be positive
-            //if book is in list, can remove
-            for (InventoryItem existingItem : availableBooks) {
-
-                //book exists in the inventory
-                if (existingItem.getBook().equals(removeItem.getBook()) && removeItem.getQuantity() <= existingItem.getQuantity()) {
-                    existingItem.setQuantity(existingItem.getQuantity() - removeItem.getQuantity());
-                    if (existingItem.getQuantity() == 0){
-                        availableBooks.remove(existingItem);
-                    }
-                    return true;
-                }
-            }
-
-            //book does not exist
-            return false;
-        }
-
-        return false;
-    }
-
-    /**
      * Method to take an item out of the inventory with adjusted quantity
      * @param book the book
      * @param quantity the quantity
