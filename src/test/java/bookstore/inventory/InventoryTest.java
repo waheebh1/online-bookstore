@@ -81,18 +81,16 @@ public class InventoryTest {
     }
 
     @Test
-    public void testRemoveFromInventory(){
+    public void testReduceFromInventory(){
         ArrayList<InventoryItem> availableBooks = new ArrayList<>();
         Inventory inventory = new Inventory(availableBooks);
 
         //check that quantity should be positive and inventory is empty
-        this.item1 = new InventoryItem(book1, -5);
-        assertFalse(inventory.removeItemFromInventory(item1));
+        assertFalse(inventory.reduceFromInventory(book1, -5));
         assertEquals(0,inventory.getAvailableBooks().size());
 
         //check method does not remove non-existent book
-        this.item1 = new InventoryItem(book1, 5);
-        assertFalse(inventory.removeItemFromInventory(item1));
+        assertFalse(inventory.reduceFromInventory(book1, 5));
         assertEquals(0,inventory.getAvailableBooks().size());
 
         this.item1 = new InventoryItem(book1, 5);
@@ -100,18 +98,15 @@ public class InventoryTest {
         assertEquals(1,inventory.getAvailableBooks().size());
 
         //check method does not remove when quantity is greater than available quantity
-        this.item1 = new InventoryItem(book1, 8);
-        assertFalse(inventory.removeItemFromInventory(item1));
+        assertFalse(inventory.reduceFromInventory(book1, 8));
         assertEquals(1,inventory.getAvailableBooks().size());
 
         //check that book is removed from inventory by quantity
-        this.item1 = new InventoryItem(book1, 3);
-        assertTrue(inventory.removeItemFromInventory(item1));
+        assertTrue(inventory.reduceFromInventory(book1, 3));
         assertEquals(2, inventory.getAvailableBooks().get(0).getQuantity());
 
         //check that book is removed from inventory permanently
-        this.item1 = new InventoryItem(book1, 2);
-        assertTrue(inventory.removeItemFromInventory(item1));
+        assertTrue(inventory.reduceFromInventory(book1, 2));
         assertEquals(0,inventory.getAvailableBooks().size());
     }
 }
