@@ -129,9 +129,10 @@ public class ShoppingCart {
             if (cartItem.getBook().getIsbn().equals(book.getIsbn()) && cartItem.getQuantity() >= quantity) {
                 int newQuantity = cartItem.getQuantity() - quantity;
 
-                if (newQuantity > 0) {
-                    cartItem.setQuantity(cartItem.getQuantity() - quantity);
-                } else {
+                // this always needs to happen for some reason?
+                cartItem.setQuantity(cartItem.getQuantity() - quantity);
+
+                if (newQuantity <= 0) {
                     booksInCart.remove(cartItem);
                 }
 
