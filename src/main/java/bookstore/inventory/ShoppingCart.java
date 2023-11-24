@@ -64,39 +64,46 @@ public class ShoppingCart {
      * @param quantity the quantity of books
      * @return returns if book was added to cart
      * @author Maisha Abdullah
+     * @author Thanuja Sivaananthan
      */
     public boolean addToCart(Book book, int quantity){
         InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
+        // Handle invalid quantity
         if (quantity <= 0) {
-            // Handle invalid quantity
             return false;
         }
 
-        for (ShoppingCartItem itemInCart : booksInCart) {
-            //item exists in cart, increase the quantity
-            if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
-                itemInCart.setQuantity(itemInCart.getQuantity() + quantity);
+        // Add only if the book is still in inventory
+        if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
+
+            boolean bookExistsInCart = false;
+
+            for (ShoppingCartItem cartItem : booksInCart) {
+                // If the item exists in cart, increase the quantity
+                if (cartItem.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
+                    cartItem.setQuantity(cartItem.getQuantity() + quantity);
+
+                    // Reduce quantity from the inventory
+                    inventory.reduceFromInventory(book, quantity);
+
+                    bookExistsInCart = true;
+                }
+            }
+
+            if (!bookExistsInCart){
+                // Book is available in the inventory
+                ShoppingCartItem newCartItem = new ShoppingCartItem(book, quantity, this);
+                booksInCart.add(newCartItem);
 
                 // Reduce quantity from the inventory
                 inventory.reduceFromInventory(book, quantity);
-                return true;
             }
-        }
 
-        // Book does not exist in the cart, check if it's in the inventory
-        if (inventoryItem != null && inventoryItem.getQuantity() >= quantity) {
-            // Book is available in the inventory
-            ShoppingCartItem newItem = new ShoppingCartItem(book, quantity, this);
-            booksInCart.add(newItem);
-
-            // Reduce quantity from the inventory
-            inventory.reduceFromInventory(book, quantity);
-
+            updateTotalPrice();
             return true;
         }
 
-        updateTotalPrice();
         return false;
     }
 
@@ -106,22 +113,30 @@ public class ShoppingCart {
      * @param quantity  the quantity of books
      * @return          returns if book was added to cart
      * @author Maisha Abdullah
+     * @author Thanuja Sivaananthan
      */
     public boolean removeFromCart(Book book, int quantity){
         InventoryItem inventoryItem = inventory.findAvailableBook(book.getIsbn());
 
+        // Handle invalid quantity
         if (quantity <= 0) {
-            // Handle invalid quantity
             return false;
         }
 
-        for (ShoppingCartItem itemInCart : booksInCart) {
-            //item exists in cart, increase the quantity
-            if (itemInCart.getBook().getIsbn().equals(book.getIsbn()) && inventoryItem.getQuantity() >= quantity) {
-                itemInCart.setQuantity(itemInCart.getQuantity() - quantity);
+        for (ShoppingCartItem cartItem : booksInCart) {
+            // Item exists in cart, increase the quantity
+            if (cartItem.getBook().getIsbn().equals(book.getIsbn()) && cartItem.getQuantity() >= quantity) {
+                int newQuantity = cartItem.getQuantity() - quantity;
+
+                if (newQuantity > 0) {
+                    cartItem.setQuantity(cartItem.getQuantity() - quantity);
+                } else {
+                    booksInCart.remove(cartItem);
+                }
 
                 // Reduce quantity from the inventory
                 inventory.putBackIntoInventory(book, quantity);
+                updateTotalPrice();
                 return true;
             }
         }
@@ -134,12 +149,13 @@ public class ShoppingCart {
      * Method to update total price
      * @author Maisha Abdullah
      * @author Shrimei Chock
+     * @author Thanuja Sivaananthan
      */
     private void updateTotalPrice(){
         totalPrice = 0.0;
         //update price
         for (ShoppingCartItem item : booksInCart){
-            totalPrice += (float) (item.getBook().getPrice() * item.getQuantity());
+            totalPrice += (item.getBook().getPrice() * item.getQuantity());
         }
     }
 
