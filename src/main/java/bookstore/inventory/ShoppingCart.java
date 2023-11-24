@@ -221,7 +221,4 @@ public class ShoppingCart {
         return total;
     }
 
-    public ShoppingCart orElseThrow(Object object) {
-        return null;
-    }
 }
