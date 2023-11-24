@@ -128,9 +128,9 @@ public class ShoppingCart {
             if (cartItem.getBook().getIsbn().equals(book.getIsbn()) && cartItem.getQuantity() >= quantity) {
                 int newQuantity = cartItem.getQuantity() - quantity;
 
-                if (newQuantity > 0) {
-                    cartItem.setQuantity(cartItem.getQuantity() - quantity);
-                } else {
+                cartItem.setQuantity(cartItem.getQuantity() - quantity);
+
+                if (newQuantity <= 0) {
                     booksInCart.remove(cartItem);
                 }
 
@@ -186,7 +186,6 @@ public class ShoppingCart {
         for (ShoppingCartItem itemInCart : booksInCart) {
             itemInCart.setQuantity(0);
         }
-        booksInCart.clear();
     }
 
     /**

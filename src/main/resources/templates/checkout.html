@@ -104,7 +104,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="item, stat : ${items}">
+                    <tr th:each="item, stat : ${items}" th:if="${item.quantity > 0}">
                             <td th:text="${item.getBook().getTitle()}"></td>
                             <td th:text="${item.quantity}"></td>
                             <td>$<span th:text="${item.getBook().getPrice()}"></span></td>
