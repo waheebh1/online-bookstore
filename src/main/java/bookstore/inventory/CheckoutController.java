@@ -3,9 +3,6 @@ package bookstore.inventory;
 import bookstore.users.BookUser;
 import bookstore.users.UserController;
 import bookstore.users.UserRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -241,7 +238,7 @@ public class CheckoutController {
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
-        
+
         if(checkoutFlag){
     
             //Calculate total price again
