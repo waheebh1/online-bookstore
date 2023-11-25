@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
  * @author Thanuja Sivaananthan
  */
 @Entity
-@Controller
 public class BookUser {
 
     @Id

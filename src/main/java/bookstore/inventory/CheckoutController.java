@@ -21,7 +21,6 @@ public class CheckoutController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final InventoryItemRepository inventoryItemRepository;
-    private final UserRepository loggedInUserRepository;
     private UserController userController;
     private boolean checkoutFlag = false;
 
@@ -31,12 +30,11 @@ public class CheckoutController {
      * @param authorRepo repository of authors
      * @param bookRepo   repository of books
      */
-    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserRepository loggedInUserRepository, UserController userController) {
+    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController) {
         this.authorRepository = authorRepo;
         this.bookRepository = bookRepo;
         this.inventoryRepository = inventoryRepo;
         this.inventoryItemRepository = inventoryItemRepo;
-        this.loggedInUserRepository = loggedInUserRepository;
         this.shoppingCartRepository = shoppingCartRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
         this.userController = userController;
@@ -55,11 +53,7 @@ public class CheckoutController {
     (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, Model model) {
        checkoutFlag = false;
         if(this.userController.getUserAccess()){
-            List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-            BookUser loggedInUser = null;
-            if (!loggedInUsers.isEmpty()) {
-                loggedInUser = loggedInUsers.get(0);
-            }
+            BookUser loggedInUser = userController.getLoggedInUser();
 
             Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
 
@@ -125,13 +119,8 @@ public class CheckoutController {
         
         System.out.println("going into add to cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
-        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-        BookUser loggedInUser = null;
-        if (!loggedInUsers.isEmpty()) {
-            loggedInUser = loggedInUsers.get(0);
-        }
+        BookUser loggedInUser = userController.getLoggedInUser();
 
-        //TODO - if user does not already have a shopping cart
         ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
         if (selectedItems != null) {
@@ -210,11 +199,7 @@ public class CheckoutController {
         System.out.println("going into remove from cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
 
-        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-        BookUser loggedInUser = null;
-        if (!loggedInUsers.isEmpty()) {
-            loggedInUser = loggedInUsers.get(0);
-        }
+        BookUser loggedInUser = userController.getLoggedInUser();
 
         //TODO - if user does not already have a shopping cart
         ShoppingCart shoppingCart = getOrCreateShoppingCart();
@@ -281,9 +266,17 @@ public class CheckoutController {
     /**
      * Method to retrieve shopping cart for user
      * @return the shopping cart
+     * @author Maisha Abdullah
+     * @author Thanuja Sivaananthan
      */
     private ShoppingCart getOrCreateShoppingCart(){
-        return shoppingCartRepository.findById(1) != null ? shoppingCartRepository.findById(1) : new ShoppingCart(inventoryRepository.findById(1));
+        BookUser bookUser = userController.getLoggedInUser();
+        if (bookUser != null){
+            return bookUser.getShoppingCart();
+        } else {
+            return new ShoppingCart(inventoryRepository.findById(1));
+        }
+//        return shoppingCartRepository.findById(1) != null ? shoppingCartRepository.findById(1) : new ShoppingCart(inventoryRepository.findById(1));
     }
 
     /** 
