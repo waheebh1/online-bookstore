@@ -1,5 +1,6 @@
 package bookstore.users;
 
+import bookstore.inventory.InventoryRepository;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class UserController {
 
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private final InventoryRepository inventoryRepository;
+
     private boolean userAccess = false;
 
 
@@ -33,9 +36,10 @@ public class UserController {
      * @param userRepository user repository
      * @author Thanuja Sivaananthan
      */
-    public UserController(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, UsersessionRepository usersessionRepository) {
+    public UserController(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, InventoryRepository inventoryRepo, UsersessionRepository usersessionRepository) {
         this.userRepository = userRepository;
         this.shoppingCartRepository = shoppingCartRepository;
+        this.inventoryRepository = inventoryRepo;
         this.usersessionRepository = usersessionRepository;
     }
 
@@ -57,11 +61,8 @@ public class UserController {
     @GetMapping("/register")
     public String createAccountForm(Model model) {
         BookUser bookUser = new BookUser();
-        ShoppingCart shoppingCart= new ShoppingCart();
-        bookUser.setShoppingCart(shoppingCart);
-        shoppingCart.setUser(bookUser);
 
-        model.addAttribute("shoppingCart", shoppingCart);
+
         model.addAttribute("user", bookUser);
         return "register";
     }
@@ -77,7 +78,15 @@ public class UserController {
             // setup as owner if specified
             bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword(), bookUser.getShoppingCart());
         }
+
+        ShoppingCart shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
         userRepository.save(bookUser);
+        shoppingCartRepository.save(shoppingCart);
+        bookUser.setShoppingCart(shoppingCart);
+        shoppingCart.setUser(bookUser);
+//        userRepository.save(bookUser);
+//        shoppingCartRepository.save(shoppingCart);
+
         return bookUser;
     }
 

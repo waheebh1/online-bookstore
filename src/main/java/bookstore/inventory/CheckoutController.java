@@ -271,9 +271,10 @@ public class CheckoutController {
      */
     private ShoppingCart getOrCreateShoppingCart(){
         BookUser bookUser = userController.getLoggedInUser();
-        if (bookUser != null){
+        if (bookUser != null && bookUser.getShoppingCart() != null){
             return bookUser.getShoppingCart();
         } else {
+            System.out.println("ERROR, USER OR SHOPPINGCART IS NULL");
             return new ShoppingCart(inventoryRepository.findById(1));
         }
 //        return shoppingCartRepository.findById(1) != null ? shoppingCartRepository.findById(1) : new ShoppingCart(inventoryRepository.findById(1));

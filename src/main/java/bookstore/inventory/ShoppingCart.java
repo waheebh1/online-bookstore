@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 public class ShoppingCart {
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private BookUser user;
 
     @Id

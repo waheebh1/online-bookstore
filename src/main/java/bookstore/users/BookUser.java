@@ -1,10 +1,7 @@
 package bookstore.users;
 
 import bookstore.inventory.ShoppingCart;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -24,7 +21,7 @@ public class BookUser {
 
     public UserType userType;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ShoppingCart shoppingCart;
 
     /**
