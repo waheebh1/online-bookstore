@@ -87,6 +87,7 @@
             <th>Cover</th>
             <th>Title</th>
             <th>Author</th>
+            <th>Price</th>
         </tr>
         </thead>
         <tbody>
@@ -99,6 +100,7 @@
                 <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
             </td>
             <td th:text="${inventoryItem.getBook().getAuthor()[0].fullName}"></td>
+            <td>$<span th:text="${inventoryItem.getBook().getPrice()}"></span></td>
         </tr>
         </tbody>
     </table>
