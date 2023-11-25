@@ -102,6 +102,11 @@ public class CheckoutController {
      */
     @GetMapping("/addToCart")
     public String addToCartForm(Model model) {
+
+        if(!this.userController.getUserAccess()){
+            return "access-denied";
+        }
+
         model.addAttribute("inventory", inventoryItemRepository.findAll());
         //model.addAttribute("user", loggedInUser);
         return "home";
@@ -183,6 +188,10 @@ public class CheckoutController {
      */
     @GetMapping("/removeFromCart")
     public String removeFromCartForm (Model model){
+        if(!this.userController.getUserAccess()){
+            return "access-denied";
+        }
+
         model.addAttribute("inventory", inventoryItemRepository.findAll());
         return "home";
     }
@@ -285,6 +294,11 @@ public class CheckoutController {
     */
     @GetMapping("/checkout")
     public String viewCart(Model model) {
+
+        if(!this.userController.getUserAccess()){
+            return "access-denied";
+        }
+
         checkoutFlag = true;
         ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
@@ -299,11 +313,7 @@ public class CheckoutController {
         model.addAttribute("items", shoppingCart.getBooksInCart());
         model.addAttribute("totalPrice", roundedPrice);
 
-        if (this.userController.getUserAccess()) {
-            return "checkout";
-        } else {
-            return "access-denied";
-        }
+        return "checkout";
    }
 
 
