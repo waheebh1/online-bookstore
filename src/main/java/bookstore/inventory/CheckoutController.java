@@ -49,6 +49,7 @@ public class CheckoutController {
     public String listAvailableBooks
     (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, Model model) {
 
+        //TODO after doing a search, the sort goes away. possibly move the sort functionality to this method?
         List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
         BookUser loggedInUser = null;
         if (!loggedInUsers.isEmpty()) {
@@ -77,12 +78,46 @@ public class CheckoutController {
      *
      * @param model container
      * @return route to html page to display contents of a book when clicked
+     * @author Shrimei Chock
      */
     @GetMapping("/viewBook")
     public String viewBook(@RequestParam(name = "isbn") String isbn, Model model) { //TODO pass in isbn when calling this endpoint
         Book bookToDisplay = bookRepository.findByIsbn(isbn);
         model.addAttribute("book", bookToDisplay);
         return "book-info";
+    }
+
+    @GetMapping("/sort")
+    public String sortBooks(@RequestParam(name = "sort") String sort, Model model){
+        //Debug statement
+        System.out.println("SORT BY: " + sort);
+
+        //Get logged in user
+        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
+        BookUser loggedInUser = null;
+        if (!loggedInUsers.isEmpty()) {
+            loggedInUser = loggedInUsers.get(0);
+        }
+
+        //Get logged in user's cart
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+
+        //Adjust inventory displayed depending on sort criteria
+        Iterable<bookstore.inventory.InventoryItem> inventoryItems;
+
+        if(sort.equals("low_to_high")){ //TODO use enum instead of hardcoding
+            inventoryItems = inventoryItemRepository.sortByPriceAsc();
+        } else if (sort.equals("high_to_low")) {
+            inventoryItems = inventoryItemRepository.sortByPriceDesc();
+        } else {
+            inventoryItems = inventoryItemRepository.sortByTitleAsc();
+        }
+        model.addAttribute("inventoryItems", inventoryItems);
+        model.addAttribute("user", loggedInUser);
+        model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
+        model.addAttribute("sort", sort);
+
+        return "home";
     }
 
     /**
@@ -149,7 +184,8 @@ public class CheckoutController {
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
-        return "home";
+        return "home"; //TODO after add/remove from cart, the sort goes away. Need to store the sort value
+
     }
 
     /**
