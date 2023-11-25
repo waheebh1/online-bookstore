@@ -88,7 +88,7 @@
                     <label for="cvvCode">CVV Code (3-digit):</label><br>
                     <input type="cvvCode" id="cvvCode" name="cvvCode" required>
                 </div>
-                <input type="submit" value="Order" class="button" />
+                <input th:if="${items.size() > 0}" type="submit" value="Order" class="button" />
             </form>
         </div>
         <div class="cart-info-container">

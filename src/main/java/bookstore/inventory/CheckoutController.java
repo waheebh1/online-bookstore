@@ -220,6 +220,11 @@ public class CheckoutController {
 
                 shoppingCartRepository.save(shoppingCart);
                 shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
+                
+                for (ShoppingCartItem shoppingCartItem : shoppingCartItemRepository.findByQuantity(0)){
+                    System.out.println("FOUND EMPTY ITEM, WILL DELETE " + shoppingCartItem.getBook().getTitle());
+                    shoppingCartItemRepository.delete(shoppingCartItem);
+                }
 
                 inventoryItemRepository.save(invItem);
 
