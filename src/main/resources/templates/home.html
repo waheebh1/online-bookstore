@@ -45,6 +45,11 @@
 <div class="header">
     <h1>Online Book Store</h1>
 </div>
+<th:block th:if="${user}">
+    <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</th:block>
 <p th:text="'Logged in as: ' + ${user.getUsername()}" />
 <div class="search-container">
     <form action="/listAvailableBooks">
@@ -68,9 +73,9 @@
     <form th:action="@{/removeFromCart}" method="post" th:id="removeFromCartForm">
         <input type="submit" value="Remove from cart" class="button" />
     </form>
-    <a href="checkout.html">
+    <form th:action="@{/checkout}" method="get">
         <input type="submit" value="Checkout" class="button" />
-    </a>
+    </form>
 </div>
 
 <div class="container">

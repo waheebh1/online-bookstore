@@ -142,6 +142,6 @@ public class ShoppingCartTest {
 
         shoppingCart.checkout();
 
-        assertTrue(shoppingCart.getBooksInCart().isEmpty());
+        assertEquals(shoppingCart.getTotalQuantityOfCart(), 0);
     }
 }

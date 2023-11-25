@@ -1,10 +1,12 @@
 package bookstore.inventory;
 
 import bookstore.users.BookUser;
+import bookstore.users.UserController;
 import bookstore.users.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ public class CheckoutController {
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final UserRepository loggedInUserRepository;
+    private UserController userController;
+    private boolean checkoutFlag = false;
 
     /**
      * Constructor for checkout controller
@@ -27,7 +31,7 @@ public class CheckoutController {
      * @param authorRepo repository of authors
      * @param bookRepo   repository of books
      */
-    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserRepository loggedInUserRepository) {
+    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserRepository loggedInUserRepository, UserController userController) {
         this.authorRepository = authorRepo;
         this.bookRepository = bookRepo;
         this.inventoryRepository = inventoryRepo;
@@ -35,6 +39,7 @@ public class CheckoutController {
         this.loggedInUserRepository = loggedInUserRepository;
         this.shoppingCartRepository = shoppingCartRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
+        this.userController = userController;
     }
 
     /**
@@ -48,28 +53,32 @@ public class CheckoutController {
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
     (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, Model model) {
-
-        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-        BookUser loggedInUser = null;
-        if (!loggedInUsers.isEmpty()) {
-            loggedInUser = loggedInUsers.get(0);
-        }
-
-        Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
-
-        List<InventoryItem> inventoryItems;
-        if (searchValue.isEmpty()) {
-            inventoryItems = inventory.getAvailableBooks();
-        } else {
-            inventoryItems = inventory.getBooksMatchingSearch(searchValue);
-            if (inventoryItems.isEmpty()) {
-                model.addAttribute("error", "No items match \"" + searchValue + "\".");
+       checkoutFlag = false;
+        if(this.userController.getUserAccess()){
+            List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
+            BookUser loggedInUser = null;
+            if (!loggedInUsers.isEmpty()) {
+                loggedInUser = loggedInUsers.get(0);
             }
-        }
 
-        model.addAttribute("user", loggedInUser);
-        model.addAttribute("inventoryItems", inventoryItems);
-        return "home";
+            Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
+
+            List<InventoryItem> inventoryItems;
+            if (searchValue.isEmpty()) {
+                inventoryItems = inventory.getAvailableBooks();
+            } else {
+                inventoryItems = inventory.getBooksMatchingSearch(searchValue);
+                if (inventoryItems.isEmpty()) {
+                    model.addAttribute("error", "No items match \"" + searchValue + "\".");
+                }
+            }
+
+            model.addAttribute("user", loggedInUser);
+            model.addAttribute("inventoryItems", inventoryItems);
+            return "home";
+        } else {
+            return "access-denied";
+        } 
     }
 
     /**
@@ -108,10 +117,9 @@ public class CheckoutController {
     @PostMapping("/addToCart")
     public String addToCart(@RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
             model) {
-
+        
         System.out.println("going into add to cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
-
         List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
         BookUser loggedInUser = null;
         if (!loggedInUsers.isEmpty()) {
@@ -215,9 +223,11 @@ public class CheckoutController {
 
                 inventoryItemRepository.save(invItem);
 
-                System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
-                if (shoppingCart.getBooksInCart().size()>1){
-                    System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
+                if (!shoppingCart.getBooksInCart().isEmpty()) {
+                    System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
+                    if (shoppingCart.getBooksInCart().size() > 1) {
+                        System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
+                    }
                 }
 
                 System.out.println(" TOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
@@ -227,11 +237,32 @@ public class CheckoutController {
 
             }
         }
+
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
-        return "home";
-    }
+
+        if(checkoutFlag){
+    
+            //Calculate total price again
+            double totalPrice = 0;
+            for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
+                totalPrice += item.getBook().getPrice() * item.getQuantity();
+            }
+    
+            double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
+            
+            model.addAttribute("items", shoppingCart.getBooksInCart());
+            model.addAttribute("totalPrice", roundedPrice);
+    
+            if (this.userController.getUserAccess()) {
+                return "checkout";
+            } else {
+                return "access-denied";
+            }
+        }
+        return "home";    
+}
 
     /**
      * Method to retrieve shopping cart for user
@@ -241,5 +272,58 @@ public class CheckoutController {
         return shoppingCartRepository.findById(1) != null ? shoppingCartRepository.findById(1) : new ShoppingCart(inventoryRepository.findById(1));
     }
 
-}
+    /** 
+    * Method to get checkout page
+    * @param model container
+    * @return route to html page to display checkout page or access denied page
+    * @author Waheeb Hashmi
+    */
+    @GetMapping("/checkout")
+    public String viewCart(Model model) {
+        checkoutFlag = true;
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
 
+        //Calculate total price
+        double totalPrice = 0;
+        for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
+            totalPrice += item.getBook().getPrice() * item.getQuantity();
+        }
+
+        double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
+        
+        model.addAttribute("items", shoppingCart.getBooksInCart());
+        model.addAttribute("totalPrice", roundedPrice);
+
+        if (this.userController.getUserAccess()) {
+            return "checkout";
+        } else {
+            return "access-denied";
+        }
+   }
+
+
+
+
+    /**
+    * Method to process checkout
+    * @param model container
+    * @return route to html page to display order confirmation page
+    * @author Waheeb Hashmi
+    */
+    @PostMapping("/checkout")
+    public String confirmOrder(Model model) {
+        // Generate a random confirmation number
+        String confirmationNumber = UUID.randomUUID().toString();
+        model.addAttribute("confirmationNumber", confirmationNumber);
+
+        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+
+        shoppingCart.checkout();
+
+        shoppingCartRepository.save(shoppingCart);
+        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
+        inventoryRepository.save(inventoryRepository.findById(1));
+
+        return "order-confirmation";
+    }
+}
