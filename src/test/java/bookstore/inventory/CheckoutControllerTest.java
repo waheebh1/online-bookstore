@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import bookstore.users.BookUser;
+import bookstore.users.UsersessionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,9 @@ class CheckoutControllerTest {
 
     @Mock
     private ShoppingCartItemRepository shoppingCartItemRepository;
+
+    @Mock
+    private UsersessionRepository usersessionRepository;
 
     private Book book1;
     private Book book2;
@@ -91,7 +96,9 @@ class CheckoutControllerTest {
      */
     @Test
     void testConfirmOrder() {
-        when(shoppingCartRepository.findById(1)).thenReturn(shoppingCart);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
+        when(userController.getLoggedInUser()).thenReturn(bookUser);
 
         Model model = new ConcurrentModel();
 
@@ -127,7 +134,7 @@ class CheckoutControllerTest {
 
         Assertions.assertEquals("access-denied", view);
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
-        Assertions.assertTrue(model.containsAttribute("totalPrice"));
+        Assertions.assertFalse(model.containsAttribute("totalPrice"));
 
     }
     

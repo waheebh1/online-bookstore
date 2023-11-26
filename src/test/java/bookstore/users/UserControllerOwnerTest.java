@@ -1,5 +1,6 @@
 package bookstore.users;
 
+import bookstore.inventory.ShoppingCart;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,6 +11,7 @@ import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * UserController Owner Specific Tests
@@ -24,6 +26,9 @@ public class UserControllerOwnerTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private UsersessionRepository usersessionRepository;
 
     /**
      * Test adding a new owner is successful
@@ -42,6 +47,7 @@ public class UserControllerOwnerTest {
         Assertions.assertEquals(user1.getUsername(), modelUser.getUsername());
         Assertions.assertEquals(user1.getPassword(), modelUser.getPassword());
         Assertions.assertEquals(UserType.BOOKOWNER, modelUser.getUserType());
+        Assertions.assertNotNull(modelUser.getShoppingCart());
     }
 
     /**
@@ -62,6 +68,7 @@ public class UserControllerOwnerTest {
         Assertions.assertEquals(user1.getUsername(), modelUser.getUsername());
         Assertions.assertEquals(user1.getPassword(), modelUser.getPassword());
         Assertions.assertEquals(UserType.BOOKOWNER, modelUser.getUserType());
+        Assertions.assertNotNull(modelUser.getShoppingCart());
     }
 
     // add Owner login tests
@@ -74,11 +81,14 @@ public class UserControllerOwnerTest {
     void successfulLogin() {
         // Mocking userRepository
         BookUser existingOwner = new BookOwner("ExistingOwner", "password123");
+        existingOwner.setShoppingCart(new ShoppingCart());
+
         Mockito.when(userRepository.findByUsername("ExistingOwner")).thenReturn(Collections.singletonList(existingOwner));
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(existingOwner, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(existingOwner, model.getAttribute("user"));
+        Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
     }
 }
