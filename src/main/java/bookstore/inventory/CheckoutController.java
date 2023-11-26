@@ -107,11 +107,6 @@ public class CheckoutController {
             System.out.println(genres);
             System.out.println(publishers);
 
-//            for(InventoryItem i: inventoryItems){
-//                System.out.println(i.getBook().getAuthor());
-//                System.out.println(i.getBook().getAuthor().get(0).getFullName());
-//            }
-
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
 
             model.addAttribute("user", loggedInUser);

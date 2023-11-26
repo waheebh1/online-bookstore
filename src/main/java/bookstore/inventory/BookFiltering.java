@@ -25,10 +25,7 @@ public class BookFiltering {
 
     public static List<InventoryItem> getItemsMatchingFilters(List<InventoryItem> inventoryItems, List<String> authors, List<String> genres, List<String> publishers) {
         return inventoryItems.stream()
-                .filter(item -> {
-                    System.out.println(item.getBook().getAuthor().get(0).getFullName());
-                    return (authors == null || item.getBook().getAuthor().stream().anyMatch(author -> authors.contains(author.getFullName()))) && (genres==null || genres.contains(item.getBook().getGenre())) && (publishers==null || publishers.contains(item.getBook().getPublisher()));
-                })
+                .filter(item -> (authors == null || item.getBook().getAuthor().stream().anyMatch(author -> authors.contains(author.getFullName()))) && (genres==null || genres.contains(item.getBook().getGenre())) && (publishers==null || publishers.contains(item.getBook().getPublisher())))
                 .collect(Collectors.toList());
     }
 
