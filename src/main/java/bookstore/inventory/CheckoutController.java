@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -89,9 +90,17 @@ public class CheckoutController {
                 System.out.println("ERROR: Sort criteria not found");
             }
 
+            List<Book> bookList = BookFiltering.createBookList(inventoryItems);
+            List<String> authorList = BookFiltering.getAllAuthors(bookList);
+            List<String> genreList = BookFiltering.getAllGenres(bookList);
+            List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+
             model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItems);
             model.addAttribute("sort", sort);
+            model.addAttribute("authors", authorList);
+            model.addAttribute("genres", genreList);
+            model.addAttribute("publishers", publisherList);
             return "home";
         } else {
             return "access-denied";
@@ -205,9 +214,21 @@ public class CheckoutController {
 
             }
         }
+
+        List<InventoryItem> inventoryItems = (List<InventoryItem>) inventoryItemRepository.findAll();
+        inventoryItems = BookFiltering.getItemsInStock(inventoryItems);
+
+        List<Book> bookList = BookFiltering.createBookList(inventoryItems);
+        List<String> authorList = BookFiltering.getAllAuthors(bookList);
+        List<String> genreList = BookFiltering.getAllGenres(bookList);
+        List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
-        model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
+        model.addAttribute("inventoryItems", inventoryItems);
+        model.addAttribute("authors", authorList); //TODO repetition
+        model.addAttribute("genres", genreList);
+        model.addAttribute("publishers", publisherList);
         return "home"; //TODO after add/remove from cart, the sort goes away. Need to store the sort value
 
     }
@@ -295,9 +316,20 @@ public class CheckoutController {
             }
         }
 
+        List<InventoryItem> inventoryItems = (List<InventoryItem>) inventoryItemRepository.findAll();
+        inventoryItems = BookFiltering.getItemsInStock(inventoryItems);
+
+        List<Book> bookList = BookFiltering.createBookList(inventoryItems);
+        List<String> authorList = BookFiltering.getAllAuthors(bookList);
+        List<String> genreList = BookFiltering.getAllGenres(bookList);
+        List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
+        model.addAttribute("authors", authorList); //TODO repetition
+        model.addAttribute("genres", genreList);
+        model.addAttribute("publishers", publisherList);
 
         if(checkoutFlag){
     

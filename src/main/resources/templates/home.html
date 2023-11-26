@@ -79,6 +79,29 @@
                 <option value="alphabetical" th:selected="${sort == 'alphabetical'}">Alphabetical</option>
             </select>
         </div>
+        <div class="filterContainer">
+            <h3>Author</h3>
+            <span th:each="author : ${authors}" >
+                <label th:for="${'checkbox-' + author}" th:text="${author}"></label>
+                <input type="checkbox" th:id="${'checkbox-' + author}" th:name="author" th:value="${author}" />
+                <br>
+            </span>
+
+            <h3>Genre</h3>
+            <span th:each="genre : ${genres}" >
+                <label th:for="${'checkbox-' + genre}" th:text="${genre}"></label>
+                <input type="checkbox" th:id="${'checkbox-' + genre}" th:name="genre" th:value="${genre}" />
+                <br>
+            </span>
+
+            <h3>Publisher</h3>
+            <span th:each="publisher : ${publishers}" >
+                <label th:for="${'checkbox-' + publisher}" th:text="${publisher}"></label>
+                <input type="checkbox" th:id="${'checkbox-' + publisher}" th:name="publisher" th:value="${publisher}" />
+                <br>
+            </span>
+
+        </div>
     </form>
 </div>
 

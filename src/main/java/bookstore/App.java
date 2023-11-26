@@ -90,6 +90,7 @@ public class App
             repository.save(new BookOwner("AdminOwner", "Password123"));
             repository.save(new BookUser("User1", "Password45"));
             repository.save(new BookUser("User2", "Password67"));
+            repository.save(new BookOwner("abc", "123"));
         };
     }
 }
