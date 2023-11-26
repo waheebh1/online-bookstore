@@ -21,6 +21,8 @@ public class Author {
 
     /**
      * Default constructor
+     *
+     * @author Shrimei Chock
      */
     public Author(){}
 
@@ -28,6 +30,8 @@ public class Author {
      Constructor with all parameters
      * @param firstName first name
      * @param lastName last name
+     *
+     * @author Shrimei Chock
      */
     public Author(String firstName, String lastName){
         this.firstName = firstName;
@@ -37,6 +41,8 @@ public class Author {
     /**
      * Get ID
      * @return id
+     *
+     * @author Shrimei Chock
      */
     public Long getId() {
         return id;
@@ -45,6 +51,8 @@ public class Author {
     /**
      * Set ID
      * @param id ID
+     *
+     * @author Shrimei Chock
      */
     public void setId(Long id) {
         this.id = id;
@@ -53,6 +61,8 @@ public class Author {
     /**
      * Get author's first name
      * @return first name
+     *
+     * @author Shrimei Chock
      */
     public String getFirstName() {
         return firstName;
@@ -61,6 +71,8 @@ public class Author {
     /**
      * Set author's first name
      * @param firstName first name
+     *
+     * @author Shrimei Chock
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -69,6 +81,8 @@ public class Author {
     /**
      * Get author's last name
      * @return last name
+     *
+     * @author Shrimei Chock
      */
     public String getLastName() {
         return lastName;
@@ -77,6 +91,8 @@ public class Author {
     /**
      * Set author's last name
      * @param lastName last name
+     *
+     * @author Shrimei Chock
      */
     public void setLastName(String lastName) {
         this.lastName = lastName;
@@ -85,6 +101,8 @@ public class Author {
     /**
      * Get author's full name
      * @return LastName, Firstname
+     *
+     * @author Shrimei Chock
      */
     public String getFullName(){
         return this.lastName + ", " + this.firstName;
@@ -93,6 +111,8 @@ public class Author {
     /**
      * Get list of author's works
      * @return bibliography
+     *
+     * @author Shrimei Chock
      */
     public List<Book> getBibliography() {
         return bibliography;
@@ -101,6 +121,8 @@ public class Author {
     /**
      * Add book to bibliography
      * @param book book to add
+     *
+     * @author Shrimei Chock
      */
     public void addBook(Book book){
         this.bibliography.add(book);
@@ -109,6 +131,8 @@ public class Author {
     /**
      * Remove book from bibliography
      * @param book book to remove
+     *
+     * @author Shrimei Chock
      */
     public void removeBook(Book book){
         this.bibliography.remove(book);

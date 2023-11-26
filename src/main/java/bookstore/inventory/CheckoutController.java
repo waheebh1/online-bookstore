@@ -45,6 +45,7 @@ public class CheckoutController {
      * @return reroute to html page to display all books
      * @author Maisha Abdullah
      * @author Thanuja Sivaananthan
+     * @author Shrimei Chock
      */
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
@@ -75,8 +76,10 @@ public class CheckoutController {
             inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice())); //TODO replace with methods in inventoryItem repo?
         } else if (sort.equals(SortCriteria.HIGH_TO_LOW.label)) {
             inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice(), Comparator.reverseOrder()));
-        } else {
+        } else if (sort.equals(SortCriteria.ALPHABETICAL.label)) {
             inventoryItems.sort(Comparator.comparing(item -> item.getBook().getTitle()));
+        } else {
+            System.out.println("ERROR: Sort criteria not found");
         }
 
         model.addAttribute("user", loggedInUser);
@@ -93,7 +96,7 @@ public class CheckoutController {
      * @author Shrimei Chock
      */
     @GetMapping("/viewBook")
-    public String viewBook(@RequestParam(name = "isbn") String isbn, Model model) { //TODO pass in isbn when calling this endpoint
+    public String viewBook(@RequestParam(name = "isbn") String isbn, Model model) {
         Book bookToDisplay = bookRepository.findByIsbn(isbn);
         model.addAttribute("book", bookToDisplay);
         return "book-info";
@@ -117,7 +120,7 @@ public class CheckoutController {
 //        //Adjust inventory displayed depending on sort criteria
 //        Iterable<bookstore.inventory.InventoryItem> inventoryItems;
 //
-//        if(sort.equals("low_to_high")){ //TODO use enum instead of hardcoding
+//        if(sort.equals("low_to_high")){
 //            inventoryItems = inventoryItemRepository.sortByPriceAsc();
 //        } else if (sort.equals("high_to_low")) {
 //            inventoryItems = inventoryItemRepository.sortByPriceDesc();

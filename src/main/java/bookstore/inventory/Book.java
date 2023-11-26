@@ -26,6 +26,7 @@ public class Book {
 
     /**
      * Default constructor
+     * @author Shrimei Chock
      */
     public Book(){}
 
@@ -36,6 +37,8 @@ public class Book {
      * @param author book author
      * @param price cost of book
      * @param date date that book was published
+     *
+     * @author Shrimei Chock
      */
     public Book(String isbn, String title, ArrayList<Author> author, Double price, String date){
         this.isbn = isbn;
@@ -55,6 +58,8 @@ public class Book {
      * @param genre genre
      * @param price cost of book
      * @param description short summary
+     *
+     * @author Shrimei Chock
      */
     public Book(String isbn, String title, ArrayList<Author> author, Double price, String date, String cover, String publisher, String genre, String description){
         this(isbn, title, author, price, date); //call basic constructor
@@ -67,6 +72,8 @@ public class Book {
     /**
      * Get isbn
      * @return isbn
+     *
+     * @author Shrimei Chock
      */
     public String getIsbn() {
         return isbn;
@@ -75,6 +82,8 @@ public class Book {
     /**
      * Set isbn
      * @param isbn unique code for book
+     *
+     * @author Shrimei Chock
      */
     public void setIsbn(String isbn) {
         this.isbn = isbn;
@@ -83,6 +92,8 @@ public class Book {
     /**
      * Get title
      * @return title
+     *
+     * @author Shrimei Chock
      */
     public String getTitle() {
         return title;
@@ -91,6 +102,8 @@ public class Book {
     /**
      * Set title
      * @param title book title
+     *
+     * @author Shrimei Chock
      */
     public void setTitle(String title) {
         this.title = title;
@@ -99,6 +112,8 @@ public class Book {
     /**
      * Get picture of book cover
      * @return picture
+     *
+     * @author Shrimei Chock
      */
     public String getCover() {
         return cover;
@@ -107,6 +122,8 @@ public class Book {
     /**
      * Set picture
      * @param picture book cover image
+     *
+     * @author Shrimei Chock
      */
     public void setCover(String picture) {
         this.cover = picture;
@@ -115,6 +132,8 @@ public class Book {
     /**
      * Get author
      * @return author
+     *
+     * @author Shrimei Chock
      */
     public List<Author> getAuthor() {
         return author;
@@ -123,6 +142,8 @@ public class Book {
     /**
      * Set author
      * @param author author of book
+     *
+     * @author Shrimei Chock
      */
     public void setAuthor(ArrayList<Author> author) {
         this.author = author;
@@ -131,6 +152,8 @@ public class Book {
     /**
      * Get publisher
      * @return publisher
+     *
+     * @author Shrimei Chock
      */
     public String getPublisher() {
         return publisher;
@@ -139,6 +162,8 @@ public class Book {
     /**
      * Set publisher
      * @param publisher publisher of book
+     *
+     * @author Shrimei Chock
      */
     public void setPublisher(String publisher) {
         this.publisher = publisher;
@@ -147,6 +172,8 @@ public class Book {
     /**
      * Get date that book was released
      * @return release date
+     *
+     * @author Shrimei Chock
      */
     public String getDate() {
         return date;
@@ -155,6 +182,8 @@ public class Book {
     /**
      * Set date that book was released
      * @param date release date
+     *
+     * @author Shrimei Chock
      */
     public void setDate(String date) {
         this.date = date;
@@ -163,6 +192,8 @@ public class Book {
     /**
      * Get genre of book
      * @return genre
+     *
+     * @author Shrimei Chock
      */
     public String getGenre() {
         return genre;
@@ -171,6 +202,8 @@ public class Book {
     /**
      * Set genre
      * @param genre genre of book
+     *
+     * @author Shrimei Chock
      */
     public void setGenre(String genre) {
         this.genre = genre;
@@ -179,6 +212,8 @@ public class Book {
     /**
      * Get price
      * @return price
+     *
+     * @author Shrimei Chock
      */
     public Double getPrice() {
         return price;
@@ -187,6 +222,8 @@ public class Book {
     /**
      * Set price
      * @param price cost of book
+     *
+     * @author Shrimei Chock
      */
     public void setPrice(Double price) {
         this.price = price;
@@ -195,6 +232,8 @@ public class Book {
     /**
      * Get description
      * @return description
+     *
+     * @author Shrimei Chock
      */
     public String getDescription() {
         return description;
@@ -203,6 +242,8 @@ public class Book {
     /**
      * Set description
      * @param description short description of book
+     *
+     * @author Shrimei Chock
      */
     public void setDescription(String description) {
         this.description = description;

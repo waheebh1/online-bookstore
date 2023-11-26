@@ -17,6 +17,17 @@ public class App
     public static void main(String[] args) {SpringApplication.run(App.class);
     }
 
+    /**
+     * Setup sample books
+     * @param inventoryRepository inventory repo
+     * @param bookRepo repo of books
+     * @param authorRepo repo of authors
+     * @param itemRepository repo of inventory items
+     * @return Commandline runner object
+     *
+     * @author Shrimei Chock
+     * @author Maisha Abdullah
+     */
     @Bean
     public CommandLineRunner demoInventory(InventoryRepository inventoryRepository, BookRepository bookRepo, AuthorRepository authorRepo, InventoryItemRepository itemRepository) {
         return (args) -> {

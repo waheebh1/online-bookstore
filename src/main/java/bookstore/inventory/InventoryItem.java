@@ -10,7 +10,6 @@ import jakarta.persistence.*;
 @Entity
 public class InventoryItem extends Item{
 
-
     @ManyToOne
     @JoinColumn (name = "inventory_id")
     private Inventory inventory;
