@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" th:href="@{../css/general.css}" />
+</head>
+<body>
+<div class="header">
+    <h1>Online Book Store</h1>
+</div>
+<form th:action="@{/listAvailableBooks}" method="get">
+    <button type="submit">Back to Home</button>
+</form>
+<div style="text-align: center;">
+    <h1>Order successful!</h1>
+    <p>Your confirmation number is: <span th:text="${confirmationNumber}"></span></p>
+    <p>An email has been sent to you with all the order details.</p>
+</div>
+</body>
+</html>

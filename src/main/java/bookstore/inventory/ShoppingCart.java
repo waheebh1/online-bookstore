@@ -107,7 +107,6 @@ public class ShoppingCart {
         return false;
     }
 
-
     /**
      * Method to remove from cart
      * @param book      the Book user wishes to remove from cart
@@ -130,6 +129,7 @@ public class ShoppingCart {
                 int newQuantity = cartItem.getQuantity() - quantity;
 
                 // this always needs to happen for some reason?
+
                 cartItem.setQuantity(cartItem.getQuantity() - quantity);
 
                 if (newQuantity <= 0) {
@@ -184,9 +184,10 @@ public class ShoppingCart {
      * Method to clear cart once checkout is completed?
      * @author Maisha Abdullah
      */
-    //im confusion?
     public void checkout(){
-        booksInCart.clear();
+        for (ShoppingCartItem itemInCart : booksInCart) {
+            itemInCart.setQuantity(0);
+        }
     }
 
     /**
@@ -255,4 +256,5 @@ public class ShoppingCart {
         }
         return total;
     }
+
 }

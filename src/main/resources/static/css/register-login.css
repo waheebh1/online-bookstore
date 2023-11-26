@@ -29,3 +29,12 @@ h1, h2 {
 .button:hover {
     background-color: black;
 }
+.layout-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.form-container, .cart-info-container {
+    width: 45%; 
+}

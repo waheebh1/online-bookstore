@@ -55,6 +55,11 @@
 <div class="header">
     <h1>Online Book Store</h1>
 </div>
+<th:block th:if="${user}">
+    <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</th:block>
 <p th:text="'Logged in as: ' + ${user.getUsername()}" />
 
 <div>
@@ -92,9 +97,9 @@
     <form th:action="@{/removeFromCart}" method="post" th:id="removeFromCartForm">
         <input type="submit" value="Remove from cart" class="button" />
     </form>
-    <a href="checkout.html">
+    <form th:action="@{/checkout}" method="get">
         <input type="submit" value="Checkout" class="button" />
-    </a>
+    </form>
 </div>
 
 <div class="container">
@@ -106,6 +111,7 @@
             <th>Cover</th>
             <th>Title</th>
             <th>Author</th>
+            <th>Price</th>
         </tr>
         </thead>
         <tbody>
@@ -118,6 +124,7 @@
                 <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
             </td>
             <td th:text="${inventoryItem.getBook().getAuthor()[0].fullName}"></td>
+            <td>$<span th:text="${inventoryItem.getBook().getPrice()}"></span></td>
         </tr>
         </tbody>
     </table>
