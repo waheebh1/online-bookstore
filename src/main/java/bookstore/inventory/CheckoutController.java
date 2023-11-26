@@ -4,6 +4,7 @@ import bookstore.users.BookUser;
 import bookstore.users.UserRepository;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -47,9 +48,7 @@ public class CheckoutController {
      */
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
-    (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, Model model) {
-
-        //TODO after doing a search, the sort goes away. possibly move the sort functionality to this method?
+    (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, @RequestParam(name = "sort", required = false, defaultValue = "low_to_high") String sort, Model model) {
         List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
         BookUser loggedInUser = null;
         if (!loggedInUsers.isEmpty()) {
@@ -58,6 +57,7 @@ public class CheckoutController {
 
         Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
 
+        //Search
         List<InventoryItem> inventoryItems;
         if (searchValue.isEmpty()) {
             inventoryItems = inventory.getAvailableBooks();
@@ -68,8 +68,20 @@ public class CheckoutController {
             }
         }
 
+        // Sort after searching
+        System.out.println("SORT BY: " + sort);
+
+        if (sort.equals("low_to_high")) {
+            inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice())); //TODO replace with methods in inventoryItem repo?
+        } else if (sort.equals("high_to_low")) {
+            inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice(), Comparator.reverseOrder()));
+        } else {
+            inventoryItems.sort(Comparator.comparing(item -> item.getBook().getTitle()));
+        }
+
         model.addAttribute("user", loggedInUser);
         model.addAttribute("inventoryItems", inventoryItems);
+        model.addAttribute("sort", sort);
         return "home";
     }
 
@@ -87,38 +99,38 @@ public class CheckoutController {
         return "book-info";
     }
 
-    @GetMapping("/sort")
-    public String sortBooks(@RequestParam(name = "sort") String sort, Model model){
-        //Debug statement
-        System.out.println("SORT BY: " + sort);
-
-        //Get logged in user
-        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-        BookUser loggedInUser = null;
-        if (!loggedInUsers.isEmpty()) {
-            loggedInUser = loggedInUsers.get(0);
-        }
-
-        //Get logged in user's cart
-        ShoppingCart shoppingCart = getOrCreateShoppingCart();
-
-        //Adjust inventory displayed depending on sort criteria
-        Iterable<bookstore.inventory.InventoryItem> inventoryItems;
-
-        if(sort.equals("low_to_high")){ //TODO use enum instead of hardcoding
-            inventoryItems = inventoryItemRepository.sortByPriceAsc();
-        } else if (sort.equals("high_to_low")) {
-            inventoryItems = inventoryItemRepository.sortByPriceDesc();
-        } else {
-            inventoryItems = inventoryItemRepository.sortByTitleAsc();
-        }
-        model.addAttribute("inventoryItems", inventoryItems);
-        model.addAttribute("user", loggedInUser);
-        model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
-        model.addAttribute("sort", sort);
-
-        return "home";
-    }
+//    @GetMapping("/sort")
+//    public String sortBooks(@RequestParam(name = "sort") String sort, Model model){
+//        //Debug statement
+//        System.out.println("SORT BY: " + sort);
+//
+//        //Get logged in user
+//        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
+//        BookUser loggedInUser = null;
+//        if (!loggedInUsers.isEmpty()) {
+//            loggedInUser = loggedInUsers.get(0);
+//        }
+//
+//        //Get logged in user's cart
+//        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+//
+//        //Adjust inventory displayed depending on sort criteria
+//        Iterable<bookstore.inventory.InventoryItem> inventoryItems;
+//
+//        if(sort.equals("low_to_high")){ //TODO use enum instead of hardcoding
+//            inventoryItems = inventoryItemRepository.sortByPriceAsc();
+//        } else if (sort.equals("high_to_low")) {
+//            inventoryItems = inventoryItemRepository.sortByPriceDesc();
+//        } else {
+//            inventoryItems = inventoryItemRepository.sortByTitleAsc();
+//        }
+//        model.addAttribute("inventoryItems", inventoryItems);
+//        model.addAttribute("user", loggedInUser);
+//        model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
+//        model.addAttribute("sort", sort);
+//
+//        return "home";
+//    }
 
     /**
      * Method to go to an add to cart form

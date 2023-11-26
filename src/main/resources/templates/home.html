@@ -57,22 +57,23 @@
 </div>
 <p th:text="'Logged in as: ' + ${user.getUsername()}" />
 
-<div class="search-container">
-    <form action="/listAvailableBooks">
-        <input type="text" placeholder="Search" name="searchValue">
-        <button type="submit">Submit</button>
-    </form>
-</div>
-
 <div>
-    <form id="sortForm" th:action="@{/sort}" method="get">
-        <label for="sort">Sort by:</label>
+    <form id="sortForm" th:action="@{/listAvailableBooks}" method="get">
+        <div class="searchContainer">
+            <label>
+                <input type="text" placeholder="Search" name="searchValue">
+            </label>
+            <button type="submit">Submit</button>
+        </div>
+        <div class="sortContainer">
+            <label for="sort">Sort by:</label>
 
-        <select name="sort" id="sort">
-            <option value="low_to_high" th:selected="${sort == 'low_to_high'}">Price: Low to High</option>
-            <option value="high_to_low" th:selected="${sort == 'high_to_low'}">Price: High to Low</option>
-            <option value="alphabetical" th:selected="${sort == 'alphabetical'}">Alphabetical</option>
-        </select>
+            <select name="sort" id="sort">
+                <option value="low_to_high" th:selected="${sort == 'low_to_high'}">Price: Low to High</option>
+                <option value="high_to_low" th:selected="${sort == 'high_to_low'}">Price: High to Low</option>
+                <option value="alphabetical" th:selected="${sort == 'alphabetical'}">Alphabetical</option>
+            </select>
+        </div>
     </form>
 </div>
 
