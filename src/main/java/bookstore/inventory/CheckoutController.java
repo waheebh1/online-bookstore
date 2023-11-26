@@ -55,7 +55,12 @@ public class CheckoutController {
      */
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
-    (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, @RequestParam(name = "sort", required = false, defaultValue = "low_to_high") String sort, Model model) {
+    (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue,
+     @RequestParam(name = "sort", required = false, defaultValue = "low_to_high") String sort,
+     @RequestParam(name = "author", required = false) List<String> authors,
+     @RequestParam(name = "genre", required = false) List<String> genres,
+     @RequestParam(name = "publisher", required = false) List<String> publishers,
+     Model model) {
         checkoutFlag = false;
         if(this.userController.getUserAccess()){
             List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
@@ -90,10 +95,24 @@ public class CheckoutController {
                 System.out.println("ERROR: Sort criteria not found");
             }
 
+            //filter
             List<Book> bookList = BookFiltering.createBookList(inventoryItems);
             List<String> authorList = BookFiltering.getAllAuthors(bookList);
             List<String> genreList = BookFiltering.getAllGenres(bookList);
             List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+            //TODO add for price ranges
+
+            //Print checked values
+            System.out.println(authors);
+            System.out.println(genres);
+            System.out.println(publishers);
+
+//            for(InventoryItem i: inventoryItems){
+//                System.out.println(i.getBook().getAuthor());
+//                System.out.println(i.getBook().getAuthor().get(0).getFullName());
+//            }
+
+            inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
 
             model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItems);

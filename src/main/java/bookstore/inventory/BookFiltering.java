@@ -1,5 +1,5 @@
 /**
- * Functions to process list of books
+ * Helper functions to process list of books
  * @author Shrimei Chock
  */
 
@@ -20,6 +20,15 @@ public class BookFiltering {
         // Filter out items with quantity < 0
         return inventoryItems.stream()
                 .filter(item -> item.getQuantity() > 0)
+                .collect(Collectors.toList());
+    }
+
+    public static List<InventoryItem> getItemsMatchingFilters(List<InventoryItem> inventoryItems, List<String> authors, List<String> genres, List<String> publishers) {
+        return inventoryItems.stream()
+                .filter(item -> {
+                    System.out.println(item.getBook().getAuthor().get(0).getFullName());
+                    return (authors == null || item.getBook().getAuthor().stream().anyMatch(author -> authors.contains(author.getFullName()))) && (genres==null || genres.contains(item.getBook().getGenre())) && (publishers==null || publishers.contains(item.getBook().getPublisher()));
+                })
                 .collect(Collectors.toList());
     }
 
