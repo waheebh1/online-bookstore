@@ -83,6 +83,10 @@ public class CheckoutController {
      */
     @GetMapping("/viewBook")
     public String viewBook(@RequestParam(name = "isbn") String isbn, Model model) { //TODO pass in isbn when calling this endpoint
+        if(!this.userController.getUserAccess()){
+            return "access-denied";
+        }
+
         Book bookToDisplay = bookRepository.findByIsbn(isbn);
         model.addAttribute("book", bookToDisplay);
         return "book-info";
