@@ -21,7 +21,7 @@ public class BookUser {
 
     public UserType userType;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne
     private ShoppingCart shoppingCart;
 
     /**

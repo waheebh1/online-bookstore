@@ -79,13 +79,11 @@ public class UserController {
             bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword(), bookUser.getShoppingCart());
         }
 
+        // need to save shoppingCarts first, then set shoppingCart for the user, then save the user
         ShoppingCart shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
-        userRepository.save(bookUser);
         shoppingCartRepository.save(shoppingCart);
         bookUser.setShoppingCart(shoppingCart);
-        shoppingCart.setUser(bookUser);
-//        userRepository.save(bookUser);
-//        shoppingCartRepository.save(shoppingCart);
+        userRepository.save(bookUser);
 
         return bookUser;
     }
