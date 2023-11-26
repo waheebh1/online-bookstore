@@ -1,14 +1,17 @@
 package bookstore.inventory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.*;
 
+import bookstore.users.BookUser;
+import bookstore.users.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -16,6 +19,8 @@ import org.springframework.ui.Model;
 import bookstore.users.UserController;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Optional;
 
 
 /**
@@ -42,6 +47,12 @@ class CheckoutControllerTest {
 
     @Mock
     private ShoppingCartItemRepository shoppingCartItemRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private InventoryItemRepository inventoryItemRepository;
 
     private Book book1;
     private Book book2;
@@ -150,5 +161,35 @@ class CheckoutControllerTest {
         Assertions.assertEquals("checkout", view);
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
         Assertions.assertTrue(model.containsAttribute("totalPrice"));
+    }
+
+    @Test
+    void testAddToCart(){
+        when(userController.getUserAccess()).thenReturn(true);
+
+        BookUser existingUser = new BookUser("ExistingUser", "password123");
+        Mockito.when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
+
+        InventoryItem item1 = new InventoryItem(book1, 5);
+        when(inventoryItemRepository.findById(Mockito.anyInt())).thenReturn(item1);
+
+        Model model = new ConcurrentModel();
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+        shoppingCart.addToCart(book1, 3);
+        //shoppingCart.addToCart(book2, 1);
+
+        assertDoesNotThrow(() -> {
+            String[] selectedItems = new String[]{"1"};
+            String view = controller.addToCart(selectedItems, model);
+
+            // Verify that the expected methods were called
+            verify(userController, times(1)).getUserAccess();
+            verify(userRepository, times(1)).findByUsername("ExistingUser");
+            verify(inventoryItemRepository, times(1)).findById(anyInt());
+
+            // Assertions
+            Assertions.assertEquals("addToCart", view);
+            // Add more assertions based on your controller logic
+        });
     }
 }
