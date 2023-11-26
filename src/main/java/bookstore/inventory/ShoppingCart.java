@@ -5,7 +5,6 @@
 
 package bookstore.inventory;
 
-import bookstore.users.BookUser;
 import jakarta.persistence.*;
 
 
@@ -34,17 +33,6 @@ public class ShoppingCart {
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
         this.totalPrice = 0.0;
-    }
-
-    /**
-     * Constructor for ShoppingCart
-     * @param inventory     the inventory from which the cart shops from
-     * @author Maisha Abdullah
-     */
-    public ShoppingCart(Inventory inventory, BookUser bookUser){
-        this.inventory = inventory;
-        this.totalPrice = 0.0;
-//        this.bookUser = bookUser;
     }
 
     /**
