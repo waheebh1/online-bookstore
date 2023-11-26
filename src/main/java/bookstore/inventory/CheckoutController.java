@@ -71,9 +71,9 @@ public class CheckoutController {
         // Sort after searching
         System.out.println("SORT BY: " + sort);
 
-        if (sort.equals("low_to_high")) {
+        if (sort.equals(SortCriteria.LOW_TO_HIGH.label)) {
             inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice())); //TODO replace with methods in inventoryItem repo?
-        } else if (sort.equals("high_to_low")) {
+        } else if (sort.equals(SortCriteria.HIGH_TO_LOW.label)) {
             inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice(), Comparator.reverseOrder()));
         } else {
             inventoryItems.sort(Comparator.comparing(item -> item.getBook().getTitle()));
