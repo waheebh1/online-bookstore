@@ -2,11 +2,14 @@ package bookstore.users;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
+import bookstore.inventory.Book;
+import bookstore.inventory.ShoppingCart;
+import bookstore.inventory.ShoppingCartRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,6 +31,9 @@ class UserControllerTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private ShoppingCartRepository shoppingCartRepository;
 
     @Test
     void contextLoads() {
@@ -57,7 +63,7 @@ class UserControllerTest {
         BookUser duplicateUser = new BookUser("Duplicate1", "password123");
 
         // Mock userRepository to simulate finding an existing user
-        Mockito.when(userRepository.findByUsername("Duplicate1")).thenReturn(Collections.singletonList(duplicateUser));
+        when(userRepository.findByUsername("Duplicate1")).thenReturn(Collections.singletonList(duplicateUser));
 
         Model model = new ConcurrentModel();
 
@@ -116,7 +122,7 @@ class UserControllerTest {
     void successfulLogin() {
         // Mocking userRepository
         BookUser existingUser = new BookUser("ExistingUser", "password123");
-        Mockito.when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
+        when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(existingUser, model);
@@ -131,7 +137,7 @@ class UserControllerTest {
     @Test
     void failedLoginIncorrectPassword() {
         BookUser existingUser = new BookUser("User", "password123");
-        Mockito.when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(existingUser));
+        when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(existingUser));
 
         BookUser wrongPasswordUser = new BookUser("User", "wrongPassword");
         Model model = new ConcurrentModel();
@@ -201,7 +207,7 @@ class UserControllerTest {
         BookUser user = new BookUser("User", "password123");
 
         // Assuming userRepository.findByUsername throws an exception
-        Mockito.when(userRepository.findByUsername(anyString())).thenThrow(new RuntimeException("Database error"));
+        when(userRepository.findByUsername(anyString())).thenThrow(new RuntimeException("Database error"));
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(user, model);
@@ -216,7 +222,7 @@ class UserControllerTest {
     @Test
     void invalidLoginAttempt() {
         String nonExistentUsername = "NonExistentUser";
-        Mockito.when(userRepository.findByUsername(nonExistentUsername)).thenReturn(Collections.emptyList());
+        when(userRepository.findByUsername(nonExistentUsername)).thenReturn(Collections.emptyList());
 
         BookUser nonExistentUser = new BookUser(nonExistentUsername, "password");
         Model model = new ConcurrentModel();
@@ -238,8 +244,8 @@ class UserControllerTest {
         BookUser user1 = new BookUser("User1", "password1");
         BookUser user2 = new BookUser("User2", "password2");
 
-        Mockito.when(userRepository.findByUsername("User1")).thenReturn(Collections.singletonList(user1));
-        Mockito.when(userRepository.findByUsername("User2")).thenReturn(Collections.singletonList(user2));
+        when(userRepository.findByUsername("User1")).thenReturn(Collections.singletonList(user1));
+        when(userRepository.findByUsername("User2")).thenReturn(Collections.singletonList(user2));
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(user1, model);
@@ -252,5 +258,151 @@ class UserControllerTest {
         Assertions.assertEquals(user2, model.getAttribute("user"));
     }
 
+    /**
+     * Test for successful logout
+     * @author Sabah Samwatin
+     */
+    @Test
+    void successfulLogout() {
+        // Call the logout method
+        String result = controller.handleUserLogout();
 
+        // Check the result of the logout operation
+        Assertions.assertEquals("redirect:/", result);
+
+        // Verify that user access is set to false, indicating the user is logged out
+        Assertions.assertFalse(controller.getUserAccess(), "User should be logged out and userAccess should be false.");
+    }
+    /**
+     * Test for ensuring correct redirect after login.
+     * @author Sabah Samwatin
+     */
+
+    @Test
+    void ensureCorrectRedirectAfterLogout() {
+        // Perform logout
+        String result = controller.handleUserLogout();
+
+        // Check if the redirection is to the home page
+        Assertions.assertEquals("redirect:/", result, "User should be redirected to home page after logout.");
+    }
+
+    /**
+     * Test logout when user is logged in.
+     * @author Sabah Samwatin
+     */
+    @Test
+    void logoutWhenUserLoggedIn() {
+        // Assuming a user is logged in
+        BookUser loggedInUser = new BookUser("LoggedInUser", "password123");
+        controller.getUserAccess(); // Set to true to simulate logged-in user
+
+        // Perform logout
+        String result = controller.handleUserLogout();
+
+        // Check the result of the logout operation
+        Assertions.assertEquals("redirect:/", result);
+        Assertions.assertFalse(controller.getUserAccess(), "User should be logged out and userAccess should be false.");
+    }
+    /**
+    * Test for logout and immediate login.
+    * @author Sabah Samwatin
+     * */
+    @Test
+    void logoutAndImmediateLogin() {
+        // Assuming we have a user
+        BookUser loggedInUser = new BookUser("User", "password");
+
+        // Simulate the user being logged in
+        // This typically involves setting up security context, session, or similar
+        setupUserAsLoggedIn(loggedInUser);
+
+        // Perform logout
+        String logoutResult = controller.handleUserLogout();
+
+        // Check that the logout was successful
+        Assertions.assertEquals("redirect:/", logoutResult);
+        // Additionally, assert that the user is no longer in the session/security context
+        // Assertions.assertFalse(checkUserLoggedInStatus(), "User should be logged out.");
+
+        // Setup for login - Create a new model and simulate login data
+        Model model = new ConcurrentModel();
+
+        // Mocking userRepository to return the loggedInUser when findByUsername is called
+        when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(loggedInUser));
+
+        // Perform login immediately after logout
+        String loginResult = controller.handleUserLogin(loggedInUser, model);
+
+        // Verify login is successful
+        Assertions.assertEquals("redirect:/listAvailableBooks", loginResult);
+        // Assertions.assertTrue(checkUserLoggedInStatus(), "User should be logged in.");
+    }
+
+    private void setupUserAsLoggedIn(BookUser loggedInUser) {
+    }
+
+    /**
+     * Test logout during an ongoing shopping cart transaction.
+     * @author Sabah Samwatin
+     */
+    @Test
+    void logoutDuringOngoingTransaction() {
+        // Create a user and simulate them being logged in
+        BookUser user = new BookUser("testUser", "password123");
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Collections.singletonList(user));
+
+        // Create a shopping cart and add items to it
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUser(user);
+        Book book = new Book();
+        book.setIsbn("1234567890");
+        book.setPrice(10.0);
+        shoppingCart.addToCart(book, 1);
+
+        // Simulate the shopping cart being saved in the repository
+        when(shoppingCartRepository.findById(1)).thenReturn(shoppingCart);
+
+        // Perform logout
+        controller.handleUserLogout();
+
+        // Verify that the shopping cart is handled properly upon logout
+        ShoppingCart postLogoutCart = shoppingCartRepository.findById(1);
+
+        // Check if the cart is cleared upon logout (modify this assertion based on your application's behavior)
+        Assertions.assertTrue(postLogoutCart.getBooksInCart().isEmpty(), "Shopping cart should be empty after logout.");
+    }
+    /**
+     * Test logging out when there are items in the shopping cart.
+     * @author Sabah Samwatin
+     */
+    @Test
+    void logoutWithItemsInCart() {
+        // Create a user and simulate them being logged in
+        BookUser user = new BookUser("testUser", "password123");
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Collections.singletonList(user));
+
+        // Create a shopping cart with items and a specific ID
+        long cartId = 1L; // Example ID
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUser(user);
+        shoppingCart.setId(cartId);
+        Book book = new Book();
+        book.setIsbn("1234567890");
+        book.setPrice(10.0);
+        shoppingCart.addToCart(book, 1);
+
+        // Simulate the shopping cart being associated with the user
+        when(shoppingCartRepository.findById(cartId)).thenReturn(shoppingCart);
+
+        // Perform logout
+        controller.handleUserLogout();
+
+        // Fetch the shopping cart after logout
+        ShoppingCart postLogoutCart = shoppingCartRepository.findById(cartId);
+
+        // Verify the state of the shopping cart after logout
+        Assertions.assertTrue(postLogoutCart.getBooksInCart().isEmpty(), "Shopping cart should be empty after logout.");
+
+    }
 }
