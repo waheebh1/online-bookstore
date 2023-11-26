@@ -274,7 +274,7 @@ class UserControllerTest {
         Assertions.assertFalse(controller.getUserAccess(), "User should be logged out and userAccess should be false.");
     }
     /**
-     * Test for ensuring correct redirect after login.
+     * Test for ensuring correct redirect after logout.
      * @author Sabah Samwatin
      */
 
