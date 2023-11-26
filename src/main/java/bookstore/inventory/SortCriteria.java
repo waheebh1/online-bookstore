@@ -1,6 +1,7 @@
 package bookstore.inventory;
 
 /**
+ * Criteria for sorting books by
  * @author Shrimei Chock
  */
 
