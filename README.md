@@ -11,12 +11,13 @@ The Amazin Online Bookstore Management System is a web application designed to f
 ## Current Progress
 - Login and Registration
 - View Available Books
-
-## Remaining Tasks
 - Add/Remove from cart
 - Checkout and Purchase
 - Search and Browse Books
+
+## Remaining Tasks
 - Sort and Filter Books
+- Upload and Edit
 - Book Reccomendations
 
 ## Database Schema
