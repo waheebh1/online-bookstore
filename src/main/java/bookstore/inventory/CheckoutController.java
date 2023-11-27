@@ -299,7 +299,7 @@ public class CheckoutController {
                 if(checkoutFlag){
                     ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
                     if (cartItem != null) {
-                        shoppingCart.removeFromCart(cartItem.getBook(), cartItem.getQuantity());
+                        shoppingCart.removeFromCart(cartItem.getBook(), 1);
                         shoppingCartItemRepository.delete(cartItem);
                     }
                 
