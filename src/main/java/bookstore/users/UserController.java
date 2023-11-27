@@ -235,4 +235,5 @@ public class UserController {
     public String registerLogin(Model model) {
         return "register-login";
     }
+
 }
