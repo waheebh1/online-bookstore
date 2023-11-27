@@ -1,10 +1,7 @@
 package bookstore.users;
 
 import bookstore.inventory.ShoppingCart;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Controller;
  * @author Thanuja Sivaananthan
  */
 @Entity
-@Controller
 public class BookUser {
 
     @Id

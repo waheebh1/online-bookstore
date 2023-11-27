@@ -29,7 +29,8 @@ public class App
      * @author Maisha Abdullah
      */
     @Bean
-    public CommandLineRunner demoInventory(InventoryRepository inventoryRepository, BookRepository bookRepo, AuthorRepository authorRepo, InventoryItemRepository itemRepository) {
+    public CommandLineRunner demoInventory(InventoryRepository inventoryRepository, BookRepository bookRepo, AuthorRepository authorRepo, InventoryItemRepository itemRepository,
+                                           UserRepository userRepository, ShoppingCartRepository shoppingCartRepository) {
         return (args) -> {
             Book book1;
             Book book2;
@@ -74,22 +75,29 @@ public class App
             inventory.addItemToInventory(item3);
 
             inventoryRepository.save(inventory);
-        };
-    }
-    /**
-     * Setup sample users
-     * @author Thanuja Sivaananthan
-     *
-     * @param repository    user repository
-     * @return              CommandLineRunner object
-     */
-    @Bean
-    public CommandLineRunner demoUsers(UserRepository repository) {
-        return (args) -> {
+
             // save a few users and owners
-            repository.save(new BookOwner("AdminOwner", "Password123"));
-            repository.save(new BookUser("User1", "Password45"));
-            repository.save(new BookUser("User2", "Password67"));
+            BookOwner bookOwner = new BookOwner("AdminOwner", "Password123");
+            BookUser bookUser1 = new BookUser("User1", "Password45");
+            BookUser bookUser2 = new BookUser("User2", "Password67");
+
+            ShoppingCart shoppingCart1 = new ShoppingCart(inventory);
+            ShoppingCart shoppingCart2 = new ShoppingCart(inventory);
+            ShoppingCart shoppingCart3 = new ShoppingCart(inventory);
+
+            // need to save shoppingCarts first, then set shoppingCart for the user, then save the user
+            shoppingCartRepository.save(shoppingCart1);
+            shoppingCartRepository.save(shoppingCart2);
+            shoppingCartRepository.save(shoppingCart3);
+
+            bookOwner.setShoppingCart(shoppingCart1);
+            bookUser1.setShoppingCart(shoppingCart2);
+            bookUser2.setShoppingCart(shoppingCart3);
+
+            userRepository.save(bookOwner);
+            userRepository.save(bookUser1);
+            userRepository.save(bookUser2);
+
         };
     }
 }

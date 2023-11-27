@@ -5,7 +5,6 @@
 
 package bookstore.inventory;
 
-import bookstore.users.BookUser;
 import jakarta.persistence.*;
 
 
@@ -15,16 +14,14 @@ import java.util.List;
 @Entity
 public class ShoppingCart {
 
-    @OneToOne
-    private BookUser user;
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
     private List<ShoppingCartItem> booksInCart = new ArrayList<>();
-    @OneToOne
+
+    @ManyToOne // many shoppingCarts should be able to map to the same inventory
     private Inventory inventory;
     private Double totalPrice;
 
@@ -36,17 +33,6 @@ public class ShoppingCart {
     public ShoppingCart(Inventory inventory){
         this.inventory = inventory;
         this.totalPrice = 0.0;
-    }
-
-    /**
-     * Constructor for ShoppingCart
-     * @param inventory     the inventory from which the cart shops from
-     * @author Maisha Abdullah
-     */
-    public ShoppingCart(Inventory inventory, BookUser user){
-        this.inventory = inventory;
-        this.totalPrice = 0.0;
-        this.user = user;
     }
 
     /**
@@ -224,24 +210,6 @@ public class ShoppingCart {
      */
     public Long getId() {
         return id;
-    }
-
-    /**
-     * Method to get the user of this shopping cart
-     * @return the user
-     * @author Maisha Abdullah
-     */
-    public BookUser getUser() {
-        return user;
-    }
-
-    /**
-     * Method to set the user of this shopping cart
-     * @param user the user
-     * @author Maisha Abdullah
-     */
-    public void setUser(BookUser user) {
-        this.user = user;
     }
 
     /**

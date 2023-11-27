@@ -3,6 +3,7 @@ package bookstore.users;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 
+import bookstore.inventory.ShoppingCart;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 import java.util.Collections;
+import java.util.Objects;
 
 
 /**
@@ -28,6 +30,9 @@ class UserControllerTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private UsersessionRepository usersessionRepository;
 
     @Test
     void contextLoads() {
@@ -45,6 +50,7 @@ class UserControllerTest {
         String result = controller.createAccountSubmit(user1, model);
         Assertions.assertEquals("redirect:/login", result);
         Assertions.assertEquals(user1, model.getAttribute("user"));
+        Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
     }
 
     /**
@@ -116,12 +122,14 @@ class UserControllerTest {
     void successfulLogin() {
         // Mocking userRepository
         BookUser existingUser = new BookUser("ExistingUser", "password123");
+        existingUser.setShoppingCart(new ShoppingCart());
         Mockito.when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
 
         Model model = new ConcurrentModel();
         String result = controller.handleUserLogin(existingUser, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(existingUser, model.getAttribute("user"));
+        Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
     }
 
     /**
@@ -236,7 +244,9 @@ class UserControllerTest {
     @Test
     void loginWithMultipleUsers() {
         BookUser user1 = new BookUser("User1", "password1");
+        user1.setShoppingCart(new ShoppingCart());
         BookUser user2 = new BookUser("User2", "password2");
+        user2.setShoppingCart(new ShoppingCart());
 
         Mockito.when(userRepository.findByUsername("User1")).thenReturn(Collections.singletonList(user1));
         Mockito.when(userRepository.findByUsername("User2")).thenReturn(Collections.singletonList(user2));
@@ -245,11 +255,13 @@ class UserControllerTest {
         String result = controller.handleUserLogin(user1, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(user1, model.getAttribute("user"));
+        Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
 
         model = new ConcurrentModel();
         result = controller.handleUserLogin(user2, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(user2, model.getAttribute("user"));
+        Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
     }
 
 
