@@ -191,6 +191,18 @@ public class Inventory {
         return searchedBooks;
     }
 
+//    public List<InventoryItem> getBooksMatchingFilter(List<String> authors, List<String> genres, List<String> publishers) {
+//        List<InventoryItem> filteredBooks = new ArrayList<>();
+//
+//        for (InventoryItem inventoryItem : availableBooks){
+//            Book book = inventoryItem.getBook();
+//            if(authors.contains(book.getAuthor().get(0).getFullName()) || genres.contains(book.getGenre()) || publishers.contains(book.getPublisher())){
+//                filteredBooks.add(inventoryItem);
+//            }
+//        }
+//
+//        return filteredBooks;
+//    }
 
     /**
      * Method to set the ID of the inventory
