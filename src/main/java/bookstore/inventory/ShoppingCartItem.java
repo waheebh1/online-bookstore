@@ -18,6 +18,7 @@ public class ShoppingCartItem extends Item {
 
     /**
      * Default constructor
+     * @author maisha abdullah
      */
     public ShoppingCartItem(){
 
@@ -27,6 +28,7 @@ public class ShoppingCartItem extends Item {
      * Constructor for ShoppingCartItem
      * @param book      Book that is the item
      * @param quantity  Quantity of that item
+     * @author maisha abdullah
      */
     public ShoppingCartItem(Book book, int quantity){
         super(book, quantity);
@@ -38,6 +40,7 @@ public class ShoppingCartItem extends Item {
      * @param book book
      * @param quantity quantity
      * @param shoppingCart shopping cart
+     * @author maisha abdullah
      */
     public ShoppingCartItem(Book book, int quantity, ShoppingCart shoppingCart){
         super(book,quantity);
@@ -47,6 +50,7 @@ public class ShoppingCartItem extends Item {
     /**
      * Getter method for shopping cart
      * @return shopping cart
+     * @author maisha abdullah
      */
     public ShoppingCart getShoppingCart() {
         return shoppingCart;
@@ -55,6 +59,7 @@ public class ShoppingCartItem extends Item {
     /**
      * Setter method for shopping cart
      * @param shoppingCart shopping cart
+     * @author maisha abdullah
      */
     public void setShoppingCart(ShoppingCart shoppingCart) {
         this.shoppingCart = shoppingCart;

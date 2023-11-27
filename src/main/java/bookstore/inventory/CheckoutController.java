@@ -29,6 +29,8 @@ public class CheckoutController {
      *
      * @param authorRepo repository of authors
      * @param bookRepo   repository of books
+     * @author Shrimei Chock
+     * @author Maisha Abdullah
      */
     public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController) {
         this.authorRepository = authorRepo;
@@ -115,7 +117,6 @@ public class CheckoutController {
 
     /**
      * View details for a single book
-     *
      * @param model container
      * @return route to html page to display contents of a book when clicked
      * @author Shrimei Chock
@@ -382,9 +383,6 @@ public class CheckoutController {
 
         return "checkout";
    }
-
-
-
 
     /**
     * Method to process checkout
