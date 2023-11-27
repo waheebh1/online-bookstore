@@ -235,4 +235,8 @@ public class UserController {
     public String registerLogin(Model model) {
         return "register-login";
     }
+
+    public void setUserAccess(boolean access) {
+        this.userAccess = access;
+    }
 }

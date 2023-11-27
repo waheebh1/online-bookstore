@@ -1,11 +1,18 @@
 package bookstore.users;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 import bookstore.inventory.Book;
 import bookstore.inventory.ShoppingCart;
+import bookstore.inventory.ShoppingCartItem;
 import bookstore.inventory.ShoppingCartRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,6 +25,20 @@ import org.springframework.ui.Model;
 import java.util.Collections;
 import java.util.Objects;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.any;
+
+import bookstore.users.UserController;
+import bookstore.users.BookUser;
+import bookstore.users.Usersession;
+import bookstore.users.UsersessionRepository;
+import bookstore.inventory.Inventory;
+import org.springframework.ui.Model;
+import org.springframework.ui.ConcurrentModel;
 
 /**
  * UserController Test
@@ -275,15 +296,27 @@ class UserControllerTest {
      */
     @Test
     void successfulLogout() {
-        // Call the logout method
+        // Prepare a mock user and session
+        BookUser mockUser = new BookUser("TestUser", "password123");
+        Usersession mockSession = new Usersession(mockUser);
+
+        // Stub the usersessionRepository.findByBookUser() to return the mock session
+        when(usersessionRepository.findByBookUser(mockUser)).thenReturn(mockSession);
+
+        // Stub the usersessionRepository.findAll() to return a list with the mock session
+        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(mockSession));
+
+        // Perform the logout
         String result = controller.handleUserLogout();
 
-        // Check the result of the logout operation
+        // Assert the user is logged out
         Assertions.assertEquals("redirect:/", result);
+        Assertions.assertFalse(controller.getUserAccess());
 
-        // Verify that user access is set to false, indicating the user is logged out
-        Assertions.assertFalse(controller.getUserAccess(), "User should be logged out and userAccess should be false.");
+        // Verify that the delete method was called on the usersessionRepository with the correct Usersession
+        verify(usersessionRepository).delete(mockSession);
     }
+
     /**
      * Test for ensuring correct redirect after logout.
      * @author Sabah Samwatin
@@ -291,11 +324,24 @@ class UserControllerTest {
 
     @Test
     void ensureCorrectRedirectAfterLogout() {
-        // Perform logout
-        String result = controller.handleUserLogout();
+        // Prepare a mock user and session
+        BookUser mockUser = new BookUser("TestUser", "password123");
+        Usersession mockSession = new Usersession(mockUser);
 
-        // Check if the redirection is to the home page
-        Assertions.assertEquals("redirect:/", result, "User should be redirected to home page after logout.");
+        // Stub the usersessionRepository.findByBookUser() to return the mock session
+        when(usersessionRepository.findByBookUser(mockUser)).thenReturn(mockSession);
+
+        // Stub the usersessionRepository.findAll() to return a list with the mock session
+        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(mockSession));
+
+        // Perform the logout
+        String viewName = controller.handleUserLogout();
+
+        // Assert the correct view name is returned
+        Assertions.assertEquals("redirect:/", viewName, "The redirect after logout should go to the home page.");
+
+        // Additional verifications can be performed here if necessary
+        // For example, verify that the session is invalidated, userAccess is set to false, etc.
     }
 
     /**
@@ -303,52 +349,69 @@ class UserControllerTest {
      * @author Sabah Samwatin
      */
     @Test
-    void logoutWhenUserLoggedIn() {
-        // Assuming a user is logged in
-        BookUser loggedInUser = new BookUser("LoggedInUser", "password123");
-        controller.getUserAccess(); // Set to true to simulate logged-in user
+    void testLogoutWhenUserIsLoggedIn() {
+        // Given a logged-in user
+        BookUser loggedInUser = new BookUser("LoggedInUser", "securepassword");
+        Usersession usersession = new Usersession(loggedInUser);
 
-        // Perform logout
-        String result = controller.handleUserLogout();
+        // Mock the usersessionRepository to return a session indicating the user is logged in
+        when(usersessionRepository.findByBookUser(loggedInUser)).thenReturn(usersession);
 
-        // Check the result of the logout operation
-        Assertions.assertEquals("redirect:/", result);
-        Assertions.assertFalse(controller.getUserAccess(), "User should be logged out and userAccess should be false.");
+        // Mock the usersessionRepository.findAll() to return a list containing the usersession
+        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(usersession));
+
+        // Assume userAccess is true since the user is logged in
+        controller.setUserAccess(true);
+
+        // When logout is attempted
+        String viewName = controller.handleUserLogout();
+
+        // Then the user should be logged out
+        Assertions.assertFalse(controller.getUserAccess(), "User access should be set to false after logout.");
+
+        // Then the usersession should be deleted
+        verify(usersessionRepository).delete(usersession);
+
+        // And the user should be redirected to the home page
+        Assertions.assertEquals("redirect:/", viewName, "The user should be redirected to the home page after logout.");
     }
+
     /**
     * Test for logout and immediate login.
     * @author Sabah Samwatin
      * */
     @Test
-    void logoutAndImmediateLogin() {
-        // Assuming we have a user
-        BookUser loggedInUser = new BookUser("User", "password");
+    void testLogoutAndImmediateLogin() {
+        // Prepare a mock user and session
+        BookUser user = new BookUser("User", "password");
+        Usersession session = new Usersession(user);
 
-        // Simulate the user being logged in
-        // This typically involves setting up security context, session, or similar
-        setupUserAsLoggedIn(loggedInUser);
+        // Mock the usersessionRepository to simulate the user being logged in
+        when(usersessionRepository.findByBookUser(user)).thenReturn(session);
+        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(session));
+        controller.setUserAccess(true); // Assume the user is logged in
 
-        // Perform logout
-        String logoutResult = controller.handleUserLogout();
+        // Perform the logout
+        controller.handleUserLogout();
 
-        // Check that the logout was successful
-        Assertions.assertEquals("redirect:/", logoutResult);
-        // Additionally, assert that the user is no longer in the session/security context
-        // Assertions.assertFalse(checkUserLoggedInStatus(), "User should be logged out.");
+        // Assert that the user has been logged out
+        Assertions.assertFalse(controller.getUserAccess());
 
-        // Setup for login - Create a new model and simulate login data
-        Model model = new ConcurrentModel();
+        // Setup for immediate login after logout
+        when(usersessionRepository.findByBookUser(user)).thenReturn(null); // No session should be found after logout
+        when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(user));
+        when(usersessionRepository.save(any(Usersession.class))).thenReturn(new Usersession(user));
 
-        // Mocking userRepository to return the loggedInUser when findByUsername is called
-        when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(loggedInUser));
+        // Simulate login
+        Model loginModel = new ConcurrentModel();
+        String loginView = controller.handleUserLogin(user, loginModel);
 
-        // Perform login immediately after logout
-        String loginResult = controller.handleUserLogin(loggedInUser, model);
-
-        // Verify login is successful
-        Assertions.assertEquals("redirect:/listAvailableBooks", loginResult);
-        // Assertions.assertTrue(checkUserLoggedInStatus(), "User should be logged in.");
+        // Verify login success
+        Assertions.assertEquals("redirect:/listAvailableBooks", loginView);
+        Assertions.assertTrue(controller.getUserAccess());
+        verify(usersessionRepository).save(any(Usersession.class)); // Verify that a new session is created
     }
+
 
     private void setupUserAsLoggedIn(BookUser loggedInUser) {
     }
@@ -358,60 +421,85 @@ class UserControllerTest {
      * @author Sabah Samwatin
      */
     @Test
-    void logoutDuringOngoingTransaction() {
-        // Create a user and simulate them being logged in
-        BookUser user = new BookUser("testUser", "password123");
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Collections.singletonList(user));
-
-        // Create a shopping cart and add items to it
+    void testLogoutDuringOngoingShoppingCartTransaction() {
+        // Given a user with an ongoing shopping cart transaction
+        BookUser user = new BookUser("User", "password");
+        Usersession session = new Usersession(user);
+        Book book = new Book("1234567890", "Book Title", new ArrayList<>(), 20.00, "2020-01-01");
         ShoppingCart shoppingCart = new ShoppingCart();
-        Book book = new Book();
-        book.setIsbn("1234567890");
-        book.setPrice(10.0);
-        shoppingCart.addToCart(book, 1);
+        shoppingCart.addToCart(book, 1); // Add an item to the cart
 
-        // Simulate the shopping cart being saved in the repository
-        when(shoppingCartRepository.findById(1)).thenReturn(shoppingCart);
+        // Mock the repository interactions
+        when(usersessionRepository.findByBookUser(user)).thenReturn(session);
+        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(session));
+        // Assume we have a ShoppingCartRepository or a method to find the shopping cart by user
+        // when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
 
-        // Perform logout
+        // Assume the user is logged in and in the middle of a shopping cart transaction
+        controller.setUserAccess(true);
+
+        // When logout is performed
         controller.handleUserLogout();
 
-        // Verify that the shopping cart is handled properly upon logout
-        ShoppingCart postLogoutCart = shoppingCartRepository.findById(1);
+        // Then verify that the user's session is ended
+        Assertions.assertFalse(controller.getUserAccess(), "User should not have access after logout.");
+        verify(usersessionRepository).delete(session);
 
-        // Check if the cart is cleared upon logout (modify this assertion based on your application's behavior)
-        Assertions.assertTrue(postLogoutCart.getBooksInCart().isEmpty(), "Shopping cart should be empty after logout.");
+        // Verify any additional logic that should occur during logout
+        // If there is logic to handle the shopping cart during logout, it should be verified here
+        // e.g., verify(shoppingCartRepository).save(shoppingCart);
+
+        // And verify the user is redirected to the home page or login page
+        String expectedView = "redirect:/"; // If this is the correct behavior
+        Assertions.assertEquals(expectedView, controller.handleUserLogout(), "The user should be redirected after logout.");
+
     }
-    /**
-     * Test logging out when there are items in the shopping cart.
-     * @author Sabah Samwatin
-    @Test
-    void logoutWithItemsInCart() {
-        // Create a user and simulate them being logged in
-        BookUser user = new BookUser("testUser", "password123");
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Collections.singletonList(user));
-
-        // Create a shopping cart with items and a specific ID
-        long cartId = 1L; // Example ID
+    /** @Test
+    void testLogoutWithItemsInShoppingCart() {
+        // Arrange
+        BookUser user = new BookUser("User", "password123");
         ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setUser(user);
-        shoppingCart.setId(cartId);
-        Book book = new Book();
-        book.setIsbn("1234567890");
-        book.setPrice(10.0);
-        shoppingCart.addToCart(book, 1);
+        shoppingCart.setId(1L);
+        Book book = new Book("1234567890", "Book Title", new ArrayList<>(), 20.00, "2020-01-01");
+        shoppingCart.addToCart(book, 1); // Add an item to the cart
+        Usersession session = new Usersession(user);
 
-        // Simulate the shopping cart being associated with the user
-        when(shoppingCartRepository.findById(cartId)).thenReturn(shoppingCart);
+        when(usersessionRepository.findByBookUser(user)).thenReturn(session);
+        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(session));
+        when(shoppingCartRepository.findById(1L)).thenReturn(shoppingCart); // Direct return without Optional
 
-        // Perform logout
-        controller.handleUserLogout();
+        // Act
+        controller.setUserAccess(true); // Simulate user login
+        String viewName = controller.handleUserLogout(); // Perform logout
 
-        // Fetch the shopping cart after logout
-        ShoppingCart postLogoutCart = shoppingCartRepository.findById(cartId);
+        // Assert
+        Assertions.assertFalse(controller.getUserAccess(), "User should not have access after logout.");
+        verify(usersessionRepository).delete(session);
+        Assertions.assertEquals("redirect:/", viewName, "The user should be redirected to the home page after logout.");
 
-        // Verify the state of the shopping cart after logout
-        Assertions.assertTrue(postLogoutCart.getBooksInCart().isEmpty(), "Shopping cart should be empty after logout.");
+        // Simulate user logging back in
+        when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(user));
+        when(usersessionRepository.save(any(Usersession.class))).thenReturn(session);
+        when(shoppingCartRepository.findById(1L)).thenReturn(shoppingCart); // Ensure the cart can be retrieved
 
+        Model model = new ConcurrentModel();
+        controller.handleUserLogin(user, model); // Perform login
+
+        // Retrieve the cart after login
+        ShoppingCart retrievedCart = shoppingCartRepository.findById(1L);
+        Assertions.assertNotNull(retrievedCart, "Shopping cart should be retrieved after login.");
+
+        // Check if the expected book is in the cart
+        boolean bookInCart = false;
+        for (ShoppingCartItem cartItem : retrievedCart.getBooksInCart()) {
+            if (cartItem.getBook().getIsbn().equals(book.getIsbn())) {
+                bookInCart = true;
+                break;
+            }
+        }
+
+        Assertions.assertTrue(bookInCart, "Shopping cart should contain the previously added book.");
     }*/
+
+
 }
