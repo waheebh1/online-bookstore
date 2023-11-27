@@ -1,6 +1,5 @@
 /**
  * Shopping cart Object
- * @author Maisha Abdullah
  */
 
 package bookstore.inventory;

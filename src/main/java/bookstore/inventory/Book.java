@@ -1,8 +1,3 @@
-/**
- * Book object
- * @author Shrimei Chock
- */
-
 package bookstore.inventory;
 
 import jakarta.persistence.*;
