@@ -2,14 +2,12 @@ package bookstore.inventory;
 
 import bookstore.users.BookUser;
 import bookstore.users.UserController;
-import bookstore.users.UserRepository;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -97,9 +95,9 @@ public class CheckoutController {
             //TODO add for price ranges
 
             //Print checked values
-            System.out.println(authors);
-            System.out.println(genres);
-            System.out.println(publishers);
+            System.out.println("Authors: " + authors);
+            System.out.println("Genres: " + genres);
+            System.out.println("Publishers: " + publishers);
 
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
 
@@ -131,39 +129,6 @@ public class CheckoutController {
         model.addAttribute("book", bookToDisplay);
         return "book-info";
     }
-
-//    @GetMapping("/sort")
-//    public String sortBooks(@RequestParam(name = "sort") String sort, Model model){
-//        //Debug statement
-//        System.out.println("SORT BY: " + sort);
-//
-//        //Get logged in user
-//        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-//        BookUser loggedInUser = null;
-//        if (!loggedInUsers.isEmpty()) {
-//            loggedInUser = loggedInUsers.get(0);
-//        }
-//
-//        //Get logged in user's cart
-//        ShoppingCart shoppingCart = getOrCreateShoppingCart();
-//
-//        //Adjust inventory displayed depending on sort criteria
-//        Iterable<bookstore.inventory.InventoryItem> inventoryItems;
-//
-//        if(sort.equals("low_to_high")){
-//            inventoryItems = inventoryItemRepository.sortByPriceAsc();
-//        } else if (sort.equals("high_to_low")) {
-//            inventoryItems = inventoryItemRepository.sortByPriceDesc();
-//        } else {
-//            inventoryItems = inventoryItemRepository.sortByTitleAsc();
-//        }
-//        model.addAttribute("inventoryItems", inventoryItems);
-//        model.addAttribute("user", loggedInUser);
-//        model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
-//        model.addAttribute("sort", sort);
-//
-//        return "home";
-//    }
 
     /**
      * Method to go to an add to cart form
@@ -240,7 +205,7 @@ public class CheckoutController {
         model.addAttribute("authors", authorList); //TODO repetition
         model.addAttribute("genres", genreList);
         model.addAttribute("publishers", publisherList);
-        return "home"; //TODO after add/remove from cart, the sort goes away. Need to store the sort value
+        return "home"; //TODO after add/remove from cart, the sort goes away. Need to store the sort value, redirect?
 
     }
 
