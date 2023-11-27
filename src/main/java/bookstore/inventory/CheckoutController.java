@@ -296,7 +296,14 @@ public class CheckoutController {
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
-
+                if(checkoutFlag){
+                    ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
+                    if (cartItem != null) {
+                        shoppingCart.removeFromCart(cartItem.getBook(), 1);
+                        shoppingCartItemRepository.delete(cartItem);
+                    }
+                
+                } else {
                 InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
                 System.out.println("INVENTORY ITEM QUANTITY --BEFORE--  REMOVE FROM CART: " + invItem.getQuantity());
                 shoppingCart.removeFromCart(invItem.getBook(), 1);
@@ -324,6 +331,7 @@ public class CheckoutController {
 
                 inventoryRepository.save(inventoryRepository.findById(1));
 
+                }
             }
         }
 
