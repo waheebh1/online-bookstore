@@ -11,6 +11,9 @@
 <div class="header">
     <h1>Online Book Store</h1>
 </div>
+<form th:action="@{/listAvailableBooks}" method="get">
+    <button type="submit">Back to Home</button>
+</form>
 <div class="book-info">
     <div class="book-title">
         <h2 th:text="${book.getTitle()}"> </h2>
