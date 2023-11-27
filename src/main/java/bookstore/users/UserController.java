@@ -236,7 +236,7 @@ public class UserController {
         return "register-login";
     }
 
-    public void setUserAccess(boolean access) {
+    /**public void setUserAccess(boolean access) {
         this.userAccess = access;
-    }
+    }*/
 }
