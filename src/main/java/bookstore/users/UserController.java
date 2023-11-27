@@ -1,5 +1,6 @@
 package bookstore.users;
 
+import bookstore.inventory.InventoryRepository;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,12 @@ public class UserController {
 
     @Autowired
     private final UserRepository userRepository;
-    private final UserRepository loggedInUserRepository;
+    private final UsersessionRepository usersessionRepository;
+
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private final InventoryRepository inventoryRepository;
+
     private boolean userAccess = false;
 
 
@@ -32,10 +36,11 @@ public class UserController {
      * @param userRepository user repository
      * @author Thanuja Sivaananthan
      */
-    public UserController(UserRepository userRepository, UserRepository loggedInUserRepository, ShoppingCartRepository shoppingCartRepository) {
+    public UserController(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, InventoryRepository inventoryRepo, UsersessionRepository usersessionRepository) {
         this.userRepository = userRepository;
         this.shoppingCartRepository = shoppingCartRepository;
-        this.loggedInUserRepository = loggedInUserRepository;
+        this.inventoryRepository = inventoryRepo;
+        this.usersessionRepository = usersessionRepository;
     }
 
     /**
@@ -56,11 +61,8 @@ public class UserController {
     @GetMapping("/register")
     public String createAccountForm(Model model) {
         BookUser bookUser = new BookUser();
-        ShoppingCart shoppingCart= new ShoppingCart();
-        bookUser.setShoppingCart(shoppingCart);
-        shoppingCart.setUser(bookUser);
 
-        model.addAttribute("shoppingCart", shoppingCart);
+
         model.addAttribute("user", bookUser);
         return "register";
     }
@@ -76,7 +78,13 @@ public class UserController {
             // setup as owner if specified
             bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword(), bookUser.getShoppingCart());
         }
+
+        // need to save shoppingCarts first, then set shoppingCart for the user, then save the user
+        ShoppingCart shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
+        shoppingCartRepository.save(shoppingCart);
+        bookUser.setShoppingCart(shoppingCart);
         userRepository.save(bookUser);
+
         return bookUser;
     }
 
@@ -125,8 +133,21 @@ public class UserController {
      */
     @GetMapping("/login")
     public String accountForm(Model model) {
-        model.addAttribute("user", new BookUser());
-        return "login"; // one form for both account creation and login
+
+        // go directly to the existing usersession - TODO display message saying already logged in?
+        // otherwise, allow the user to login
+
+        BookUser existingUser = getLoggedInUser();
+        if (existingUser == null) {
+            model.addAttribute("user", new BookUser());
+            return "login"; // one form for both account creation and login
+        } else {
+            System.out.println("automatically logging into user: " + existingUser.getUsername());
+
+            this.userAccess = true;
+            model.addAttribute("user", existingUser);
+            return "redirect:/listAvailableBooks"; // Redirect to user profile page
+        }
     }
 
     /**
@@ -152,8 +173,11 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    loggedInUserRepository.deleteAll(); // TODO - remove the current user in the log out
-                    loggedInUserRepository.save(existingUser);
+                    if (usersessionRepository.findByBookUser(existingUser) == null){
+                        usersessionRepository.save(new Usersession(existingUser));
+                    } else {
+                        System.out.println("ERROR, usersession already exists for user:" + existingUser);
+                    }
                     this.userAccess = true;
                     return "redirect:/listAvailableBooks"; // Redirect to user profile page
                 } else {
@@ -171,6 +195,20 @@ public class UserController {
         }
     }
 
+    public BookUser getLoggedInUser(){
+
+        List<Usersession> usersessions = (List<Usersession>) usersessionRepository.findAll();
+
+        BookUser loggedInUser = null;
+
+        if (!usersessions.isEmpty()){
+            loggedInUser = usersessions.get(usersessions.size()-1).getBookUser();
+        }
+
+        return loggedInUser;
+    }
+
+
     /**
      * Post mapping for logout request
      * @return register-login page
@@ -179,6 +217,11 @@ public class UserController {
     @PostMapping("/logout")
     public String handleUserLogout() {
         this.userAccess = false;
+
+        BookUser bookUser = getLoggedInUser();
+        System.out.println("logging out of user: " + bookUser.getUsername());
+        usersessionRepository.delete(usersessionRepository.findByBookUser(bookUser));
+
         return "redirect:/";
     }
 

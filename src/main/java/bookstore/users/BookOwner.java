@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
  * @author Thanuja Sivaananthan
  */
 @Entity
-@Controller
 public class BookOwner extends BookUser {
 
     /**
