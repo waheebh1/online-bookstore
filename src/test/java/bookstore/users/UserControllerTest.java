@@ -354,7 +354,6 @@ class UserControllerTest {
 
         // Create a shopping cart and add items to it
         ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setUser(user);
         Book book = new Book();
         book.setIsbn("1234567890");
         book.setPrice(10.0);
