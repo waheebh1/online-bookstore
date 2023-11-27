@@ -360,9 +360,6 @@ class UserControllerTest {
         // Mock the usersessionRepository.findAll() to return a list containing the usersession
         when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(usersession));
 
-        // Assume userAccess is true since the user is logged in
-        //controller.setUserAccess(true);
-
         // When logout is attempted
         String viewName = controller.handleUserLogout();
 
@@ -389,7 +386,6 @@ class UserControllerTest {
         // Mock the usersessionRepository to simulate the user being logged in
         when(usersessionRepository.findByBookUser(user)).thenReturn(session);
         when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(session));
-        //controller.setUserAccess(true); // Assume the user is logged in
 
         // Perform the logout
         controller.handleUserLogout();
@@ -435,9 +431,6 @@ class UserControllerTest {
         // Assume we have a ShoppingCartRepository or a method to find the shopping cart by user
         // when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
 
-        // Assume the user is logged in and in the middle of a shopping cart transaction
-        //controller.setUserAccess(true);
-
         // When logout is performed
         controller.handleUserLogout();
 
@@ -469,7 +462,6 @@ class UserControllerTest {
         when(shoppingCartRepository.findById(1L)).thenReturn(shoppingCart); // Direct return without Optional
 
         // Act
-        controller.setUserAccess(true); // Simulate user login
         String viewName = controller.handleUserLogout(); // Perform logout
 
         // Assert
