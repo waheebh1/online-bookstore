@@ -25,6 +25,7 @@ The Amazin Online Bookstore Management System is a web application designed to f
 
 
 ## UML Class Diagram
-![4806 uml  - class (1)](https://github.com/waheebh1/online-bookstore/assets/90452719/c508eee1-9c9b-4f62-92b7-be2492047750)
+![4806 uml  - class](https://github.com/waheebh1/online-bookstore/assets/59773247/c1791bed-68d2-439f-b88d-5399ed396282)
+
 
 
