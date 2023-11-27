@@ -438,7 +438,8 @@ public class CheckoutController {
         shoppingCart.checkout();
 
         shoppingCartRepository.save(shoppingCart);
-        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
+        shoppingCartItemRepository.deleteAll(shoppingCartItemRepository.findByQuantity(0));
+        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart()); // not sure if we need this
         inventoryRepository.save(inventoryRepository.findById(1));
 
         return "order-confirmation";
