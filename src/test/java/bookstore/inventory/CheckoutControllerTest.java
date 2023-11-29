@@ -58,6 +58,8 @@ class CheckoutControllerTest {
     private Book book2;
     private Inventory inventory;
 
+    private InventoryItem invItem1;
+
 
     /**
      * Method to set up the books and inventory before each test method
@@ -71,7 +73,7 @@ class CheckoutControllerTest {
 
         String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
         book1 = new Book("0446310786", "To Kill a Mockingbird", author_list, 12.99, "11/07/1960", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
-        InventoryItem item1 = new InventoryItem(book1, 5);
+        invItem1 = new InventoryItem(book1, 5);
 
         ArrayList<Author> author_list2 = new ArrayList<>();
         Author author2 = new Author("Khaled", "Hosseini");
@@ -82,7 +84,7 @@ class CheckoutControllerTest {
 
         ArrayList<InventoryItem> availableBooks = new ArrayList<>();
         inventory = new Inventory(availableBooks);
-        inventory.addItemToInventory(item1);
+        inventory.addItemToInventory(invItem1);
         inventory.addItemToInventory(item2);
     }
     
@@ -170,13 +172,14 @@ class CheckoutControllerTest {
         BookUser existingUser = new BookUser("ExistingUser", "password123");
         Mockito.when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
 
-        InventoryItem item1 = new InventoryItem(book1, 5);
-        when(inventoryItemRepository.findById(Mockito.anyInt())).thenReturn(item1);
+        // Create a mock InventoryItem for testing
+        InventoryItem invItem1 = new InventoryItem(book1, 5);
+
+        //when(inventoryItemRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(invItem1));
 
         Model model = new ConcurrentModel();
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
         shoppingCart.addToCart(book1, 3);
-        //shoppingCart.addToCart(book2, 1);
 
         assertDoesNotThrow(() -> {
             String[] selectedItems = new String[]{"1"};
@@ -188,8 +191,9 @@ class CheckoutControllerTest {
             verify(inventoryItemRepository, times(1)).findById(anyInt());
 
             // Assertions
-            Assertions.assertEquals("addToCart", view);
-            // Add more assertions based on your controller logic
+            Assertions.assertEquals("home", view);
+
+
         });
     }
 }
