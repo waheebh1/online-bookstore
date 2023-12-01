@@ -138,17 +138,8 @@ public class UserController {
         // go directly to the existing usersession - TODO display message saying already logged in?
         // otherwise, allow the user to login
 
-        BookUser existingUser = null;
-        if (existingUser == null) {
-            model.addAttribute("user", new BookUser());
-            return "login"; // one form for both account creation and login
-        } else {
-            System.out.println("automatically logging into user: " + existingUser.getUsername());
-
-            this.userAccess = true;
-            model.addAttribute("user", existingUser);
-            return "redirect:/listAvailableBooks"; // Redirect to user profile page
-        }
+        model.addAttribute("user", new BookUser());
+        return "login"; // one form for both account creation and login
     }
 
     /**
