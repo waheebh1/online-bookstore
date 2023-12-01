@@ -133,7 +133,9 @@ class UserControllerTest {
     @Test
     void displayLoginForm() {
         Model model = new ConcurrentModel();
-        String result = controller.accountForm(model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.accountForm(request, response, model);
         Assertions.assertEquals("login", result);
         Assertions.assertNotNull(model.getAttribute("user"));
         Assertions.assertTrue(model.getAttribute("user") instanceof BookUser);
@@ -199,7 +201,9 @@ class UserControllerTest {
     @Test
     void displayRegisterLoginPage() {
         Model model = new ConcurrentModel();
-        String result = controller.registerLogin(model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.registerLogin(request, response, model);
         Assertions.assertEquals("register-login", result);
     }
 

@@ -60,12 +60,20 @@ public class UserController {
      * @author Thanuja Sivaananthan
      */
     @GetMapping("/register")
-    public String createAccountForm(Model model) {
-        BookUser bookUser = new BookUser();
+    public String createAccountForm(HttpServletRequest request, HttpServletResponse response, Model model) {
 
+        // if usersesion exists, redirect to that session
+        BookUser loggedInUser = getLoggedInUser(request.getCookies());
+        if (loggedInUser != null){
+            model.addAttribute("user", loggedInUser);
 
-        model.addAttribute("user", bookUser);
-        return "register";
+            return "redirect:/listAvailableBooks";
+        } else {
+            BookUser bookUser = new BookUser();
+
+            model.addAttribute("user", bookUser);
+            return "register";
+        }
     }
 
 
@@ -133,13 +141,18 @@ public class UserController {
      * @author Sabah Samwatin
      */
     @GetMapping("/login")
-    public String accountForm(Model model) {
+    public String accountForm(HttpServletRequest request, HttpServletResponse response, Model model) {
 
-        // go directly to the existing usersession - TODO display message saying already logged in?
-        // otherwise, allow the user to login
+        // if usersesion exists, redirect to that session
+        BookUser loggedInUser = getLoggedInUser(request.getCookies());
+        if (loggedInUser != null){
+            model.addAttribute("user", loggedInUser);
 
-        model.addAttribute("user", new BookUser());
-        return "login"; // one form for both account creation and login
+            return "redirect:/listAvailableBooks";
+        } else {
+            model.addAttribute("user", new BookUser());
+            return "login";
+        }
     }
 
     /**
@@ -260,8 +273,16 @@ public class UserController {
      * @author Thanuja Sivaananthan
      */
     @GetMapping("/")
-    public String registerLogin(Model model) {
-        return "register-login";
+    public String registerLogin(HttpServletRequest request, HttpServletResponse response, Model model) {
+        // if usersesion exists, redirect to that session
+        BookUser loggedInUser = getLoggedInUser(request.getCookies());
+        if (loggedInUser != null){
+            model.addAttribute("user", loggedInUser);
+
+            return "redirect:/listAvailableBooks";
+        } else {
+            return "register-login";
+        }
     }
 
 }
