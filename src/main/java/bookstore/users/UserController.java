@@ -215,7 +215,7 @@ public class UserController {
         return loggedInUser;
     }
 
-    public static String retreiveCookie(Cookie[] cookies){
+    private static String retreiveCookie(Cookie[] cookies){
         String result = null;
         if (cookies == null){
             return null;
