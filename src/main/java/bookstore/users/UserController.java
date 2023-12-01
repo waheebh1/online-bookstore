@@ -3,6 +3,9 @@ package bookstore.users;
 import bookstore.inventory.InventoryRepository;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,14 +24,13 @@ public class UserController {
 
     @Autowired
     private final UserRepository userRepository;
-    private final UsersessionRepository usersessionRepository;
-
 
     private final ShoppingCartRepository shoppingCartRepository;
     private final InventoryRepository inventoryRepository;
 
     private boolean userAccess = false;
 
+    private static final String cookieUsername = "username";
 
     /**
      * Create new user controller
@@ -36,11 +38,10 @@ public class UserController {
      * @param userRepository user repository
      * @author Thanuja Sivaananthan
      */
-    public UserController(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, InventoryRepository inventoryRepo, UsersessionRepository usersessionRepository) {
+    public UserController(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, InventoryRepository inventoryRepo) {
         this.userRepository = userRepository;
         this.shoppingCartRepository = shoppingCartRepository;
         this.inventoryRepository = inventoryRepo;
-        this.usersessionRepository = usersessionRepository;
     }
 
     /**
@@ -137,7 +138,7 @@ public class UserController {
         // go directly to the existing usersession - TODO display message saying already logged in?
         // otherwise, allow the user to login
 
-        BookUser existingUser = getLoggedInUser();
+        BookUser existingUser = null;
         if (existingUser == null) {
             model.addAttribute("user", new BookUser());
             return "login"; // one form for both account creation and login
@@ -158,7 +159,7 @@ public class UserController {
      * @author Sabah Samwatin
      */
     @PostMapping("/login")
-    public String handleUserLogin(@ModelAttribute BookUser formUser, Model model) {
+    public String handleUserLogin(HttpServletRequest request, HttpServletResponse response, @ModelAttribute BookUser formUser, Model model) {
         try {
             // Check if user exists
             List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
@@ -173,11 +174,11 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    if (usersessionRepository.findByBookUser(existingUser) == null){
-                        usersessionRepository.save(new Usersession(existingUser));
-                    } else {
-                        System.out.println("ERROR, usersession already exists for user:" + existingUser);
-                    }
+
+                    System.out.println("ADDING COOKIE " + existingUser.getUsername());
+                    Cookie addCookie = new Cookie(cookieUsername, existingUser.getUsername());
+                    addCookie.setPath("/");
+                    response.addCookie(addCookie);
                     this.userAccess = true;
                     return "redirect:/listAvailableBooks"; // Redirect to user profile page
                 } else {
@@ -195,17 +196,36 @@ public class UserController {
         }
     }
 
-    public BookUser getLoggedInUser(){
+    public BookUser getLoggedInUser(Cookie[] cookies){
 
-        List<Usersession> usersessions = (List<Usersession>) usersessionRepository.findAll();
-
+        String loggedInUsername = retreiveCookie(cookies);
         BookUser loggedInUser = null;
 
-        if (!usersessions.isEmpty()){
-            loggedInUser = usersessions.get(usersessions.size()-1).getBookUser();
+        if (loggedInUsername != null) {
+            System.out.println("COOKIE RETRIEVED: " + loggedInUsername);
+
+            List<BookUser> loggedInUsers = userRepository.findByUsername(loggedInUsername);
+
+            if (!loggedInUsers.isEmpty()) {
+                loggedInUser = loggedInUsers.get(0);
+                System.out.println("USER RETRIEVED: " + loggedInUser.getUsername());
+            }
         }
 
         return loggedInUser;
+    }
+
+    public static String retreiveCookie(Cookie[] cookies){
+        String result = null;
+        if (cookies == null){
+            return null;
+        }
+        for (Cookie cookie : cookies){
+            if (cookie.getName().equals(cookieUsername) && cookie.getMaxAge() != 0){
+                result = cookie.getValue();
+            }
+        }
+        return result;
     }
 
 
@@ -215,12 +235,29 @@ public class UserController {
      * @author Waheeb Hashmi
      */
     @PostMapping("/logout")
-    public String handleUserLogout() {
+    public String handleUserLogout(HttpServletResponse response, HttpServletRequest request) {
         this.userAccess = false;
 
-        BookUser bookUser = getLoggedInUser();
-        System.out.println("logging out of user: " + bookUser.getUsername());
-        usersessionRepository.delete(usersessionRepository.findByBookUser(bookUser));
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null){
+            System.out.println("CHECK FOR COOKIES");
+            for (Cookie cookie : cookies){
+                System.out.println("NAME: " + cookie.getName());
+                System.out.println("VALUE: " + cookie.getValue());
+                if (cookie.getName().equals(cookieUsername)){ // What does this do?
+                    System.out.println("logging out of user: " + cookie.getValue());
+
+                    System.out.println("ADDING REMOVE COOKIE");
+                    Cookie removeCookie = new Cookie(cookieUsername, "");
+                    removeCookie.setMaxAge(0);
+                    removeCookie.setPath("/");
+                    response.addCookie(removeCookie);
+                    break;
+                }
+            }
+        } else {
+            System.out.println("ERROR, COOKIES NULL");
+        }
 
         return "redirect:/";
     }
