@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import bookstore.mockservlet.MockHttpServletRequest;
+import bookstore.mockservlet.MockHttpServletResponse;
 import bookstore.users.BookUser;
-import bookstore.users.UsersessionRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +32,6 @@ class CheckoutControllerTest {
 
     @Mock
     private UserController userController;
-    
     @InjectMocks
     private CheckoutController controller;
 
@@ -44,9 +46,6 @@ class CheckoutControllerTest {
 
     @Mock
     private ShoppingCartItemRepository shoppingCartItemRepository;
-
-    @Mock
-    private UsersessionRepository usersessionRepository;
 
     private Book book1;
     private Book book2;
@@ -98,11 +97,13 @@ class CheckoutControllerTest {
     void testConfirmOrder() {
         BookUser bookUser = new BookUser("testUser", "password123");
         bookUser.setShoppingCart(shoppingCart);
-        when(userController.getLoggedInUser()).thenReturn(bookUser);
 
         Model model = new ConcurrentModel();
 
-        String view = controller.confirmOrder(model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+        String view = controller.confirmOrder(request, response, model);
 
         // Verify that the shopping cart is checked out
         verify(shoppingCart).checkout();
@@ -123,13 +124,15 @@ class CheckoutControllerTest {
     @Test
     void testViewCartWithoutAccess(){
         when(userController.getUserAccess()).thenReturn(false);
-    
+
         Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
         shoppingCart.addToCart(book1, 3);
         shoppingCart.addToCart(book2, 1);
 
-        String view = controller.viewCart(model);
+        String view = controller.viewCart(request, response, model);
         model.addAttribute("items", shoppingCart.getBooksInCart());
 
         Assertions.assertEquals("access-denied", view);
@@ -137,7 +140,7 @@ class CheckoutControllerTest {
         Assertions.assertFalse(model.containsAttribute("totalPrice"));
 
     }
-    
+
     /**
      * Test method to view the checkout page (with items) for a user that does not have access
      * @author Waheeb Hashmi
@@ -147,11 +150,17 @@ class CheckoutControllerTest {
         when(userController.getUserAccess()).thenReturn(true);
 
         Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
         shoppingCart.addToCart(book1, 3);
         shoppingCart.addToCart(book2, 1);
 
-        String view = controller.viewCart(model);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        String view = controller.viewCart(request, response, model);
         model.addAttribute("items", shoppingCart.getBooksInCart());
 
         Assertions.assertEquals("checkout", view);

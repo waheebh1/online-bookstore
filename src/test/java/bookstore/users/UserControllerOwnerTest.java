@@ -1,6 +1,10 @@
 package bookstore.users;
 
 import bookstore.inventory.ShoppingCart;
+import bookstore.mockservlet.MockHttpServletRequest;
+import bookstore.mockservlet.MockHttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,9 +30,6 @@ public class UserControllerOwnerTest {
 
     @MockBean
     private UserRepository userRepository;
-
-    @MockBean
-    private UsersessionRepository usersessionRepository;
 
     /**
      * Test adding a new owner is successful
@@ -86,7 +87,9 @@ public class UserControllerOwnerTest {
         Mockito.when(userRepository.findByUsername("ExistingOwner")).thenReturn(Collections.singletonList(existingOwner));
 
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(existingOwner, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, existingOwner, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(existingOwner, model.getAttribute("user"));
         Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());

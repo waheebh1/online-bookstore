@@ -55,7 +55,7 @@ public class CheckoutController {
      */
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
-    (HttpServletResponse response, HttpServletRequest request,
+    (HttpServletRequest request, HttpServletResponse response,
      @RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue,
      @RequestParam(name = "sort", required = false, defaultValue = "low_to_high") String sort,
      @RequestParam(name = "author", required = false) List<String> authors,
@@ -125,7 +125,7 @@ public class CheckoutController {
      * @author Shrimei Chock
      */
     @GetMapping("/viewBook")
-    public String viewBook(HttpServletResponse response, HttpServletRequest request,
+    public String viewBook(HttpServletRequest request, HttpServletResponse response,
                            @RequestParam(name = "isbn") String isbn, Model model) {
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
         if(loggedInUser == null){
@@ -143,7 +143,7 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @GetMapping("/addToCart")
-    public String addToCartForm(HttpServletResponse response, HttpServletRequest request,
+    public String addToCartForm(HttpServletRequest request, HttpServletResponse response,
                                 Model model) {
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
@@ -164,7 +164,7 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @PostMapping("/addToCart")
-    public String addToCart(HttpServletResponse response, HttpServletRequest request,
+    public String addToCart(HttpServletRequest request, HttpServletResponse response,
                             @RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
             model) {
         
@@ -224,7 +224,7 @@ public class CheckoutController {
      */
     @GetMapping("/getTotalInCart")
     @ResponseBody
-    public int getTotalInCart(HttpServletResponse response, HttpServletRequest request) {
+    public int getTotalInCart(HttpServletRequest request, HttpServletResponse response) {
         System.out.println("going into get total in cart");
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
@@ -240,7 +240,7 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @GetMapping("/removeFromCart")
-    public String removeFromCartForm (HttpServletResponse response, HttpServletRequest request,
+    public String removeFromCartForm (HttpServletRequest request, HttpServletResponse response,
                                       Model model){
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
         if(loggedInUser == null){
@@ -259,7 +259,7 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @PostMapping("/removeFromCart")
-    public String removeFromCart (HttpServletResponse response, HttpServletRequest request,
+    public String removeFromCart (HttpServletRequest request, HttpServletResponse response,
                                   @RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
             model){
 
@@ -351,7 +351,7 @@ public class CheckoutController {
     * @author Waheeb Hashmi
     */
     @GetMapping("/checkout")
-    public String viewCart(HttpServletResponse response, HttpServletRequest request,
+    public String viewCart(HttpServletRequest request, HttpServletResponse response,
                            Model model) {
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
@@ -383,7 +383,7 @@ public class CheckoutController {
     * @author Waheeb Hashmi
     */
     @PostMapping("/checkout")
-    public String confirmOrder(HttpServletResponse response, HttpServletRequest request, Model model) {
+    public String confirmOrder(HttpServletRequest request, HttpServletResponse response, Model model) {
         // Generate a random confirmation number
         String confirmationNumber = UUID.randomUUID().toString();
         model.addAttribute("confirmationNumber", confirmationNumber);
