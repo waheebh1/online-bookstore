@@ -14,6 +14,10 @@ import bookstore.inventory.Book;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartItem;
 import bookstore.inventory.ShoppingCartRepository;
+import bookstore.mockservlet.MockHttpServletRequest;
+import bookstore.mockservlet.MockHttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +38,6 @@ import static org.mockito.Mockito.any;
 
 import bookstore.users.UserController;
 import bookstore.users.BookUser;
-import bookstore.users.Usersession;
-import bookstore.users.UsersessionRepository;
 import bookstore.inventory.Inventory;
 import org.springframework.ui.Model;
 import org.springframework.ui.ConcurrentModel;
@@ -56,9 +58,6 @@ class UserControllerTest {
 
     @MockBean
     private ShoppingCartRepository shoppingCartRepository;
-  
-    @MockBean
-    private UsersessionRepository usersessionRepository;
 
     @Test
     void contextLoads() {
@@ -134,7 +133,9 @@ class UserControllerTest {
     @Test
     void displayLoginForm() {
         Model model = new ConcurrentModel();
-        String result = controller.accountForm(model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.accountForm(request, response, model);
         Assertions.assertEquals("login", result);
         Assertions.assertNotNull(model.getAttribute("user"));
         Assertions.assertTrue(model.getAttribute("user") instanceof BookUser);
@@ -152,7 +153,9 @@ class UserControllerTest {
         when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
 
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(existingUser, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, existingUser, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(existingUser, model.getAttribute("user"));
         Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
@@ -169,7 +172,9 @@ class UserControllerTest {
 
         BookUser wrongPasswordUser = new BookUser("User", "wrongPassword");
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(wrongPasswordUser, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, wrongPasswordUser, model);
         Assertions.assertEquals("accountError", result);
         Assertions.assertEquals("Invalid username/password", model.getAttribute("error"));
     }
@@ -182,7 +187,9 @@ class UserControllerTest {
     void failedLoginNonExistentUsername() {
         BookUser formUser = new BookUser("NonExistingUser", "password123");
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(formUser, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, formUser, model);
         Assertions.assertEquals("accountError", result);
         Assertions.assertEquals("Username NonExistingUser does not exist. Please register for a new account or use a different username", model.getAttribute("error"));
     }
@@ -194,7 +201,9 @@ class UserControllerTest {
     @Test
     void displayRegisterLoginPage() {
         Model model = new ConcurrentModel();
-        String result = controller.registerLogin(model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.registerLogin(request, response, model);
         Assertions.assertEquals("register-login", result);
     }
 
@@ -209,7 +218,9 @@ class UserControllerTest {
 
         // Test with empty username
         BookUser userWithEmptyUsername = new BookUser("", "password");
-        String resultUsernameEmpty = controller.handleUserLogin(userWithEmptyUsername, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String resultUsernameEmpty = controller.handleUserLogin(request, response, userWithEmptyUsername, model);
         Assertions.assertEquals("accountError", resultUsernameEmpty);
         String expectedMessageForEmptyUsername = "Username  does not exist. Please register for a new account or use a different username";
         Assertions.assertEquals(expectedMessageForEmptyUsername, model.getAttribute("error"));
@@ -219,7 +230,7 @@ class UserControllerTest {
 
         // Test with empty password
         BookUser userWithEmptyPassword = new BookUser("username", "");
-        String resultPasswordEmpty = controller.handleUserLogin(userWithEmptyPassword, model);
+        String resultPasswordEmpty = controller.handleUserLogin(request, response, userWithEmptyPassword, model);
         Assertions.assertEquals("accountError", resultPasswordEmpty);
         String expectedMessageForEmptyPassword = "Username username does not exist. Please register for a new account or use a different username";
         Assertions.assertEquals(expectedMessageForEmptyPassword, model.getAttribute("error"));
@@ -238,7 +249,9 @@ class UserControllerTest {
         when(userRepository.findByUsername(anyString())).thenThrow(new RuntimeException("Database error"));
 
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(user, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, user, model);
         Assertions.assertEquals("accountError", result);
         Assertions.assertEquals("An unexpected error occurred: Database error", model.getAttribute("error"));
     }
@@ -254,7 +267,9 @@ class UserControllerTest {
 
         BookUser nonExistentUser = new BookUser(nonExistentUsername, "password");
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(nonExistentUser, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, nonExistentUser, model);
         Assertions.assertEquals("accountError", result);
 
         // Updated to match the actual error message from UserController
@@ -278,13 +293,15 @@ class UserControllerTest {
         when(userRepository.findByUsername("User2")).thenReturn(Collections.singletonList(user2));
 
         Model model = new ConcurrentModel();
-        String result = controller.handleUserLogin(user1, model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogin(request, response, user1, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(user1, model.getAttribute("user"));
         Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
 
         model = new ConcurrentModel();
-        result = controller.handleUserLogin(user2, model);
+        result = controller.handleUserLogin(request, response, user2, model);
         Assertions.assertEquals("redirect:/listAvailableBooks", result);
         Assertions.assertEquals(user2, model.getAttribute("user"));
         Assertions.assertNotNull(((BookUser) Objects.requireNonNull(model.getAttribute("user"))).getShoppingCart());
@@ -296,46 +313,34 @@ class UserControllerTest {
      */
     @Test
     void successfulLogout() {
-        // Prepare a mock user and session
+        // Prepare a mock user
         BookUser mockUser = new BookUser("TestUser", "password123");
-        Usersession mockSession = new Usersession(mockUser);
-
-        // Stub the usersessionRepository.findByBookUser() to return the mock session
-        when(usersessionRepository.findByBookUser(mockUser)).thenReturn(mockSession);
-
-        // Stub the usersessionRepository.findAll() to return a list with the mock session
-        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(mockSession));
 
         // Perform the logout
-        String result = controller.handleUserLogout();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String result = controller.handleUserLogout(response, request);
 
         // Assert the user is logged out
         Assertions.assertEquals("redirect:/", result);
         Assertions.assertFalse(controller.getUserAccess());
 
         // Verify that the delete method was called on the usersessionRepository with the correct Usersession
-        verify(usersessionRepository).delete(mockSession);
     }
 
     /**
      * Test for ensuring correct redirect after logout.
      * @author Sabah Samwatin
      */
-
     @Test
     void ensureCorrectRedirectAfterLogout() {
-        // Prepare a mock user and session
+        // Prepare a mock user
         BookUser mockUser = new BookUser("TestUser", "password123");
-        Usersession mockSession = new Usersession(mockUser);
-
-        // Stub the usersessionRepository.findByBookUser() to return the mock session
-        when(usersessionRepository.findByBookUser(mockUser)).thenReturn(mockSession);
-
-        // Stub the usersessionRepository.findAll() to return a list with the mock session
-        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(mockSession));
 
         // Perform the logout
-        String viewName = controller.handleUserLogout();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String viewName = controller.handleUserLogout(response, request);
 
         // Assert the correct view name is returned
         Assertions.assertEquals("redirect:/", viewName, "The redirect after logout should go to the home page.");
@@ -352,22 +357,16 @@ class UserControllerTest {
     void testLogoutWhenUserIsLoggedIn() {
         // Given a logged-in user
         BookUser loggedInUser = new BookUser("LoggedInUser", "securepassword");
-        Usersession usersession = new Usersession(loggedInUser);
-
-        // Mock the usersessionRepository to return a session indicating the user is logged in
-        when(usersessionRepository.findByBookUser(loggedInUser)).thenReturn(usersession);
-
-        // Mock the usersessionRepository.findAll() to return a list containing the usersession
-        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(usersession));
 
         // When logout is attempted
-        String viewName = controller.handleUserLogout();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        String viewName = controller.handleUserLogout(response, request);
 
         // Then the user should be logged out
         Assertions.assertFalse(controller.getUserAccess(), "User access should be set to false after logout.");
 
         // Then the usersession should be deleted
-        verify(usersessionRepository).delete(usersession);
 
         // And the user should be redirected to the home page
         Assertions.assertEquals("redirect:/", viewName, "The user should be redirected to the home page after logout.");
@@ -379,33 +378,27 @@ class UserControllerTest {
      * */
     @Test
     void testLogoutAndImmediateLogin() {
-        // Prepare a mock user and session
+        // Prepare a mock user
         BookUser user = new BookUser("User", "password");
-        Usersession session = new Usersession(user);
-
-        // Mock the usersessionRepository to simulate the user being logged in
-        when(usersessionRepository.findByBookUser(user)).thenReturn(session);
-        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(session));
 
         // Perform the logout
-        controller.handleUserLogout();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        controller.handleUserLogout(response, request);
 
         // Assert that the user has been logged out
         Assertions.assertFalse(controller.getUserAccess());
 
         // Setup for immediate login after logout
-        when(usersessionRepository.findByBookUser(user)).thenReturn(null); // No session should be found after logout
         when(userRepository.findByUsername("User")).thenReturn(Collections.singletonList(user));
-        when(usersessionRepository.save(any(Usersession.class))).thenReturn(new Usersession(user));
 
         // Simulate login
         Model loginModel = new ConcurrentModel();
-        String loginView = controller.handleUserLogin(user, loginModel);
+        String loginView = controller.handleUserLogin(request, response, user, loginModel);
 
         // Verify login success
         Assertions.assertEquals("redirect:/listAvailableBooks", loginView);
         Assertions.assertTrue(controller.getUserAccess());
-        verify(usersessionRepository).save(any(Usersession.class)); // Verify that a new session is created
     }
 
 
@@ -420,23 +413,21 @@ class UserControllerTest {
     void testLogoutDuringOngoingShoppingCartTransaction() {
         // Given a user with an ongoing shopping cart transaction
         BookUser user = new BookUser("User", "password");
-        Usersession session = new Usersession(user);
         Book book = new Book("1234567890", "Book Title", new ArrayList<>(), 20.00, "2020-01-01");
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.addToCart(book, 1); // Add an item to the cart
 
         // Mock the repository interactions
-        when(usersessionRepository.findByBookUser(user)).thenReturn(session);
-        when(usersessionRepository.findAll()).thenReturn(Collections.singletonList(session));
         // Assume we have a ShoppingCartRepository or a method to find the shopping cart by user
         // when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
 
         // When logout is performed
-        controller.handleUserLogout();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        controller.handleUserLogout(response, request);
 
         // Then verify that the user's session is ended
         Assertions.assertFalse(controller.getUserAccess(), "User should not have access after logout.");
-        verify(usersessionRepository).delete(session);
 
         // Verify any additional logic that should occur during logout
         // If there is logic to handle the shopping cart during logout, it should be verified here
@@ -444,7 +435,7 @@ class UserControllerTest {
 
         // And verify the user is redirected to the home page or login page
         String expectedView = "redirect:/"; // If this is the correct behavior
-        Assertions.assertEquals(expectedView, controller.handleUserLogout(), "The user should be redirected after logout.");
+        Assertions.assertEquals(expectedView, controller.handleUserLogout(response, request), "The user should be redirected after logout.");
 
     }
     /** @Test

@@ -1,6 +1,11 @@
 package bookstore.inventory;
 
+import bookstore.mockservlet.MockHttpServletRequest;
+import bookstore.mockservlet.MockHttpServletResponse;
+import bookstore.users.BookUser;
 import bookstore.users.UserController;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,10 +128,38 @@ public class ViewInventoryControllerTest {
         when(inventoryRepository.findById(1)).thenReturn(inventory);
 
         Model model = new ConcurrentModel();
-        String view = controller.listAvailableBooks(searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
+    }
+
+    /**
+     * Test method to view whole inventory
+     * @author Thanuja Sivaananthan
+     */
+    @Test
+    void testViewAvailableBooksWithoutAccess(){
+        String searchValue = "";
+
+        List<List<String>> defaultFilters = getDefaultFilterValues();
+
+        when(userController.getUserAccess()).thenReturn(true);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
+
+        Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(null);
+
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+
+        Assertions.assertEquals("access-denied", view);
     }
 
     /**
@@ -143,7 +176,12 @@ public class ViewInventoryControllerTest {
         when(inventoryRepository.findById(1)).thenReturn(inventory);
 
         Model model = new ConcurrentModel();
-        String view = controller.listAvailableBooks(searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
@@ -163,7 +201,12 @@ public class ViewInventoryControllerTest {
         when(inventoryRepository.findById(1)).thenReturn(inventory);
 
         Model model = new ConcurrentModel();
-        String view = controller.listAvailableBooks(searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(Collections.singletonList(inventory.getAvailableBooks().get(0)), model.getAttribute("inventoryItems"));
