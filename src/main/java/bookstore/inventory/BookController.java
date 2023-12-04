@@ -13,12 +13,14 @@ import java.util.List;
 public class BookController {
 
     private final BookRepository bookRepository;
-    @Autowired
-    private InventoryItemRepository inventoryItemRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Autowired
-    public BookController(BookRepository bookRepository) {
+    public BookController(BookRepository bookRepository, InventoryItemRepository inventoryItemRepository, InventoryRepository inventoryRepository) {
         this.bookRepository = bookRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
+        this.inventoryRepository = inventoryRepository;
     }
 
     @Autowired
@@ -57,12 +59,17 @@ public class BookController {
         book.setAuthor(authors);
         bookRepository.save(book);
 
+        Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
+
         // Assuming the book is successfully saved, create a new InventoryItem
-        InventoryItem inventoryItem = new InventoryItem(book, 1); // Assuming the default quantity is 1
+        InventoryItem inventoryItem = new InventoryItem(book, 1, inventory); // Assuming the default quantity is 1
         inventoryItemRepository.save(inventoryItem); // Save the new inventory item
 
+        inventory.addItemToInventory(inventoryItem);
+        inventoryRepository.save(inventory);
+
         // Redirecting to homepage which should now include the new book
-        return "redirect:/home";
+        return "redirect:/listAvailableBooks";
     }
 
     // Handler method to display the form for editing an existing book
