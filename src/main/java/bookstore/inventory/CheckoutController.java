@@ -132,6 +132,12 @@ public class CheckoutController {
             return "access-denied";
         }
         Book bookToDisplay = bookRepository.findByIsbn(isbn);
+
+        // Determine the user type
+        String userType = loggedInUser.getUserType().name();
+        // Store the userType in the session
+        model.addAttribute("userType", userType);
+
         model.addAttribute("book", bookToDisplay);
         return "book-info";
     }

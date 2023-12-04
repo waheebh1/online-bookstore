@@ -105,6 +105,13 @@
     </form>
 </div>
 
+<!-- Check if the logged-in user is a Bookstore Owner and display the Upload button -->
+<div th:if="${user.getUserType().name() == 'BOOKOWNER'}" class="upload-button-container">
+    <a th:href="@{/book/upload}">
+        <button class="button">Upload New Book</button>
+    </a>
+</div>
+
 <div class="books-quantity">
     <h2>Total in Cart: <span th:id="totalInCart"></span></h2>
 </div>
