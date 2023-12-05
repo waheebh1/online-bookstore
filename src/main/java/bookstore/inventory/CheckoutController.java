@@ -420,33 +420,34 @@ public class CheckoutController {
      * @return ArrayList<Book>
      */
     public ArrayList<Book> recommendBooks(Long userId) {
-        Set<Book> userBooks = getBooksInCartByUserId(userId);
-        Map<Long, Double> userDistances = new HashMap<>();
+        Set<Book> recommendedBooks = new HashSet<>();
+        if(userId != null){
+            Set<Book> userBooks = getBooksInCartByUserId(userId);
+            Map<Long, Double> userDistances = new HashMap<>();
 
-        for (BookUser otherUser : userRepository.findAll()) {
-            if (!otherUser.getId().equals(userId)) {
-                Set<Book> otherUserBooks = getBooksInCartByUserId(otherUser.getId());
-                double distance = userController.calculateJaccardDistance(userBooks, otherUserBooks);
-                userDistances.put(otherUser.getId(), distance);
+            for (BookUser otherUser : userRepository.findAll()) {
+                if (!otherUser.getId().equals(userId)) {
+                    Set<Book> otherUserBooks = getBooksInCartByUserId(otherUser.getId());
+                    double distance = userController.calculateJaccardDistance(userBooks, otherUserBooks);
+                    userDistances.put(otherUser.getId(), distance);
+                }
             }
-        }
-        
-        List<Long> similarUserIds = new ArrayList<>();
-        List<Map.Entry<Long, Double>> entries = new ArrayList<>(userDistances.entrySet());
-        entries.sort(Map.Entry.comparingByValue());
-        
-        for (int i = 0; i < entries.size(); i++) {
-            similarUserIds.add(entries.get(i).getKey());
-        }
+            
+            List<Long> similarUserIds = new ArrayList<>();
+            List<Map.Entry<Long, Double>> entries = new ArrayList<>(userDistances.entrySet());
+            entries.sort(Map.Entry.comparingByValue());
+            
+            for (int i = 0; i < entries.size(); i++) {
+                similarUserIds.add(entries.get(i).getKey());
+            }
 
-       Set<Book> recommendedBooks = new HashSet<>();
-       for (Long similarUserId : similarUserIds) {
-           Set<Book> books = getBooksInCartByUserId(similarUserId);
-           books.removeAll(userBooks);
-           recommendedBooks.addAll(books);
-       }
-    
-       return new ArrayList<Book>(recommendedBooks);
+        for (Long similarUserId : similarUserIds) {
+            Set<Book> books = getBooksInCartByUserId(similarUserId);
+            books.removeAll(userBooks);
+            recommendedBooks.addAll(books);
+        }
+    }
+    return new ArrayList<Book>(recommendedBooks);
    }
 
    /**
