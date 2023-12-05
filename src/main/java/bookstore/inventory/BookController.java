@@ -1,5 +1,10 @@
 package bookstore.inventory;
 
+import bookstore.users.BookUser;
+import bookstore.users.UserController;
+import bookstore.users.UserType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +24,10 @@ public class BookController {
     private final BookRepository bookRepository;
     private final InventoryItemRepository inventoryItemRepository;
     private final InventoryRepository inventoryRepository;
+
+    @Autowired
+    private UserController userController;
+
     private static final Logger log = LoggerFactory.getLogger(BookController.class);
 
     /**
@@ -45,7 +54,13 @@ public class BookController {
      * @author Sabah Samwatin, Thanuja Sivaananthan
      */
     @GetMapping("/upload")
-    public String showUploadForm(Model model) {
+    public String showUploadForm(Model model, HttpServletRequest request, HttpServletResponse response) {
+        // Check if an owner is logged in
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if (loggedInUser == null || !loggedInUser.getUserType().equals(UserType.BOOKOWNER)) {
+            return "access-denied";
+        }
+
         model.addAttribute("book", new Book());
         return "uploadBook";
     }
@@ -103,7 +118,13 @@ public class BookController {
      * @author Sabah Samwatin
      */
     @GetMapping("/edit/{isbn}")
-    public String showEditForm(@PathVariable String isbn, Model model) {
+    public String showEditForm(@PathVariable String isbn, Model model, HttpServletRequest request, HttpServletResponse response) {
+        // Check if an owner is logged in
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if (loggedInUser == null || !loggedInUser.getUserType().equals(UserType.BOOKOWNER)) {
+            return "access-denied";
+        }
+
         Book book = bookRepository.findByIsbn(isbn);
         if (book != null) {
             // logic for editBook.html author
@@ -168,15 +189,25 @@ public class BookController {
      */
 
     @GetMapping("/info/{isbn}")
-    public String showBookDetails(@PathVariable String isbn, Model model) {
+    public String showBookDetails(@PathVariable String isbn, Model model, HttpServletRequest request, HttpServletResponse response) {
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if(loggedInUser == null){
+            return "access-denied";
+        }
+
         Book book = bookRepository.findByIsbn(isbn);
         if (book != null) {
-            // logic for book-info.html author
             String authors = book.getAuthor().stream()
                     .map(author -> author.getFirstName() + " " + author.getLastName())
                     .collect(Collectors.joining(", "));
             model.addAttribute("book", book);
-            model.addAttribute("authors", authors); // Add this line
+            model.addAttribute("authors", authors);
+
+            // Determine the user type
+            String userType = loggedInUser.getUserType().name();
+            // Store the userType in the session
+            model.addAttribute("userType", userType);
+
             return "book-info";
         }
         return "redirect:/"; // if the book doesn't exist, redirect to the home page
