@@ -193,7 +193,7 @@ class CheckoutControllerTest {
         mockUser.setShoppingCart(shoppingCart);
     
         ShoppingCart otherUserCart = new ShoppingCart(inventory);
-        otherUserCart.addToCart(book2, 1); // Different book for other user
+        otherUserCart.addToCart(book2, 1); 
         BookUser otherUser = new BookUser("otherUser", "password123");
         otherUser.setId(otherUserId);
         otherUser.setShoppingCart(otherUserCart);
@@ -201,11 +201,11 @@ class CheckoutControllerTest {
         Mockito.when(userRepository.findById(userId)).thenReturn(mockUser);
         Mockito.when(userRepository.findById(otherUserId)).thenReturn(otherUser);
         Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(mockUser, otherUser));
-    
+        otherUser.getShoppingCart().checkout();
         ArrayList<Book> recommendedBooks = controller.recommendBooks(userId);
     
-        Assertions.assertEquals(1, recommendedBooks.size()); // Expecting 1 book (book3)
-        Assertions.assertTrue(recommendedBooks.contains(book2)); // Ensure the recommended book is book3
+        Assertions.assertEquals(1, recommendedBooks.size());
+        Assertions.assertTrue(recommendedBooks.contains(book2));
     
     }
     
@@ -224,7 +224,7 @@ class CheckoutControllerTest {
         mockUser.setShoppingCart(shoppingCart);
     
         ShoppingCart otherUserCart = new ShoppingCart(inventory);
-        otherUserCart.addToCart(book2, 1); // Different book for other user
+        otherUserCart.addToCart(book2, 1); 
         BookUser otherUser = new BookUser("otherUser", "password123");
         otherUser.setId(otherUserId);
         otherUser.setShoppingCart(otherUserCart);
@@ -232,11 +232,12 @@ class CheckoutControllerTest {
         Mockito.when(userRepository.findById(userId)).thenReturn(mockUser);
         Mockito.when(userRepository.findById(otherUserId)).thenReturn(otherUser);
         Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(mockUser, otherUser));
-    
+        mockUser.getShoppingCart().checkout();
+
         Set<Book> recommendedBooks = controller.getBooksInCartByUserId(userId);
     
-        Assertions.assertEquals(1, recommendedBooks.size()); // Expecting 1 book (book3)
-        Assertions.assertFalse(recommendedBooks.contains(book2)); // Ensure the recommended book is book3
+        Assertions.assertEquals(1, recommendedBooks.size()); 
+        Assertions.assertFalse(recommendedBooks.contains(book2)); 
     
     
     }
