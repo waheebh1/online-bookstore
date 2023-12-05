@@ -23,7 +23,7 @@
             updateTotalInCart();
 
             // Handle form submission
-            $('#addToCartForm, #removeFromCartForm').submit(function(event) {
+            $('#addToCartForm, #removeFromCartForm').submit(function() {
                 // Collect selected items
                 var selectedItems = [];
                 $('input[name="selectedItems"]:checked').each(function() {
@@ -44,7 +44,6 @@
                     // Set selected attribute directly on the selected option
                     $('#sort option:selected').removeAttr('selected');
                     $('#sort option[value="' + $(this).val() + '"]').attr('selected', 'selected');
-                    $('#sortForm').submit();
                 });
             });
         });
