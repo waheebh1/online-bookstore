@@ -153,7 +153,7 @@
             <td>
                 <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
             </td>
-            <td th:text="${inventoryItem.getBook().getAuthor()[0].fullName}"></td>
+            <td th:text="${inventoryItem.book.getAllAuthorNames()}"></td>
             <td>$<span th:text="${inventoryItem.getBook().getPrice()}"></span></td>
         </tr>
         </tbody>
