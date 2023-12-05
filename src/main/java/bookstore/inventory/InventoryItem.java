@@ -1,15 +1,12 @@
 /**
  * Inventory Item Object
- * @author Maisha Abdullah
  */
 
 package bookstore.inventory;
 
 import jakarta.persistence.*;
-
 @Entity
 public class InventoryItem extends Item{
-
 
     @ManyToOne
     @JoinColumn (name = "inventory_id")
@@ -17,6 +14,7 @@ public class InventoryItem extends Item{
 
     /**
      * Default constructor
+     * @author Maisha Abdullah
      */
     public InventoryItem(){
     }
@@ -25,6 +23,7 @@ public class InventoryItem extends Item{
      * Constructor for InventoryItem
      * @param book      Book that is the item
      * @param quantity  Quantity of that item
+     * @author Maisha Abdullah
      */
     public InventoryItem (Book book, int quantity){
         super(book,quantity);
@@ -35,10 +34,20 @@ public class InventoryItem extends Item{
         this.inventory = inventory;
     }
 
+    /**
+     * Get inventory that the item belongs to
+     * @return inventory
+     * @author Maisha Abdullah
+     */
     public Inventory getInventory() {
         return inventory;
     }
 
+    /**
+     * Set inventory
+     * @param inventory inventory
+     * @author Maisha Abdullah
+     */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
     }

@@ -1,17 +1,19 @@
 package bookstore.inventory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import bookstore.mockservlet.MockHttpServletRequest;
+import bookstore.mockservlet.MockHttpServletResponse;
 import bookstore.users.BookUser;
-import bookstore.users.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -19,8 +21,6 @@ import org.springframework.ui.Model;
 import bookstore.users.UserController;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Optional;
 
 
 /**
@@ -32,7 +32,6 @@ class CheckoutControllerTest {
 
     @Mock
     private UserController userController;
-    
     @InjectMocks
     private CheckoutController controller;
 
@@ -48,17 +47,9 @@ class CheckoutControllerTest {
     @Mock
     private ShoppingCartItemRepository shoppingCartItemRepository;
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private InventoryItemRepository inventoryItemRepository;
-
     private Book book1;
     private Book book2;
     private Inventory inventory;
-
-    private InventoryItem invItem1;
 
 
     /**
@@ -73,7 +64,7 @@ class CheckoutControllerTest {
 
         String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
         book1 = new Book("0446310786", "To Kill a Mockingbird", author_list, 12.99, "11/07/1960", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
-        invItem1 = new InventoryItem(book1, 5);
+        InventoryItem item1 = new InventoryItem(book1, 5);
 
         ArrayList<Author> author_list2 = new ArrayList<>();
         Author author2 = new Author("Khaled", "Hosseini");
@@ -84,7 +75,7 @@ class CheckoutControllerTest {
 
         ArrayList<InventoryItem> availableBooks = new ArrayList<>();
         inventory = new Inventory(availableBooks);
-        inventory.addItemToInventory(invItem1);
+        inventory.addItemToInventory(item1);
         inventory.addItemToInventory(item2);
     }
     
@@ -104,11 +95,15 @@ class CheckoutControllerTest {
      */
     @Test
     void testConfirmOrder() {
-        when(shoppingCartRepository.findById(1)).thenReturn(shoppingCart);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
 
         Model model = new ConcurrentModel();
 
-        String view = controller.confirmOrder(model);
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+        String view = controller.confirmOrder(request, response, model);
 
         // Verify that the shopping cart is checked out
         verify(shoppingCart).checkout();
@@ -129,21 +124,23 @@ class CheckoutControllerTest {
     @Test
     void testViewCartWithoutAccess(){
         when(userController.getUserAccess()).thenReturn(false);
-    
+
         Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
         shoppingCart.addToCart(book1, 3);
         shoppingCart.addToCart(book2, 1);
 
-        String view = controller.viewCart(model);
+        String view = controller.viewCart(request, response, model);
         model.addAttribute("items", shoppingCart.getBooksInCart());
 
         Assertions.assertEquals("access-denied", view);
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
-        Assertions.assertTrue(model.containsAttribute("totalPrice"));
+        Assertions.assertFalse(model.containsAttribute("totalPrice"));
 
     }
-    
+
     /**
      * Test method to view the checkout page (with items) for a user that does not have access
      * @author Waheeb Hashmi
@@ -153,47 +150,21 @@ class CheckoutControllerTest {
         when(userController.getUserAccess()).thenReturn(true);
 
         Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
         shoppingCart.addToCart(book1, 3);
         shoppingCart.addToCart(book2, 1);
 
-        String view = controller.viewCart(model);
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        String view = controller.viewCart(request, response, model);
         model.addAttribute("items", shoppingCart.getBooksInCart());
 
         Assertions.assertEquals("checkout", view);
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
         Assertions.assertTrue(model.containsAttribute("totalPrice"));
-    }
-
-    @Test
-    void testAddToCart(){
-        when(userController.getUserAccess()).thenReturn(true);
-
-        BookUser existingUser = new BookUser("ExistingUser", "password123");
-        Mockito.when(userRepository.findByUsername("ExistingUser")).thenReturn(Collections.singletonList(existingUser));
-
-        // Create a mock InventoryItem for testing
-        InventoryItem invItem1 = new InventoryItem(book1, 5);
-
-        //when(inventoryItemRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(invItem1));
-
-        Model model = new ConcurrentModel();
-        ShoppingCart shoppingCart = new ShoppingCart(inventory);
-        shoppingCart.addToCart(book1, 3);
-
-        assertDoesNotThrow(() -> {
-            String[] selectedItems = new String[]{"1"};
-            String view = controller.addToCart(selectedItems, model);
-
-            // Verify that the expected methods were called
-            verify(userController, times(1)).getUserAccess();
-            verify(userRepository, times(1)).findByUsername("ExistingUser");
-            verify(inventoryItemRepository, times(1)).findById(anyInt());
-
-            // Assertions
-            Assertions.assertEquals("home", view);
-
-
-        });
     }
 }

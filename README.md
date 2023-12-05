@@ -11,16 +11,21 @@ The Amazin Online Bookstore Management System is a web application designed to f
 ## Current Progress
 - Login and Registration
 - View Available Books
-
-## Remaining Tasks
 - Add/Remove from cart
 - Checkout and Purchase
 - Search and Browse Books
 - Sort and Filter Books
+
+## Remaining Tasks
+- Upload and Edit
 - Book Reccomendations
 
 ## Database Schema
-![online-bookstore1](https://github.com/waheebh1/online-bookstore/assets/49663595/875f839f-f2bf-4455-99f9-bc977d10bd37)
+![online-bookstore-database-schema-m2](https://github.com/waheebh1/online-bookstore/assets/49663595/0ed4487a-a9b6-4a75-b04e-2954c280dd12)
+
 
 ## UML Class Diagram
-![group9-milestone1-class-diagram](https://github.com/waheebh1/online-bookstore/assets/59773247/0d5f6621-c6a0-47c2-8bfa-755dad0edfa5)
+![4806 uml  - class](https://github.com/waheebh1/online-bookstore/assets/59773247/c1791bed-68d2-439f-b88d-5399ed396282)
+
+
+

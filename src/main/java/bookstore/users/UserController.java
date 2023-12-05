@@ -1,7 +1,11 @@
 package bookstore.users;
 
+import bookstore.inventory.InventoryRepository;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,11 +24,13 @@ public class UserController {
 
     @Autowired
     private final UserRepository userRepository;
-    private final UserRepository loggedInUserRepository;
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private final InventoryRepository inventoryRepository;
+
     private boolean userAccess = false;
 
+    private static final String cookieUsername = "username";
 
     /**
      * Create new user controller
@@ -32,10 +38,10 @@ public class UserController {
      * @param userRepository user repository
      * @author Thanuja Sivaananthan
      */
-    public UserController(UserRepository userRepository, UserRepository loggedInUserRepository, ShoppingCartRepository shoppingCartRepository) {
+    public UserController(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, InventoryRepository inventoryRepo) {
         this.userRepository = userRepository;
         this.shoppingCartRepository = shoppingCartRepository;
-        this.loggedInUserRepository = loggedInUserRepository;
+        this.inventoryRepository = inventoryRepo;
     }
 
     /**
@@ -54,15 +60,20 @@ public class UserController {
      * @author Thanuja Sivaananthan
      */
     @GetMapping("/register")
-    public String createAccountForm(Model model) {
-        BookUser bookUser = new BookUser();
-        ShoppingCart shoppingCart= new ShoppingCart();
-        bookUser.setShoppingCart(shoppingCart);
-        shoppingCart.setUser(bookUser);
+    public String createAccountForm(HttpServletRequest request, HttpServletResponse response, Model model) {
 
-        model.addAttribute("shoppingCart", shoppingCart);
-        model.addAttribute("user", bookUser);
-        return "register";
+        // if usersesion exists, redirect to that session
+        BookUser loggedInUser = getLoggedInUser(request.getCookies());
+        if (loggedInUser != null){
+            model.addAttribute("user", loggedInUser);
+
+            return "redirect:/listAvailableBooks";
+        } else {
+            BookUser bookUser = new BookUser();
+
+            model.addAttribute("user", bookUser);
+            return "register";
+        }
     }
 
 
@@ -76,7 +87,13 @@ public class UserController {
             // setup as owner if specified
             bookUser = new BookOwner(bookUser.getId(), bookUser.getUsername(), bookUser.getPassword(), bookUser.getShoppingCart());
         }
+
+        // need to save shoppingCarts first, then set shoppingCart for the user, then save the user
+        ShoppingCart shoppingCart = new ShoppingCart(inventoryRepository.findById(1));
+        shoppingCartRepository.save(shoppingCart);
+        bookUser.setShoppingCart(shoppingCart);
         userRepository.save(bookUser);
+
         return bookUser;
     }
 
@@ -124,9 +141,18 @@ public class UserController {
      * @author Sabah Samwatin
      */
     @GetMapping("/login")
-    public String accountForm(Model model) {
-        model.addAttribute("user", new BookUser());
-        return "login"; // one form for both account creation and login
+    public String accountForm(HttpServletRequest request, HttpServletResponse response, Model model) {
+
+        // if usersesion exists, redirect to that session
+        BookUser loggedInUser = getLoggedInUser(request.getCookies());
+        if (loggedInUser != null){
+            model.addAttribute("user", loggedInUser);
+
+            return "redirect:/listAvailableBooks";
+        } else {
+            model.addAttribute("user", new BookUser());
+            return "login";
+        }
     }
 
     /**
@@ -137,7 +163,7 @@ public class UserController {
      * @author Sabah Samwatin
      */
     @PostMapping("/login")
-    public String handleUserLogin(@ModelAttribute BookUser formUser, Model model) {
+    public String handleUserLogin(HttpServletRequest request, HttpServletResponse response, @ModelAttribute BookUser formUser, Model model) {
         try {
             // Check if user exists
             List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
@@ -152,8 +178,11 @@ public class UserController {
                 if (existingUser.getPassword().equals(formUser.getPassword())) {
                     // Passwords match, login successful
                     model.addAttribute("user", existingUser);
-                    loggedInUserRepository.deleteAll(); // TODO - remove the current user in the log out
-                    loggedInUserRepository.save(existingUser);
+
+                    System.out.println("ADDING COOKIE " + existingUser.getUsername());
+                    Cookie addCookie = new Cookie(cookieUsername, existingUser.getUsername());
+                    addCookie.setPath("/");
+                    response.addCookie(addCookie);
                     this.userAccess = true;
                     return "redirect:/listAvailableBooks"; // Redirect to user profile page
                 } else {
@@ -171,14 +200,69 @@ public class UserController {
         }
     }
 
+    public BookUser getLoggedInUser(Cookie[] cookies){
+
+        String loggedInUsername = retreiveCookie(cookies);
+        BookUser loggedInUser = null;
+
+        if (loggedInUsername != null) {
+            System.out.println("COOKIE RETRIEVED: " + loggedInUsername);
+
+            List<BookUser> loggedInUsers = userRepository.findByUsername(loggedInUsername);
+
+            if (!loggedInUsers.isEmpty()) {
+                loggedInUser = loggedInUsers.get(0);
+                System.out.println("USER RETRIEVED: " + loggedInUser.getUsername());
+            }
+        }
+
+        return loggedInUser;
+    }
+
+    private static String retreiveCookie(Cookie[] cookies){
+        String result = null;
+        if (cookies == null){
+            return null;
+        }
+        for (Cookie cookie : cookies){
+            if (cookie.getName().equals(cookieUsername) && cookie.getMaxAge() != 0){
+                result = cookie.getValue();
+            }
+        }
+        return result;
+    }
+
+
     /**
      * Post mapping for logout request
      * @return register-login page
      * @author Waheeb Hashmi
      */
     @PostMapping("/logout")
-    public String handleUserLogout() {
+    public String handleUserLogout(HttpServletResponse response, HttpServletRequest request) {
         this.userAccess = false;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null){
+            System.out.println("CHECK FOR COOKIES");
+            for (Cookie cookie : cookies){
+                System.out.println("NAME: " + cookie.getName());
+                System.out.println("VALUE: " + cookie.getValue());
+                if (cookie.getName().equals(cookieUsername)){ // What does this do?
+                    System.out.println("logging out of user: " + cookie.getValue());
+
+                    System.out.println("ADDING REMOVE COOKIE");
+                    Cookie removeCookie = new Cookie(cookieUsername, "");
+                    removeCookie.setMaxAge(0);
+                    removeCookie.setPath("/");
+                    response.addCookie(removeCookie);
+                    break;
+                }
+            }
+        } else {
+            System.out.println("ERROR, COOKIES NULL");
+        }
+
         return "redirect:/";
     }
 
@@ -189,7 +273,16 @@ public class UserController {
      * @author Thanuja Sivaananthan
      */
     @GetMapping("/")
-    public String registerLogin(Model model) {
-        return "register-login";
+    public String registerLogin(HttpServletRequest request, HttpServletResponse response, Model model) {
+        // if usersesion exists, redirect to that session
+        BookUser loggedInUser = getLoggedInUser(request.getCookies());
+        if (loggedInUser != null){
+            model.addAttribute("user", loggedInUser);
+
+            return "redirect:/listAvailableBooks";
+        } else {
+            return "register-login";
+        }
     }
+
 }

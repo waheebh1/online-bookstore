@@ -37,6 +37,16 @@
                     value: selectedItems.join(',')
                 }).appendTo($(this)); // Append to the current form
             });
+
+            $(document).ready(function() {
+                $('#sort').change(function() {
+                    // Trigger form submission
+                    // Set selected attribute directly on the selected option
+                    $('#sort option:selected').removeAttr('selected');
+                    $('#sort option[value="' + $(this).val() + '"]').attr('selected', 'selected');
+                    $('#sortForm').submit();
+                });
+            });
         });
     </script>
     <link rel="stylesheet" th:href="@{/css/general.css}" />
@@ -51,10 +61,47 @@
     </form>
 </th:block>
 <p th:text="'Logged in as: ' + ${user.getUsername()}" />
-<div class="search-container">
-    <form action="/listAvailableBooks">
-        <input type="text" placeholder="Search" name="searchValue">
-        <button type="submit">Submit</button>
+
+<div>
+    <form id="sortForm" th:action="@{/listAvailableBooks}" method="get">
+        <div class="searchContainer">
+            <label>
+                <input type="text" placeholder="Search" name="searchValue">
+            </label>
+            <button type="submit">Submit</button>
+        </div>
+        <div class="sortContainer">
+            <label for="sort">Sort by:</label>
+
+            <select name="sort" id="sort">
+                <option value="low_to_high" th:selected="${sort == 'low_to_high'}">Price: Low to High</option>
+                <option value="high_to_low" th:selected="${sort == 'high_to_low'}">Price: High to Low</option>
+                <option value="alphabetical" th:selected="${sort == 'alphabetical'}">Alphabetical</option>
+            </select>
+        </div>
+        <div class="filterContainer">
+            <h3>Author</h3>
+            <span th:each="author : ${authors}" >
+                <label th:for="${'checkbox-' + author}" th:text="${author}"></label>
+                <input type="checkbox" th:id="${'checkbox-' + author}" th:name="author" th:value="${author}" />
+                <br>
+            </span>
+
+            <h3>Genre</h3>
+            <span th:each="genre : ${genres}" >
+                <label th:for="${'checkbox-' + genre}" th:text="${genre}"></label>
+                <input type="checkbox" th:id="${'checkbox-' + genre}" th:name="genre" th:value="${genre}" />
+                <br>
+            </span>
+
+            <h3>Publisher</h3>
+            <span th:each="publisher : ${publishers}" >
+                <label th:for="${'checkbox-' + publisher}" th:text="${publisher}"></label>
+                <input type="checkbox" th:id="${'checkbox-' + publisher}" th:name="publisher" th:value="${publisher}" />
+                <br>
+            </span>
+
+        </div>
     </form>
 </div>
 

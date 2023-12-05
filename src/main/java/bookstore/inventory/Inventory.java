@@ -1,6 +1,5 @@
 /**
  * Inventory Object
- * @author Maisha Abdullah
  */
 
 package bookstore.inventory;
@@ -190,7 +189,6 @@ public class Inventory {
 
         return searchedBooks;
     }
-
 
     /**
      * Method to set the ID of the inventory

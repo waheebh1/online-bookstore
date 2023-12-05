@@ -2,12 +2,14 @@ package bookstore.inventory;
 
 import bookstore.users.BookUser;
 import bookstore.users.UserController;
-import bookstore.users.UserRepository;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -21,7 +23,6 @@ public class CheckoutController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final InventoryItemRepository inventoryItemRepository;
-    private final UserRepository loggedInUserRepository;
     private UserController userController;
     private boolean checkoutFlag = false;
 
@@ -30,13 +31,14 @@ public class CheckoutController {
      *
      * @param authorRepo repository of authors
      * @param bookRepo   repository of books
+     * @author Shrimei Chock
+     * @author Maisha Abdullah
      */
-    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserRepository loggedInUserRepository, UserController userController) {
+    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController) {
         this.authorRepository = authorRepo;
         this.bookRepository = bookRepo;
         this.inventoryRepository = inventoryRepo;
         this.inventoryItemRepository = inventoryItemRepo;
-        this.loggedInUserRepository = loggedInUserRepository;
         this.shoppingCartRepository = shoppingCartRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
         this.userController = userController;
@@ -49,20 +51,24 @@ public class CheckoutController {
      * @return reroute to html page to display all books
      * @author Maisha Abdullah
      * @author Thanuja Sivaananthan
+     * @author Shrimei Chock
      */
     @GetMapping("/listAvailableBooks")
     public String listAvailableBooks
-    (@RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue, Model model) {
-       checkoutFlag = false;
-        if(this.userController.getUserAccess()){
-            List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-            BookUser loggedInUser = null;
-            if (!loggedInUsers.isEmpty()) {
-                loggedInUser = loggedInUsers.get(0);
-            }
+    (HttpServletRequest request, HttpServletResponse response,
+     @RequestParam(name = "searchValue", required = false, defaultValue = "") String searchValue,
+     @RequestParam(name = "sort", required = false, defaultValue = "low_to_high") String sort,
+     @RequestParam(name = "author", required = false) List<String> authors,
+     @RequestParam(name = "genre", required = false) List<String> genres,
+     @RequestParam(name = "publisher", required = false) List<String> publishers,
+     Model model) {
+        checkoutFlag = false;
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if(loggedInUser != null){
 
             Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
 
+            //Search
             List<InventoryItem> inventoryItems;
             if (searchValue.isEmpty()) {
                 inventoryItems = inventory.getAvailableBooks();
@@ -73,22 +79,58 @@ public class CheckoutController {
                 }
             }
 
+            // Sort after searching
+            System.out.println("SORT BY: " + sort);
+
+            if (sort.equals(SortCriteria.LOW_TO_HIGH.label)) {
+                inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice())); //TODO replace with methods in inventoryItem repo?
+            } else if (sort.equals(SortCriteria.HIGH_TO_LOW.label)) {
+                inventoryItems.sort(Comparator.comparing(item -> item.getBook().getPrice(), Comparator.reverseOrder()));
+            } else if (sort.equals(SortCriteria.ALPHABETICAL.label)) {
+                inventoryItems.sort(Comparator.comparing(item -> item.getBook().getTitle()));
+            } else {
+                System.out.println("ERROR: Sort criteria not found");
+            }
+
+            //filter
+            List<Book> bookList = BookFiltering.createBookList(inventoryItems);
+            List<String> authorList = BookFiltering.getAllAuthors(bookList);
+            List<String> genreList = BookFiltering.getAllGenres(bookList);
+            List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+            //TODO add for price ranges
+
+            //Print checked values
+            System.out.println("Authors: " + authors);
+            System.out.println("Genres: " + genres);
+            System.out.println("Publishers: " + publishers);
+
+            inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
+
             model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItems);
+            model.addAttribute("sort", sort);
+            model.addAttribute("authors", authorList);
+            model.addAttribute("genres", genreList);
+            model.addAttribute("publishers", publisherList);
             return "home";
         } else {
             return "access-denied";
-        } 
+        }
     }
 
     /**
      * View details for a single book
-     *
      * @param model container
      * @return route to html page to display contents of a book when clicked
+     * @author Shrimei Chock
      */
     @GetMapping("/viewBook")
-    public String viewBook(@RequestParam(name = "isbn") String isbn, Model model) { //TODO pass in isbn when calling this endpoint
+    public String viewBook(HttpServletRequest request, HttpServletResponse response,
+                           @RequestParam(name = "isbn") String isbn, Model model) {
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if(loggedInUser == null){
+            return "access-denied";
+        }
         Book bookToDisplay = bookRepository.findByIsbn(isbn);
         model.addAttribute("book", bookToDisplay);
         return "book-info";
@@ -101,7 +143,14 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @GetMapping("/addToCart")
-    public String addToCartForm(Model model) {
+    public String addToCartForm(HttpServletRequest request, HttpServletResponse response,
+                                Model model) {
+
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if(loggedInUser == null){
+            return "access-denied";
+        }
+
         model.addAttribute("inventory", inventoryItemRepository.findAll());
         //model.addAttribute("user", loggedInUser);
         return "home";
@@ -115,19 +164,14 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @PostMapping("/addToCart")
-    public String addToCart(@RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
+    public String addToCart(HttpServletRequest request, HttpServletResponse response,
+                            @RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
             model) {
         
         System.out.println("going into add to cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
-        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-        BookUser loggedInUser = null;
-        if (!loggedInUsers.isEmpty()) {
-            loggedInUser = loggedInUsers.get(0);
-        }
-
-        //TODO - if user does not already have a shopping cart
-        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
@@ -154,10 +198,23 @@ public class CheckoutController {
 
             }
         }
+
+        List<InventoryItem> inventoryItems = (List<InventoryItem>) inventoryItemRepository.findAll();
+        inventoryItems = BookFiltering.getItemsInStock(inventoryItems);
+
+        List<Book> bookList = BookFiltering.createBookList(inventoryItems);
+        List<String> authorList = BookFiltering.getAllAuthors(bookList);
+        List<String> genreList = BookFiltering.getAllGenres(bookList);
+        List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
-        model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
-        return "home";
+        model.addAttribute("inventoryItems", inventoryItems);
+        model.addAttribute("authors", authorList); //TODO repetition
+        model.addAttribute("genres", genreList);
+        model.addAttribute("publishers", publisherList);
+        return "home"; //TODO after add/remove from cart, the sort goes away. Need to store the sort value, redirect?
+
     }
 
     /**
@@ -167,10 +224,11 @@ public class CheckoutController {
      */
     @GetMapping("/getTotalInCart")
     @ResponseBody
-    public int getTotalInCart() {
+    public int getTotalInCart(HttpServletRequest request, HttpServletResponse response) {
         System.out.println("going into get total in cart");
 
-        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         return shoppingCart.getTotalQuantityOfCart();
     }
@@ -182,7 +240,13 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @GetMapping("/removeFromCart")
-    public String removeFromCartForm (Model model){
+    public String removeFromCartForm (HttpServletRequest request, HttpServletResponse response,
+                                      Model model){
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if(loggedInUser == null){
+            return "access-denied";
+        }
+
         model.addAttribute("inventory", inventoryItemRepository.findAll());
         return "home";
     }
@@ -195,24 +259,26 @@ public class CheckoutController {
      * @author Maisha Abdullah
      */
     @PostMapping("/removeFromCart")
-    public String removeFromCart (@RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
+    public String removeFromCart (HttpServletRequest request, HttpServletResponse response,
+                                  @RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
             model){
 
         System.out.println("going into remove from cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
 
-        List<BookUser> loggedInUsers = (List<BookUser>) loggedInUserRepository.findAll();
-        BookUser loggedInUser = null;
-        if (!loggedInUsers.isEmpty()) {
-            loggedInUser = loggedInUsers.get(0);
-        }
-
-        //TODO - if user does not already have a shopping cart
-        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
-
+                if(checkoutFlag){
+                    ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
+                    if (cartItem != null) {
+                        shoppingCart.removeFromCart(cartItem.getBook(), 1);
+                        shoppingCartItemRepository.delete(cartItem);
+                    }
+                
+                } else {
                 InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
                 System.out.println("INVENTORY ITEM QUANTITY --BEFORE--  REMOVE FROM CART: " + invItem.getQuantity());
                 shoppingCart.removeFromCart(invItem.getBook(), 1);
@@ -240,12 +306,24 @@ public class CheckoutController {
 
                 inventoryRepository.save(inventoryRepository.findById(1));
 
+                }
             }
         }
+
+        List<InventoryItem> inventoryItems = (List<InventoryItem>) inventoryItemRepository.findAll();
+        inventoryItems = BookFiltering.getItemsInStock(inventoryItems);
+
+        List<Book> bookList = BookFiltering.createBookList(inventoryItems);
+        List<String> authorList = BookFiltering.getAllAuthors(bookList);
+        List<String> genreList = BookFiltering.getAllGenres(bookList);
+        List<String> publisherList = BookFiltering.getAllPublishers(bookList);
 
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
+        model.addAttribute("authors", authorList); //TODO repetition
+        model.addAttribute("genres", genreList);
+        model.addAttribute("publishers", publisherList);
 
         if(checkoutFlag){
     
@@ -260,22 +338,11 @@ public class CheckoutController {
             model.addAttribute("items", shoppingCart.getBooksInCart());
             model.addAttribute("totalPrice", roundedPrice);
     
-            if (this.userController.getUserAccess()) {
-                return "checkout";
-            } else {
-                return "access-denied";
-            }
+            return "checkout";
         }
-        return "home";    
-}
-
-    /**
-     * Method to retrieve shopping cart for user
-     * @return the shopping cart
-     */
-    private ShoppingCart getOrCreateShoppingCart(){
-        return shoppingCartRepository.findById(1) != null ? shoppingCartRepository.findById(1) : new ShoppingCart(inventoryRepository.findById(1));
+        return "home";
     }
+
 
     /** 
     * Method to get checkout page
@@ -284,9 +351,16 @@ public class CheckoutController {
     * @author Waheeb Hashmi
     */
     @GetMapping("/checkout")
-    public String viewCart(Model model) {
+    public String viewCart(HttpServletRequest request, HttpServletResponse response,
+                           Model model) {
+
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        if(loggedInUser == null){
+            return "access-denied";
+        }
+
         checkoutFlag = true;
-        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+        ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         //Calculate total price
         double totalPrice = 0;
@@ -299,15 +373,8 @@ public class CheckoutController {
         model.addAttribute("items", shoppingCart.getBooksInCart());
         model.addAttribute("totalPrice", roundedPrice);
 
-        if (this.userController.getUserAccess()) {
-            return "checkout";
-        } else {
-            return "access-denied";
-        }
+        return "checkout";
    }
-
-
-
 
     /**
     * Method to process checkout
@@ -316,17 +383,19 @@ public class CheckoutController {
     * @author Waheeb Hashmi
     */
     @PostMapping("/checkout")
-    public String confirmOrder(Model model) {
+    public String confirmOrder(HttpServletRequest request, HttpServletResponse response, Model model) {
         // Generate a random confirmation number
         String confirmationNumber = UUID.randomUUID().toString();
         model.addAttribute("confirmationNumber", confirmationNumber);
 
-        ShoppingCart shoppingCart = getOrCreateShoppingCart();
+        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         shoppingCart.checkout();
 
         shoppingCartRepository.save(shoppingCart);
-        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
+        shoppingCartItemRepository.deleteAll(shoppingCartItemRepository.findByQuantity(0));
+        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart()); // not sure if we need this
         inventoryRepository.save(inventoryRepository.findById(1));
 
         return "order-confirmation";
