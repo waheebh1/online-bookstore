@@ -40,7 +40,11 @@
     <div class="header">
         <h1>Edit Book Information</h1>
     </div>
-    <form action="#" th:action="@{/book/edit/{isbn}(isbn=*{isbn})}" th:object="${book}" method="post">
+    <!-- Error Message Display -->
+    <div th:if="${errorMessage}" style="background-color: #ffcccc; border: 1px solid #ff0000; padding: 10px; margin-bottom: 20px;">
+        <p th:text="${errorMessage}">Error message here.</p>
+    </div>
+    <form action="#" th:action="@{/book/edit}" th:object="${book}" method="post">
         <div class="form-row">
             <div class="form-group">
                 <label for="isbn">ISBN:</label>
@@ -55,7 +59,7 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="authors">Authors:</label>
-                <input type="text" id="authors" name="authors" required />
+                <input type="text" id="authors" name="authorsInput" th:value="${authorsList}" required />
             </div>
             <div class="form-group">
                 <label for="price">Price:</label>
