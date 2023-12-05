@@ -21,7 +21,7 @@ public class ShoppingCart {
     private List<ShoppingCartItem> booksInCart = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "booksForRecommendations")
-    private List<ShoppingCartItem> booksForRecommendations;
+    private List<ShoppingCartItem> booksForRecommendations = new ArrayList<();;
 
     @ManyToOne // many shoppingCarts should be able to map to the same inventory
     private Inventory inventory;
