@@ -99,11 +99,6 @@ public class CheckoutController {
             List<String> publisherList = BookFiltering.getAllPublishers(bookList);
             //TODO add for price ranges
 
-            //Print checked values
-            System.out.println("Authors: " + authors);
-            System.out.println("Genres: " + genres);
-            System.out.println("Publishers: " + publishers);
-
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
 
             model.addAttribute("user", loggedInUser);
@@ -152,7 +147,6 @@ public class CheckoutController {
         }
 
         model.addAttribute("inventory", inventoryItemRepository.findAll());
-        //model.addAttribute("user", loggedInUser);
         return "home";
     }
 
@@ -162,59 +156,39 @@ public class CheckoutController {
      * @param model container
      * @return route to html page to display home page with list of available books
      * @author Maisha Abdullah
+     * @author Shrimei Chock
      */
     @PostMapping("/addToCart")
     public String addToCart(HttpServletRequest request, HttpServletResponse response,
-                            @RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model
-            model) {
+                            @RequestParam(name = "selectedItems", required = false) String[] selectedItems, Model model) {
         
-        System.out.println("going into add to cart");
-        System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
+        System.out.println("-- ADD TO CART METHOD --");
+        System.out.println("\tSELECTED ITEM: " + Arrays.toString(selectedItems));
+
+        //get user and their shopping cart
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
 
+                //find item in inventory and add to cart
                 InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
-                System.out.println("INVENTORY ITEM QUANTITY --BEFORE-- ADD TO CART: " + invItem.getQuantity());
+                System.out.println("\tINVENTORY ITEM QUANTITY --BEFORE-- ADD TO CART: " + invItem.getQuantity());
                 shoppingCart.addToCart(invItem.getBook(), 1);
-                System.out.println("INVENTORY ITEM QUANTITY --AFTER-- ADD TO CART: " + invItem.getQuantity());
+                System.out.println("\tINVENTORY ITEM QUANTITY --AFTER-- ADD TO CART: " + invItem.getQuantity());
 
+                //update the user's shopping cart and inventory
                 shoppingCartRepository.save(shoppingCart);
                 shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
-
                 inventoryItemRepository.save(invItem);
-
-                System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
-                if (shoppingCart.getBooksInCart().size() > 1) {
-                    System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
-                }
-
-                System.out.println(" TOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
-
-
                 inventoryRepository.save(inventoryRepository.findById(1));
 
+                //print number of books in cart
+                System.out.println("\tTOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
             }
         }
-
-        List<InventoryItem> inventoryItems = (List<InventoryItem>) inventoryItemRepository.findAll();
-        inventoryItems = BookFiltering.getItemsInStock(inventoryItems);
-
-        List<Book> bookList = BookFiltering.createBookList(inventoryItems);
-        List<String> authorList = BookFiltering.getAllAuthors(bookList);
-        List<String> genreList = BookFiltering.getAllGenres(bookList);
-        List<String> publisherList = BookFiltering.getAllPublishers(bookList);
-
-        model.addAttribute("user", loggedInUser);
-        model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
-        model.addAttribute("inventoryItems", inventoryItems);
-        model.addAttribute("authors", authorList); //TODO repetition
-        model.addAttribute("genres", genreList);
-        model.addAttribute("publishers", publisherList);
-        return "home"; //TODO after add/remove from cart, the sort goes away. Need to store the sort value, redirect?
-
+        return "redirect:/listAvailableBooks";
     }
 
     /**
@@ -263,71 +237,51 @@ public class CheckoutController {
                                   @RequestParam(name = "selectedItems", required = false) String[]selectedItems, Model
             model){
 
-        System.out.println("going into remove from cart");
-        System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
+        System.out.println("-- REMOVE FROM CART METHOD --");
+        System.out.println("\tSELECTED ITEM: " + Arrays.toString(selectedItems));
 
+        //get user and their shopping cart
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
+
+                //if user is removing from checkout page
                 if(checkoutFlag){
                     ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
                     if (cartItem != null) {
                         shoppingCart.removeFromCart(cartItem.getBook(), 1);
                         shoppingCartItemRepository.delete(cartItem);
                     }
-                
                 } else {
-                InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
-                System.out.println("INVENTORY ITEM QUANTITY --BEFORE--  REMOVE FROM CART: " + invItem.getQuantity());
-                shoppingCart.removeFromCart(invItem.getBook(), 1);
-                System.out.println("INVENTORY ITEM QUANTITY --AFTER-- REMOVE FROM CART: " + invItem.getQuantity());
+                    //find item in inventory and remove from cart
+                    InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
+                    System.out.println("\tINVENTORY ITEM QUANTITY --BEFORE--  REMOVE FROM CART: " + invItem.getQuantity());
+                    shoppingCart.removeFromCart(invItem.getBook(), 1);
+                    System.out.println("\tINVENTORY ITEM QUANTITY --AFTER-- REMOVE FROM CART: " + invItem.getQuantity());
 
-                shoppingCartRepository.save(shoppingCart);
-                shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
-                
-                for (ShoppingCartItem shoppingCartItem : shoppingCartItemRepository.findByQuantity(0)){
-                    System.out.println("FOUND EMPTY ITEM, WILL DELETE " + shoppingCartItem.getBook().getTitle());
-                    shoppingCartItemRepository.delete(shoppingCartItem);
-                }
+                    //update shopping cart in repo
+                    shoppingCartRepository.save(shoppingCart);
+                    shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
 
-                inventoryItemRepository.save(invItem);
-
-                if (!shoppingCart.getBooksInCart().isEmpty()) {
-                    System.out.println("CART ITEM FOR BOOK 1 QUANTITY:" + shoppingCart.getBooksInCart().get(0).getQuantity());
-                    if (shoppingCart.getBooksInCart().size() > 1) {
-                        System.out.println("CART ITEM FOR BOOK 2 QUANTITY:" + shoppingCart.getBooksInCart().get(1).getQuantity());
+                    //remove items from cart that have a quantity of 0
+                    for (ShoppingCartItem shoppingCartItem : shoppingCartItemRepository.findByQuantity(0)){
+                        System.out.println("\tFOUND EMPTY ITEM, WILL DELETE " + shoppingCartItem.getBook().getTitle());
+                        shoppingCartItemRepository.delete(shoppingCartItem);
                     }
-                }
 
-                System.out.println(" TOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
+                    //update inventory
+                    inventoryItemRepository.save(invItem);
+                    inventoryRepository.save(inventoryRepository.findById(1));
 
-
-                inventoryRepository.save(inventoryRepository.findById(1));
-
+                    System.out.println("\tTOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
                 }
             }
         }
 
-        List<InventoryItem> inventoryItems = (List<InventoryItem>) inventoryItemRepository.findAll();
-        inventoryItems = BookFiltering.getItemsInStock(inventoryItems);
-
-        List<Book> bookList = BookFiltering.createBookList(inventoryItems);
-        List<String> authorList = BookFiltering.getAllAuthors(bookList);
-        List<String> genreList = BookFiltering.getAllGenres(bookList);
-        List<String> publisherList = BookFiltering.getAllPublishers(bookList);
-
-        model.addAttribute("user", loggedInUser);
-        model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
-        model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
-        model.addAttribute("authors", authorList); //TODO repetition
-        model.addAttribute("genres", genreList);
-        model.addAttribute("publishers", publisherList);
-
+        //if on checkout page, recalculate total price
         if(checkoutFlag){
-    
-            //Calculate total price again
             double totalPrice = 0;
             for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
                 totalPrice += item.getBook().getPrice() * item.getQuantity();
@@ -340,9 +294,8 @@ public class CheckoutController {
     
             return "checkout";
         }
-        return "home";
+        return "redirect:/listAvailableBooks";
     }
-
 
     /** 
     * Method to get checkout page
