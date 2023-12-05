@@ -25,7 +25,7 @@
         <h2 th:text="${book.getTitle()}"> </h2>
     </div>
     <div class="book-author">
-        <p th:text="${book.getAuthor()[0].getFullName()}"> </p>
+        <p>Authors: <span th:text="${authors}"></span></p>
     </div>
     <img th:src="${book.getCover()}" alt="Book Cover">
     <div class="book-year">
