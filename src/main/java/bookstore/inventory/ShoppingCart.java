@@ -19,6 +19,9 @@ public class ShoppingCart {
 
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
     private List<ShoppingCartItem> booksInCart = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "booksForRecommendations")
+    private List<ShoppingCartItem> booksForRecommendations;
 
     @ManyToOne // many shoppingCarts should be able to map to the same inventory
     private Inventory inventory;
@@ -80,7 +83,6 @@ public class ShoppingCart {
                 // Book is available in the inventory
                 ShoppingCartItem newCartItem = new ShoppingCartItem(book, quantity, this);
                 booksInCart.add(newCartItem);
-
                 // Reduce quantity from the inventory
                 inventory.reduceFromInventory(book, quantity);
             }
@@ -166,10 +168,22 @@ public class ShoppingCart {
     }
 
     /**
+     * Method to get books for recommendations
+     * @return books in cart
+     * @author Waheeb Hashmi
+     */
+    public List<ShoppingCartItem> getBooksForRecommendations(){
+        return booksForRecommendations;
+    }
+
+    /**
      * Method to clear cart once checkout is completed?
      * @author Maisha Abdullah
      */
     public void checkout(){
+        for (ShoppingCartItem itemInCart : booksInCart) {
+            booksForRecommendations.add(itemInCart);
+        }
         for (ShoppingCartItem itemInCart : booksInCart) {
             itemInCart.setQuantity(0);
         }

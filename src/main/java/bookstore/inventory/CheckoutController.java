@@ -35,7 +35,6 @@ public class CheckoutController {
     private final UserRepository userRepository;
     private UserController userController;
     private boolean checkoutFlag = false;
-    private BookUser currentUser;
 
     /**
      * Constructor for checkout controller
@@ -76,7 +75,6 @@ public class CheckoutController {
      Model model) {
         checkoutFlag = false;
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         if(loggedInUser != null){
 
             Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
@@ -118,8 +116,7 @@ public class CheckoutController {
             System.out.println("Publishers: " + publishers);
 
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
-
-            List<Book> x = recommendBooks(currentUser.getId());
+            List<Book> x = recommendBooks(loggedInUser.getId());
 
             model.addAttribute("books", x);
             model.addAttribute("user", loggedInUser);
@@ -144,7 +141,6 @@ public class CheckoutController {
     public String viewBook(HttpServletRequest request, HttpServletResponse response,
                            @RequestParam(name = "isbn") String isbn, Model model) {
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -164,7 +160,6 @@ public class CheckoutController {
                                 Model model) {
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -189,7 +184,6 @@ public class CheckoutController {
         System.out.println("going into add to cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
@@ -247,7 +241,6 @@ public class CheckoutController {
         System.out.println("going into get total in cart");
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         return shoppingCart.getTotalQuantityOfCart();
@@ -263,7 +256,6 @@ public class CheckoutController {
     public String removeFromCartForm (HttpServletRequest request, HttpServletResponse response,
                                       Model model){
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -288,7 +280,6 @@ public class CheckoutController {
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
@@ -376,7 +367,6 @@ public class CheckoutController {
                            Model model) {
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -411,7 +401,6 @@ public class CheckoutController {
         model.addAttribute("confirmationNumber", confirmationNumber);
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         shoppingCart.checkout();
@@ -470,9 +459,9 @@ public class CheckoutController {
     BookUser user = userRepository.findById(userId);
     ShoppingCart shoppingCart = user.getShoppingCart();
     Set<Book> books = new HashSet<>();
-    for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
+    for (ShoppingCartItem item : shoppingCart.getBooksForRecommendations()) {
         books.add(item.getBook());
-    }
+        }
     return books;
 }
 
