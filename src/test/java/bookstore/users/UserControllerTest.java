@@ -11,6 +11,10 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
 import bookstore.inventory.Book;
+import bookstore.inventory.CheckoutController;
+import bookstore.inventory.Author;
+import bookstore.inventory.Book;
+import bookstore.inventory.InventoryItem;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartItem;
 import bookstore.inventory.ShoppingCartRepository;
@@ -26,8 +30,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -52,6 +60,9 @@ class UserControllerTest {
 
     @Autowired
     private UserController controller;
+
+    @Autowired
+    private CheckoutController checkoutController;
 
     @MockBean
     private UserRepository userRepository;
@@ -484,5 +495,34 @@ class UserControllerTest {
         Assertions.assertTrue(bookInCart, "Shopping cart should contain the previously added book.");
     }*/
 
+    /**
+    * Test that the jaccard distance is calculated properly (example for users with two books each)
+    * @author Waheeb Hashmi
+    */
+    @Test
+    void testCalculateJaccardDistance() {
+        Set<Book> user1Books = new HashSet<>();
+        Set<Book> user2Books = new HashSet<>();
+        
+        ArrayList<Author> author_list = new ArrayList<>();
+        Author author1 = new Author("Harper", "Lee");
+        author_list.add(author1);
+        ArrayList<Author> author_list2 = new ArrayList<>();
+        Author author2 = new Author("Khaled", "Hosseini");
+        author_list2.add(author2);
+        String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
+        String description2 = "The Kite Runner tells the story of Amir, a young boy from the Wazir Akbar Khan district of Kabul";
+        Book book1 = new Book("0446310786", "To Kill a Mockingbird", author_list, 12.99, "11/07/1960", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
+        Book book2 = new Book("1573222453", "The Kite Runner", author_list2, 22.00, "29/05/2003", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", "Riverhead Books", "Historical fiction", description2);
 
+        user1Books.add(book1);
+        user1Books.add(book2);
+        user2Books.add(book1);
+        user2Books.add(book2);
+
+        double result = controller.calculateJaccardDistance(user1Books, user2Books);
+        Assertions.assertEquals(0.0, result, 0.0001);
+
+    }
+        
 }

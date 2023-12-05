@@ -14,13 +14,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 
 import bookstore.users.UserController;
+import bookstore.users.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 /**
@@ -42,6 +50,9 @@ class CheckoutControllerTest {
     private InventoryRepository inventoryRepository;
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private ShoppingCart shoppingCart;
 
     @Mock
@@ -50,7 +61,6 @@ class CheckoutControllerTest {
     private Book book1;
     private Book book2;
     private Inventory inventory;
-
 
     /**
      * Method to set up the books and inventory before each test method
@@ -167,4 +177,69 @@ class CheckoutControllerTest {
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
         Assertions.assertTrue(model.containsAttribute("totalPrice"));
     }
+
+    /**
+     * Test method to get recommended books
+     * @author Waheeb Hashmi
+     */
+    @Test
+    void testGetRecommendedBooks(){
+        long userId = 1;
+        long otherUserId = 2; 
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+        shoppingCart.addToCart(book1, 1);
+        BookUser mockUser = new BookUser("testUser", "password123");
+        mockUser.setId(userId); 
+        mockUser.setShoppingCart(shoppingCart);
+    
+        ShoppingCart otherUserCart = new ShoppingCart(inventory);
+        otherUserCart.addToCart(book2, 1); // Different book for other user
+        BookUser otherUser = new BookUser("otherUser", "password123");
+        otherUser.setId(otherUserId);
+        otherUser.setShoppingCart(otherUserCart);
+    
+        Mockito.when(userRepository.findById(userId)).thenReturn(mockUser);
+        Mockito.when(userRepository.findById(otherUserId)).thenReturn(otherUser);
+        Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(mockUser, otherUser));
+    
+        ArrayList<Book> recommendedBooks = controller.recommendBooks(userId);
+    
+        Assertions.assertEquals(1, recommendedBooks.size()); // Expecting 1 book (book3)
+        Assertions.assertTrue(recommendedBooks.contains(book2)); // Ensure the recommended book is book3
+    
+    }
+    
+     /**
+     * Test method to get books in cart by userid
+     * @author Waheeb Hashmi
+     */
+    @Test
+    void testGetBooksByUserId(){
+        long userId = 1;
+        long otherUserId = 2; 
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+        shoppingCart.addToCart(book1, 1);
+        BookUser mockUser = new BookUser("testUser", "password123");
+        mockUser.setId(userId); 
+        mockUser.setShoppingCart(shoppingCart);
+    
+        ShoppingCart otherUserCart = new ShoppingCart(inventory);
+        otherUserCart.addToCart(book2, 1); // Different book for other user
+        BookUser otherUser = new BookUser("otherUser", "password123");
+        otherUser.setId(otherUserId);
+        otherUser.setShoppingCart(otherUserCart);
+    
+        Mockito.when(userRepository.findById(userId)).thenReturn(mockUser);
+        Mockito.when(userRepository.findById(otherUserId)).thenReturn(otherUser);
+        Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(mockUser, otherUser));
+    
+        Set<Book> recommendedBooks = controller.getBooksInCartByUserId(userId);
+    
+        Assertions.assertEquals(1, recommendedBooks.size()); // Expecting 1 book (book3)
+        Assertions.assertFalse(recommendedBooks.contains(book2)); // Ensure the recommended book is book3
+    
+    
+    }
+    
+    
 }

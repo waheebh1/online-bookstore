@@ -2,11 +2,20 @@ package bookstore.inventory;
 
 import bookstore.users.BookUser;
 import bookstore.users.UserController;
+import bookstore.users.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,8 +32,10 @@ public class CheckoutController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final UserRepository userRepository;
     private UserController userController;
     private boolean checkoutFlag = false;
+    private BookUser currentUser;
 
     /**
      * Constructor for checkout controller
@@ -34,7 +45,7 @@ public class CheckoutController {
      * @author Shrimei Chock
      * @author Maisha Abdullah
      */
-    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController) {
+    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController, UserRepository userRepository) {
         this.authorRepository = authorRepo;
         this.bookRepository = bookRepo;
         this.inventoryRepository = inventoryRepo;
@@ -42,6 +53,7 @@ public class CheckoutController {
         this.shoppingCartRepository = shoppingCartRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
         this.userController = userController;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -64,6 +76,7 @@ public class CheckoutController {
      Model model) {
         checkoutFlag = false;
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         if(loggedInUser != null){
 
             Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
@@ -106,6 +119,9 @@ public class CheckoutController {
 
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
 
+            List<Book> x = recommendBooks(currentUser.getId());
+
+            model.addAttribute("books", x);
             model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItems);
             model.addAttribute("sort", sort);
@@ -128,6 +144,7 @@ public class CheckoutController {
     public String viewBook(HttpServletRequest request, HttpServletResponse response,
                            @RequestParam(name = "isbn") String isbn, Model model) {
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -147,6 +164,7 @@ public class CheckoutController {
                                 Model model) {
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -171,6 +189,7 @@ public class CheckoutController {
         System.out.println("going into add to cart");
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
@@ -228,6 +247,7 @@ public class CheckoutController {
         System.out.println("going into get total in cart");
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         return shoppingCart.getTotalQuantityOfCart();
@@ -243,6 +263,7 @@ public class CheckoutController {
     public String removeFromCartForm (HttpServletRequest request, HttpServletResponse response,
                                       Model model){
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -267,17 +288,17 @@ public class CheckoutController {
         System.out.println("SELECTED ITEM: " + Arrays.toString(selectedItems));
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
-                if(checkoutFlag){
+                if (checkoutFlag) {
                     ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
                     if (cartItem != null) {
                         shoppingCart.removeFromCart(cartItem.getBook(), 1);
                         shoppingCartItemRepository.delete(cartItem);
                     }
-                
                 } else {
                 InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
                 System.out.println("INVENTORY ITEM QUANTITY --BEFORE--  REMOVE FROM CART: " + invItem.getQuantity());
@@ -355,6 +376,7 @@ public class CheckoutController {
                            Model model) {
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         if(loggedInUser == null){
             return "access-denied";
         }
@@ -389,6 +411,7 @@ public class CheckoutController {
         model.addAttribute("confirmationNumber", confirmationNumber);
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
+        currentUser = loggedInUser;
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
 
         shoppingCart.checkout();
@@ -400,4 +423,57 @@ public class CheckoutController {
 
         return "order-confirmation";
     }
+
+    /**
+     * Method that recommends the books based on the jaccard dizstance between a user and other users
+     * @author Waheeb Hashmi
+     * @param userId
+     * @return ArrayList<Book>
+     */
+    public ArrayList<Book> recommendBooks(Long userId) {
+        Set<Book> userBooks = getBooksInCartByUserId(userId);
+        Map<Long, Double> userDistances = new HashMap<>();
+
+        for (BookUser otherUser : userRepository.findAll()) {
+            if (!otherUser.getId().equals(userId)) {
+                Set<Book> otherUserBooks = getBooksInCartByUserId(otherUser.getId());
+                double distance = userController.calculateJaccardDistance(userBooks, otherUserBooks);
+                userDistances.put(otherUser.getId(), distance);
+            }
+        }
+        
+        List<Long> similarUserIds = new ArrayList<>();
+        List<Map.Entry<Long, Double>> entries = new ArrayList<>(userDistances.entrySet());
+        entries.sort(Map.Entry.comparingByValue());
+        
+        for (int i = 0; i < entries.size(); i++) {
+            similarUserIds.add(entries.get(i).getKey());
+        }
+
+       Set<Book> recommendedBooks = new HashSet<>();
+       for (Long similarUserId : similarUserIds) {
+           Set<Book> books = getBooksInCartByUserId(similarUserId);
+           books.removeAll(userBooks);
+           recommendedBooks.addAll(books);
+       }
+    
+       return new ArrayList<Book>(recommendedBooks);
+   }
+
+   /**
+    * Method that gets the books in the shopping cart by user id
+    * @author Waheeb Hashmi
+    * @param userId
+    * @return Set<Book>
+    */
+   public Set<Book> getBooksInCartByUserId(long userId) {
+    BookUser user = userRepository.findById(userId);
+    ShoppingCart shoppingCart = user.getShoppingCart();
+    Set<Book> books = new HashSet<>();
+    for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
+        books.add(item.getBook());
+    }
+    return books;
+}
+
 }
