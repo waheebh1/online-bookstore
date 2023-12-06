@@ -1,26 +1,37 @@
 package bookstore.inventory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.ExpectedCount.times;
+
+import java.util.Optional;
 
 import bookstore.mockservlet.MockHttpServletRequest;
 import bookstore.mockservlet.MockHttpServletResponse;
 import bookstore.users.BookUser;
+import bookstore.users.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 
 import bookstore.users.UserController;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 /**
@@ -47,9 +58,22 @@ class CheckoutControllerTest {
     @Mock
     private ShoppingCartItemRepository shoppingCartItemRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private InventoryItemRepository inventoryItemRepository;
+
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private HttpServletResponse response;
+
     private Book book1;
     private Book book2;
     private Inventory inventory;
+    private InventoryItem invItem1;
 
 
     /**
@@ -167,4 +191,67 @@ class CheckoutControllerTest {
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
         Assertions.assertTrue(model.containsAttribute("totalPrice"));
     }
+
+
+    @Test
+    void testAddToCart() {
+        when(userController.getUserAccess()).thenReturn(true);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
+
+        Model model = new ConcurrentModel();
+        BookUser bookUser = new BookUser("testUser", "password123");
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+
+        // Create an inventory item
+        InventoryItem invItem1 = new InventoryItem(book1, 5, inventory);
+        invItem1.setId(1L);
+
+        // Create a shopping cart
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+        bookUser.setShoppingCart(shoppingCart);
+        // Add an item to the shopping cart
+        shoppingCart.addToCart(book1, 3);
+
+        when(inventoryItemRepository.findById(1)).thenReturn(invItem1);
+
+        String[] selectedItems = new String[]{"1"};
+        String view = controller.addToCart(request, response, selectedItems, model);
+        Assertions.assertEquals("home", view);
+    }
+
+    @Test
+    void testRemoveFromCart() {
+        when(userController.getUserAccess()).thenReturn(true);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
+
+        Model model = new ConcurrentModel();
+        BookUser bookUser = new BookUser("testUser", "password123");
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+
+        // Create an inventory item
+        InventoryItem invItem1 = new InventoryItem(book1, 5, inventory);
+        invItem1.setId(1L);
+
+        // Create a shopping cart
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+        bookUser.setShoppingCart(shoppingCart);
+        // Add an item to the shopping cart
+        shoppingCart.addToCart(book1, 3);
+        shoppingCart.removeFromCart(book1, 2);
+
+        when(inventoryItemRepository.findById(1)).thenReturn(invItem1);
+
+        String[] selectedItems = new String[]{"1"};
+        String view = controller.removeFromCart(request, response, selectedItems, model);
+        Assertions.assertEquals("home", view);
+    }
+
+
+
 }
