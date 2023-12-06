@@ -4,6 +4,7 @@
 
 package bookstore.inventory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,5 +88,31 @@ public class BookFiltering {
                 .map(Book::getPublisher)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the book with the lowest price from the given list of books.
+     *
+     * @param books list of books in inventory
+     * @return book with the lowest price
+     * @author Shrimei Chock
+     */
+    public static Book getBookWithLowestPrice(List<Book> books) {
+        return books.stream()
+                .min(Comparator.comparing(Book::getPrice))
+                .orElse(null); // Returns null if the list is empty
+    }
+
+    /**
+     * Returns the book with the highest price from the given list of books.
+     *
+     * @param books list of books in inventory
+     * @return book with the highest price
+     * @author Shrimei Chock
+     */
+    public static Book getBookWithHighestPrice(List<Book> books) {
+        return books.stream()
+                .max(Comparator.comparing(Book::getPrice))
+                .orElse(null); // Returns null if the list is empty
     }
 }

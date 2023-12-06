@@ -97,7 +97,8 @@ public class CheckoutController {
             List<String> authorList = BookFiltering.getAllAuthors(bookList);
             List<String> genreList = BookFiltering.getAllGenres(bookList);
             List<String> publisherList = BookFiltering.getAllPublishers(bookList);
-            //TODO add for price ranges
+            String min_price = BookFiltering.getBookWithLowestPrice(bookList).getPrice().toString();
+            String max_price = BookFiltering.getBookWithHighestPrice(bookList).getPrice().toString();
 
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
 
@@ -107,6 +108,8 @@ public class CheckoutController {
             model.addAttribute("authors", authorList);
             model.addAttribute("genres", genreList);
             model.addAttribute("publishers", publisherList);
+            model.addAttribute("min", min_price);
+            model.addAttribute("max", max_price);
             return "home";
         } else {
             return "access-denied";
