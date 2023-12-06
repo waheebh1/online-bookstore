@@ -37,7 +37,9 @@
     <div class="book-genre">
         <p th:text="'Genre: ' + ${book.getGenre()}"></p>
     </div>
-
+    <div class="book-price">
+        <p th:text="'Price: $' + ${book.getPrice()}"></p>
+    </div>
     <div class="book-description">
         <div>
             <p th:text="${book.getDescription()}"></p>
