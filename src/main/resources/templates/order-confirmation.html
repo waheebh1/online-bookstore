@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
     <meta charset="UTF-8">
     <title>Order Confirmation</title>
     <link rel="stylesheet" th:href="@{../css/general.css}" />
@@ -17,5 +20,12 @@
     <p>Your confirmation number is: <span th:text="${confirmationNumber}"></span></p>
     <p>An email has been sent to you with all the order details.</p>
 </div>
+<th:block th:if="${confirmationMessage != null}">
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            toastr.success([[${confirmationMessage}]]);
+        });
+    </script>
+</th:block>
 </body>
 </html>

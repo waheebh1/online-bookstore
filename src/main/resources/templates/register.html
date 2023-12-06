@@ -1,6 +1,10 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
+
     <title>Register</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" th:href="@{/css/register-login.css}" />
@@ -28,6 +32,13 @@
                 <input id="userType2" name="userType" type="radio" value="BOOKOWNER"/><label for="userType2" th:field="*{userType}">Bookstore Owner</label>
             </div>
             <input type="submit" value="Register" class="button" />
+            <th:block th:if="${registrationError != null}">
+                <script th:inline="javascript">
+                    $(document).ready(function() {
+                        toastr.error([[${registrationError}]]);
+                    });
+                </script>
+            </th:block>
         </form>
     </div>
 </body>

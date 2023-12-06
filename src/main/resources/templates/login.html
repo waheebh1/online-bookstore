@@ -1,6 +1,10 @@
 <!DOCTYPE HTML>
 <htmL lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
+
     <title>Login</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" th:href="@{/css/register-login.css}" />
@@ -23,6 +27,11 @@
                 <input type="password" id="password" name="password" th:field="*{password}" required>
             </div>
             <input type="submit" value="Login" class="button" />
+            <th:block th:if="${loginError != null}">
+                <script>
+                    toastr.error('Invalid Password or Username');
+                </script>
+            </th:block>
         </form>
     </div>
 </body>
