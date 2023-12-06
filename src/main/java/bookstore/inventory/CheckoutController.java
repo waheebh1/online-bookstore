@@ -432,6 +432,8 @@ public class CheckoutController {
         Set<Book> recommendedBooks = new HashSet<>();
         if(userId != null){
             Set<Book> userBooks = getBooksInCartByUserId(userId);
+            if (userBooks.size() != 0) {
+
             Map<Long, Double> userDistances = new HashMap<>();
 
             for (BookUser otherUser : userRepository.findAll()) {
@@ -456,8 +458,9 @@ public class CheckoutController {
             recommendedBooks.addAll(books);
         }
     }
+}
     return new ArrayList<Book>(recommendedBooks);
-   }
+}
 
    /**
     * Method that gets the books in the shopping cart by user id
