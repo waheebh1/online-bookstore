@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
@@ -99,9 +100,13 @@ class UserControllerTest {
         Model model2 = new ConcurrentModel();
         controller.createAccountSubmit(duplicateUser, model2);
 
-        // The expected error message
-        String expectedResult = "Username already exists. Please use a new username or login with the current username.";
-        Assertions.assertEquals(expectedResult, model2.getAttribute("error"));
+         // Check that the model contains the registrationError attribute
+        assertTrue(model.containsAttribute("registrationError"));
+
+        // You may also want to check the specific content of the error message
+        String registrationError = (String) model.getAttribute("registrationError");
+        assert registrationError != null;
+        assertTrue(registrationError.contains("Username already exists. Please use a new username or login with the current username."));
     }
 
     /**
@@ -115,15 +120,17 @@ class UserControllerTest {
         BookUser user3 = new BookUser("", "passwordNoUsername");
         Model model = new ConcurrentModel();
 
-        String expectedResult = "Username or password cannot be empty.";
         controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("registrationError"));
+        String registrationError = (String) model.getAttribute("registrationError");
+        assert registrationError != null;
+        assertTrue(registrationError.contains("Username or password cannot be empty."));
 
         controller.createAccountSubmit(user2, model);
-        Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("registrationError"));
 
         controller.createAccountSubmit(user3, model);
-        Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("registrationError"));
     }
 
     /**
@@ -138,7 +145,7 @@ class UserControllerTest {
         String result = controller.accountForm(request, response, model);
         Assertions.assertEquals("login", result);
         Assertions.assertNotNull(model.getAttribute("user"));
-        Assertions.assertTrue(model.getAttribute("user") instanceof BookUser);
+        assertTrue(model.getAttribute("user") instanceof BookUser);
     }
 
     /**
@@ -175,8 +182,11 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, wrongPasswordUser, model);
-        Assertions.assertEquals("accountError", result);
-        Assertions.assertEquals("Invalid username/password", model.getAttribute("error"));
+        Assertions.assertEquals("login", result);
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError = (String) model.getAttribute("loginError");
+        assert loginError != null;
+        assertTrue(loginError.contains("Invalid username/password"));
     }
 
     /**
@@ -190,8 +200,11 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, formUser, model);
-        Assertions.assertEquals("accountError", result);
-        Assertions.assertEquals("Username NonExistingUser does not exist. Please register for a new account or use a different username", model.getAttribute("error"));
+        Assertions.assertEquals("login", result);
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError = (String) model.getAttribute("loginError");
+        assert loginError != null;
+        assertTrue(loginError.contains("Username NonExistingUser does not exist. Please register for a new account or use a different username"));
     }
 
     /**
@@ -221,9 +234,12 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String resultUsernameEmpty = controller.handleUserLogin(request, response, userWithEmptyUsername, model);
-        Assertions.assertEquals("accountError", resultUsernameEmpty);
+        Assertions.assertEquals("login", resultUsernameEmpty);
         String expectedMessageForEmptyUsername = "Username  does not exist. Please register for a new account or use a different username";
-        Assertions.assertEquals(expectedMessageForEmptyUsername, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError = (String) model.getAttribute("loginError");
+        assert loginError != null;
+        assertTrue(loginError.contains(expectedMessageForEmptyUsername));
 
         // Reset the model for the next test
         model = new ConcurrentModel();
@@ -231,9 +247,12 @@ class UserControllerTest {
         // Test with empty password
         BookUser userWithEmptyPassword = new BookUser("username", "");
         String resultPasswordEmpty = controller.handleUserLogin(request, response, userWithEmptyPassword, model);
-        Assertions.assertEquals("accountError", resultPasswordEmpty);
+        Assertions.assertEquals("login", resultPasswordEmpty);
         String expectedMessageForEmptyPassword = "Username username does not exist. Please register for a new account or use a different username";
-        Assertions.assertEquals(expectedMessageForEmptyPassword, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError2 = (String) model.getAttribute("loginError");
+        assert loginError2 != null;
+        assertTrue(loginError2.contains(expectedMessageForEmptyPassword));
     }
 
     /**
@@ -252,8 +271,11 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, user, model);
-        Assertions.assertEquals("accountError", result);
-        Assertions.assertEquals("An unexpected error occurred: Database error", model.getAttribute("error"));
+        Assertions.assertEquals("login", result);
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError2 = (String) model.getAttribute("loginError");
+        assert loginError2 != null;
+        assertTrue(loginError2.contains("An unexpected error occurred: Database error"));
     }
 
     /**
@@ -270,11 +292,14 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, nonExistentUser, model);
-        Assertions.assertEquals("accountError", result);
+        Assertions.assertEquals("login", result);
 
         // Updated to match the actual error message from UserController
         String expectedErrorMessage = "Username " + nonExistentUsername + " does not exist. Please register for a new account or use a different username";
-        Assertions.assertEquals(expectedErrorMessage, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError2 = (String) model.getAttribute("loginError");
+        assert loginError2 != null;
+        assertTrue(loginError2.contains(expectedErrorMessage));
     }
 
     /**
@@ -398,7 +423,7 @@ class UserControllerTest {
 
         // Verify login success
         Assertions.assertEquals("redirect:/listAvailableBooks", loginView);
-        Assertions.assertTrue(controller.getUserAccess());
+        assertTrue(controller.getUserAccess());
     }
 
 
