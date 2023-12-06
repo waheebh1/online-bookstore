@@ -68,9 +68,6 @@ class CheckoutControllerTest {
     private ShoppingCartItemRepository shoppingCartItemRepository;
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
     private InventoryItemRepository inventoryItemRepository;
 
     @Mock
