@@ -73,7 +73,7 @@ public class BookController {
      * @author Sabah Samwatin, Thanuja Sivaananthan
      */
     @PostMapping("/upload")
-    public String handleUploadForm(@ModelAttribute Book book, @RequestParam String authorsInput) {
+    public String handleUploadForm(@ModelAttribute Book book, @RequestParam String authorsInput, @RequestParam int quantity) {
         String[] authorNames = authorsInput.split(",");
         ArrayList<Author> authors = new ArrayList<>();
 
@@ -100,7 +100,7 @@ public class BookController {
         Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
 
         // Assuming the book is successfully saved, create a new InventoryItem
-        InventoryItem inventoryItem = new InventoryItem(book, 1, inventory); // Assuming the default quantity is 1
+        InventoryItem inventoryItem = new InventoryItem(book, quantity, inventory); // Assuming the default quantity is 1
         inventoryItemRepository.save(inventoryItem); // Save the new inventory item
 
         inventory.addItemToInventory(inventoryItem);
@@ -131,8 +131,12 @@ public class BookController {
             String authors = book.getAuthor().stream()
                     .map(author -> author.getFirstName() + " " + author.getLastName())
                     .collect(Collectors.joining(", "));
+            // Fetch the quantity from the InventoryItem
+            List<InventoryItem> inventoryItems = inventoryItemRepository.findByBook(book);
+            int bookQuantity = (inventoryItems.isEmpty()) ? 0 : inventoryItems.get(0).getQuantity();
             model.addAttribute("book", book);
             model.addAttribute("authorsList", authors);
+            model.addAttribute("quantity", bookQuantity); // Add the quantity to the model here
             return "editBook";
         }
         return "redirect:/"; // if the book doesn't exist, redirect to the home page
@@ -148,7 +152,7 @@ public class BookController {
      */
     @Transactional
     @PostMapping("/edit")
-    public String handleEditForm(@ModelAttribute Book book, @RequestParam String authorsInput, Model model) {
+    public String handleEditForm(@ModelAttribute Book book, @RequestParam String authorsInput, @RequestParam int quantity, Model model) {
         try {
             String[] authorNames = authorsInput.split(",");
             ArrayList<Author> authors = new ArrayList<>();
@@ -171,6 +175,13 @@ public class BookController {
             }
             book.setAuthor(authors);
             bookRepository.save(book); // save method will update if the book exists
+
+            List<InventoryItem> inventoryItems = inventoryItemRepository.findByBook(book);
+            if (!inventoryItems.isEmpty()) {
+                InventoryItem inventoryItem = inventoryItems.get(0); // Get the first item
+                inventoryItem.setQuantity(quantity); // Update quantity
+                inventoryItemRepository.save(inventoryItem); // Save the updated item
+            }
             return "redirect:/viewBook?isbn=" + book.getIsbn();        }
         catch (Exception e){
             log.error("Exception occurred while editing book: ", e);

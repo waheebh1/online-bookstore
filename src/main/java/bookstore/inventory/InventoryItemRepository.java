@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface InventoryItemRepository extends CrudRepository<InventoryItem, Long> {
     InventoryItem findById(long id);
+    List<InventoryItem> findByBook(Book book);
 
     /**
      * Sort by title alphabetically
