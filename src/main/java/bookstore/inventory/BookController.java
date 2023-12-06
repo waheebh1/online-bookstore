@@ -171,46 +171,12 @@ public class BookController {
             }
             book.setAuthor(authors);
             bookRepository.save(book); // save method will update if the book exists
-            return "redirect:/book/info/" + book.getIsbn(); // redirect to the book detail page
-        }
+            return "redirect:/viewBook?isbn=" + book.getIsbn();        }
         catch (Exception e){
             log.error("Exception occurred while editing book: ", e);
             model.addAttribute("errorMessage", "An error occurred while saving the book.");
             return "editBook";
         }
-    }
-
-    /**
-     * Handler method to display book details
-     * @param isbn
-     * @param model
-     * @return Book info
-     * @author Sabah Samwatin, Thanuja Sivaananthan
-     */
-
-    @GetMapping("/info/{isbn}")
-    public String showBookDetails(@PathVariable String isbn, Model model, HttpServletRequest request, HttpServletResponse response) {
-        BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
-        if(loggedInUser == null){
-            return "access-denied";
-        }
-
-        Book book = bookRepository.findByIsbn(isbn);
-        if (book != null) {
-            String authors = book.getAuthor().stream()
-                    .map(author -> author.getFirstName() + " " + author.getLastName())
-                    .collect(Collectors.joining(", "));
-            model.addAttribute("book", book);
-            model.addAttribute("authors", authors);
-
-            // Determine the user type
-            String userType = loggedInUser.getUserType().name();
-            // Store the userType in the session
-            model.addAttribute("userType", userType);
-
-            return "book-info";
-        }
-        return "redirect:/"; // if the book doesn't exist, redirect to the home page
     }
 
     // Add other handler methods as needed...
