@@ -163,8 +163,9 @@ public class CheckoutController {
         if(loggedInUser == null){
             return "access-denied";
         }
-
+        List<Book> x = recommendBooks(loggedInUser.getId());
         model.addAttribute("inventory", inventoryItemRepository.findAll());
+        model.addAttribute("books", x);
         //model.addAttribute("user", loggedInUser);
         return "home";
     }
@@ -219,8 +220,11 @@ public class CheckoutController {
         List<String> authorList = BookFiltering.getAllAuthors(bookList);
         List<String> genreList = BookFiltering.getAllGenres(bookList);
         List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+        List<Book> x = recommendBooks(loggedInUser.getId());
 
         model.addAttribute("user", loggedInUser);
+        model.addAttribute("books", x);
+
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItems);
         model.addAttribute("authors", authorList); //TODO repetition
@@ -261,6 +265,9 @@ public class CheckoutController {
         }
 
         model.addAttribute("inventory", inventoryItemRepository.findAll());
+        List<Book> x = recommendBooks(loggedInUser.getId());
+        model.addAttribute("books", x);
+
         return "home";
     }
 
@@ -329,7 +336,9 @@ public class CheckoutController {
         List<String> authorList = BookFiltering.getAllAuthors(bookList);
         List<String> genreList = BookFiltering.getAllGenres(bookList);
         List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+        List<Book> x = recommendBooks(loggedInUser.getId());
 
+        model.addAttribute("books", x);
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
@@ -406,8 +415,8 @@ public class CheckoutController {
         shoppingCart.checkout();
 
         shoppingCartRepository.save(shoppingCart);
-        shoppingCartItemRepository.deleteAll(shoppingCartItemRepository.findByQuantity(0));
-        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart()); // not sure if we need this
+        // shoppingCartItemRepository.deleteAll(shoppingCartItemRepository.findByQuantity(0));
+        // shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart()); // not sure if we need this
         inventoryRepository.save(inventoryRepository.findById(1));
 
         return "order-confirmation";
@@ -419,7 +428,7 @@ public class CheckoutController {
      * @param userId
      * @return ArrayList<Book>
      */
-    public ArrayList<Book> recommendBooks(Long userId) {
+  public ArrayList<Book> recommendBooks(Long userId) {
         Set<Book> recommendedBooks = new HashSet<>();
         if(userId != null){
             Set<Book> userBooks = getBooksInCartByUserId(userId);
@@ -432,15 +441,15 @@ public class CheckoutController {
                     userDistances.put(otherUser.getId(), distance);
                 }
             }
-            
+
             List<Long> similarUserIds = new ArrayList<>();
             List<Map.Entry<Long, Double>> entries = new ArrayList<>(userDistances.entrySet());
             entries.sort(Map.Entry.comparingByValue());
-            
+
             for (int i = 0; i < entries.size(); i++) {
                 similarUserIds.add(entries.get(i).getKey());
             }
-
+            
         for (Long similarUserId : similarUserIds) {
             Set<Book> books = getBooksInCartByUserId(similarUserId);
             books.removeAll(userBooks);
