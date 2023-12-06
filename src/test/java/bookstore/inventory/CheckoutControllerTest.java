@@ -201,6 +201,7 @@ class CheckoutControllerTest {
         Mockito.when(userRepository.findById(userId)).thenReturn(mockUser);
         Mockito.when(userRepository.findById(otherUserId)).thenReturn(otherUser);
         Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(mockUser, otherUser));
+        mockUser.getShoppingCart().checkout();
         otherUser.getShoppingCart().checkout();
         ArrayList<Book> recommendedBooks = controller.recommendBooks(userId);
     
