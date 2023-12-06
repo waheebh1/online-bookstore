@@ -117,13 +117,13 @@ public class UserController {
             List<BookUser> existingUsers = userRepository.findByUsername(bookUser.getUsername());
 
             if (!existingUsers.isEmpty()) { // only allow accounts with unique usernames
-                model.addAttribute("errorType", "registration");
-                model.addAttribute("error", "Username already exists. Please use a new username or login with the current username.");
-                return "accountError";
+                model.addAttribute("user", new BookUser());
+                model.addAttribute("registrationError", "Username already exists. Please use a new username or login with the current username.");
+                return "register"; // Return to the registration page
             } else if (bookUser.getUsername().isEmpty() || bookUser.getPassword().isEmpty()) { // username/password should not be empty
-                model.addAttribute("errorType", "registration");
-                model.addAttribute("error", "Username or password cannot be empty.");
-                return "accountError";
+                model.addAttribute("user", new BookUser());
+                model.addAttribute("registrationError", "Username or password cannot be empty.");
+                return "register"; // Return to the registration page
             } else {
                 bookUser = saveUser(bookUser);
                 model.addAttribute("user", bookUser);
@@ -131,9 +131,9 @@ public class UserController {
             }
         } catch (Exception e) {
             // Handle general exceptions
-            model.addAttribute("errorType", "registration");
-            model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
-            return "accountError";
+            model.addAttribute("user", new BookUser());
+            model.addAttribute("registrationError", "An unexpected error occurred: " + e.getMessage());
+            return "register"; // Return to the registration page
         }
     }
 
@@ -173,9 +173,9 @@ public class UserController {
             List<BookUser> existingUsers = userRepository.findByUsername(formUser.getUsername());
 
             if (existingUsers.isEmpty()) {
-                model.addAttribute("errorType", "login");
-                model.addAttribute("error", "Username " + formUser.getUsername() + " does not exist. Please register for a new account or use a different username");
-                return "accountError"; // Redirect to an account created confirmation page
+                model.addAttribute("user", new BookUser());
+                model.addAttribute("loginError", "Username " + formUser.getUsername() + " does not exist. Please register for a new account or use a different username");
+                return "login"; // Redirect to the login page
             } else {
                 // User exists and is attempting to log in, check password
                 BookUser existingUser = existingUsers.get(0); // Assuming unique usernames
@@ -191,16 +191,16 @@ public class UserController {
                     return "redirect:/listAvailableBooks"; // Redirect to user profile page
                 } else {
                     // Passwords do not match, return login error
-                    model.addAttribute("errorType", "login");
-                    model.addAttribute("error", "Invalid username/password");
-                    return "accountError"; // Stay on the login/create account page
+                    model.addAttribute("user", new BookUser());
+                    model.addAttribute("loginError", "Invalid username/password");
+                    return "login"; // Stay on the login page
                 }
             }
         } catch (Exception e) {
             // Handle general exceptions
-            model.addAttribute("errorType", "login");
-                model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
-                return  "accountError"; // Redirecting back to account form
+            model.addAttribute("user", new BookUser());
+            model.addAttribute("loginError", "An unexpected error occurred: " + e.getMessage());
+            return "login"; // Redirecting back to the login form
         }
     }
 

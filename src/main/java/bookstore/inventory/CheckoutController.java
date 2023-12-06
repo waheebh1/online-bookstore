@@ -408,6 +408,7 @@ public class CheckoutController {
         // Generate a random confirmation number
         String confirmationNumber = UUID.randomUUID().toString();
         model.addAttribute("confirmationNumber", confirmationNumber);
+        model.addAttribute("confirmationMessage", "Order Completed!");
 
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
         ShoppingCart shoppingCart = loggedInUser.getShoppingCart();
