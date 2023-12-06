@@ -193,17 +193,18 @@ class CheckoutControllerTest {
     }
 
 
+    /**
+     * Test method to add to cart
+     * @author Maisha Abdullah
+     */
     @Test
     void testAddToCart() {
         when(userController.getUserAccess()).thenReturn(true);
         when(inventoryRepository.findById(1)).thenReturn(inventory);
 
         Model model = new ConcurrentModel();
-        BookUser bookUser = new BookUser("testUser", "password123");
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
-        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
-
 
         // Create an inventory item
         InventoryItem invItem1 = new InventoryItem(book1, 5, inventory);
@@ -211,27 +212,43 @@ class CheckoutControllerTest {
 
         // Create a shopping cart
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
-        bookUser.setShoppingCart(shoppingCart);
+
         // Add an item to the shopping cart
-        shoppingCart.addToCart(book1, 3);
+        shoppingCart.addToCart(book1, 1);
+
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
         when(inventoryItemRepository.findById(1)).thenReturn(invItem1);
 
         String[] selectedItems = new String[]{"1"};
         String view = controller.addToCart(request, response, selectedItems, model);
+
+        model.addAttribute("items", shoppingCart.getBooksInCart());
+        model.addAttribute("quantity", inventory.findAvailableBook("0446310786").getQuantity());
+
         Assertions.assertEquals("home", view);
+        Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
+        Assertions.assertEquals(inventory.findAvailableBook("0446310786").getQuantity(), model.getAttribute("quantity"));
+
+        verify(inventoryItemRepository).save(invItem1);
+        verify(shoppingCartRepository).save(shoppingCart);
+        verify(shoppingCartItemRepository).saveAll(shoppingCart.getBooksInCart());
     }
 
+    /**
+     * Test method to remove from cart
+     * @author Maisha Abdullah
+     */
     @Test
     void testRemoveFromCart() {
         when(userController.getUserAccess()).thenReturn(true);
         when(inventoryRepository.findById(1)).thenReturn(inventory);
 
         Model model = new ConcurrentModel();
-        BookUser bookUser = new BookUser("testUser", "password123");
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
-        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
 
         // Create an inventory item
@@ -240,16 +257,30 @@ class CheckoutControllerTest {
 
         // Create a shopping cart
         ShoppingCart shoppingCart = new ShoppingCart(inventory);
+
+        // Add an item to the shopping cart then remove
+        shoppingCart.addToCart(book1, 1);
+        shoppingCart.removeFromCart(book1, 1);
+
+        BookUser bookUser = new BookUser("testUser", "password123");
         bookUser.setShoppingCart(shoppingCart);
-        // Add an item to the shopping cart
-        shoppingCart.addToCart(book1, 3);
-        shoppingCart.removeFromCart(book1, 2);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
         when(inventoryItemRepository.findById(1)).thenReturn(invItem1);
 
         String[] selectedItems = new String[]{"1"};
         String view = controller.removeFromCart(request, response, selectedItems, model);
+
+        model.addAttribute("items", shoppingCart.getBooksInCart());
+        model.addAttribute("quantity", inventory.findAvailableBook("0446310786").getQuantity());
+
         Assertions.assertEquals("home", view);
+        Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
+        Assertions.assertEquals(inventory.findAvailableBook("0446310786").getQuantity(), model.getAttribute("quantity"));
+
+        verify(inventoryItemRepository).save(invItem1);
+        verify(shoppingCartRepository).save(shoppingCart);
+        verify(shoppingCartItemRepository).saveAll(shoppingCart.getBooksInCart());
     }
 
 
