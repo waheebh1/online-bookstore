@@ -28,8 +28,10 @@
             </div>
             <input type="submit" value="Login" class="button" />
             <th:block th:if="${loginError != null}">
-                <script>
-                    toastr.error([[${loginError}]]);
+                <script th:inline="javascript">
+                    $(document).ready(function() {
+                        toastr.error([[${loginError}]]);
+                    });
                 </script>
             </th:block>
         </form>
