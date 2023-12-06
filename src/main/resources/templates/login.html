@@ -29,7 +29,7 @@
             <input type="submit" value="Login" class="button" />
             <th:block th:if="${loginError != null}">
                 <script>
-                    toastr.error('Invalid Password or Username');
+                    toastr.error([[${loginError}]]);
                 </script>
             </th:block>
         </form>
