@@ -1,5 +1,6 @@
 package bookstore.users;
 
+import bookstore.inventory.Book;
 import bookstore.inventory.InventoryRepository;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartRepository;
@@ -12,7 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User controller
@@ -285,4 +289,20 @@ public class UserController {
         }
     }
 
+
+    /**
+     * Method to calculate jaccard distance using two sets of books
+     * @param user1Books
+     * @param user2Books
+     * @return
+     */
+    public double calculateJaccardDistance(Set<Book> user1Books, Set<Book> user2Books) {
+        Set<Book> intersection = new HashSet<>(user1Books);
+        intersection.retainAll(user2Books);
+
+        Set<Book> union = new HashSet<>(user1Books);
+        union.addAll(user2Books);
+        
+        return 1.0 - ((double) intersection.size() / union.size());
+    }
 }

@@ -2,11 +2,20 @@ package bookstore.inventory;
 
 import bookstore.users.BookUser;
 import bookstore.users.UserController;
+import bookstore.users.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +32,7 @@ public class CheckoutController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final UserRepository userRepository;
     private UserController userController;
     private boolean checkoutFlag = false;
 
@@ -34,7 +44,7 @@ public class CheckoutController {
      * @author Shrimei Chock
      * @author Maisha Abdullah
      */
-    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController) {
+    public CheckoutController(AuthorRepository authorRepo, BookRepository bookRepo, InventoryRepository inventoryRepo, InventoryItemRepository inventoryItemRepo, ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository, UserController userController, UserRepository userRepository) {
         this.authorRepository = authorRepo;
         this.bookRepository = bookRepo;
         this.inventoryRepository = inventoryRepo;
@@ -42,6 +52,7 @@ public class CheckoutController {
         this.shoppingCartRepository = shoppingCartRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
         this.userController = userController;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -105,7 +116,9 @@ public class CheckoutController {
             System.out.println("Publishers: " + publishers);
 
             inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
+            List<Book> x = recommendBooks(loggedInUser.getId());
 
+            model.addAttribute("books", x);
             model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItems);
             model.addAttribute("sort", sort);
@@ -150,8 +163,9 @@ public class CheckoutController {
         if(loggedInUser == null){
             return "access-denied";
         }
-
+        List<Book> x = recommendBooks(loggedInUser.getId());
         model.addAttribute("inventory", inventoryItemRepository.findAll());
+        model.addAttribute("books", x);
         //model.addAttribute("user", loggedInUser);
         return "home";
     }
@@ -206,8 +220,11 @@ public class CheckoutController {
         List<String> authorList = BookFiltering.getAllAuthors(bookList);
         List<String> genreList = BookFiltering.getAllGenres(bookList);
         List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+        List<Book> x = recommendBooks(loggedInUser.getId());
 
         model.addAttribute("user", loggedInUser);
+        model.addAttribute("books", x);
+
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItems);
         model.addAttribute("authors", authorList); //TODO repetition
@@ -248,6 +265,9 @@ public class CheckoutController {
         }
 
         model.addAttribute("inventory", inventoryItemRepository.findAll());
+        List<Book> x = recommendBooks(loggedInUser.getId());
+        model.addAttribute("books", x);
+
         return "home";
     }
 
@@ -271,13 +291,12 @@ public class CheckoutController {
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
-                if(checkoutFlag){
+                if (checkoutFlag) {
                     ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
                     if (cartItem != null) {
                         shoppingCart.removeFromCart(cartItem.getBook(), 1);
                         shoppingCartItemRepository.delete(cartItem);
                     }
-                
                 } else {
                 InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
                 System.out.println("INVENTORY ITEM QUANTITY --BEFORE--  REMOVE FROM CART: " + invItem.getQuantity());
@@ -317,7 +336,9 @@ public class CheckoutController {
         List<String> authorList = BookFiltering.getAllAuthors(bookList);
         List<String> genreList = BookFiltering.getAllGenres(bookList);
         List<String> publisherList = BookFiltering.getAllPublishers(bookList);
+        List<Book> x = recommendBooks(loggedInUser.getId());
 
+        model.addAttribute("books", x);
         model.addAttribute("user", loggedInUser);
         model.addAttribute("totalInCart", shoppingCart.getTotalQuantityOfCart());
         model.addAttribute("inventoryItems", inventoryItemRepository.findAll());
@@ -394,10 +415,64 @@ public class CheckoutController {
         shoppingCart.checkout();
 
         shoppingCartRepository.save(shoppingCart);
-        shoppingCartItemRepository.deleteAll(shoppingCartItemRepository.findByQuantity(0));
-        shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart()); // not sure if we need this
+        // shoppingCartItemRepository.deleteAll(shoppingCartItemRepository.findByQuantity(0));
+        // shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart()); // not sure if we need this
         inventoryRepository.save(inventoryRepository.findById(1));
 
         return "order-confirmation";
     }
+
+    /**
+     * Method that recommends the books based on the jaccard dizstance between a user and other users
+     * @author Waheeb Hashmi
+     * @param userId
+     * @return ArrayList<Book>
+     */
+  public ArrayList<Book> recommendBooks(Long userId) {
+        Set<Book> recommendedBooks = new HashSet<>();
+        if(userId != null){
+            Set<Book> userBooks = getBooksInCartByUserId(userId);
+            Map<Long, Double> userDistances = new HashMap<>();
+
+            for (BookUser otherUser : userRepository.findAll()) {
+                if (!otherUser.getId().equals(userId)) {
+                    Set<Book> otherUserBooks = getBooksInCartByUserId(otherUser.getId());
+                    double distance = userController.calculateJaccardDistance(userBooks, otherUserBooks);
+                    userDistances.put(otherUser.getId(), distance);
+                }
+            }
+
+            List<Long> similarUserIds = new ArrayList<>();
+            List<Map.Entry<Long, Double>> entries = new ArrayList<>(userDistances.entrySet());
+            entries.sort(Map.Entry.comparingByValue());
+
+            for (int i = 0; i < entries.size(); i++) {
+                similarUserIds.add(entries.get(i).getKey());
+            }
+            
+        for (Long similarUserId : similarUserIds) {
+            Set<Book> books = getBooksInCartByUserId(similarUserId);
+            books.removeAll(userBooks);
+            recommendedBooks.addAll(books);
+        }
+    }
+    return new ArrayList<Book>(recommendedBooks);
+   }
+
+   /**
+    * Method that gets the books in the shopping cart by user id
+    * @author Waheeb Hashmi
+    * @param userId
+    * @return Set<Book>
+    */
+   public Set<Book> getBooksInCartByUserId(long userId) {
+    BookUser user = userRepository.findById(userId);
+    ShoppingCart shoppingCart = user.getShoppingCart();
+    Set<Book> books = new HashSet<>();
+    for (ShoppingCartItem item : shoppingCart.getBooksForRecommendations()) {
+        books.add(item.getBook());
+        }
+    return books;
+}
+
 }
