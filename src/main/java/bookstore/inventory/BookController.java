@@ -74,15 +74,21 @@ public class BookController {
      */
     @PostMapping("/upload")
     public String handleUploadForm(@ModelAttribute Book book, @RequestParam String authorsInput, @RequestParam int quantity, Model model) {
+        // Check for existing book with the same ISBN
+        Book existingBook = bookRepository.findByIsbn(book.getIsbn());
+        if (existingBook != null) {
+            model.addAttribute("isbnErrorMessage", "ISBN should be unique, \nExisting ISBN for " + existingBook.getIsbn() + ": " + existingBook.getTitle());
+            return "uploadBook";
+        }
         String[] authorNames = authorsInput.split(",");
         ArrayList<Author> authors = new ArrayList<>();
 
         for (String fullName : authorNames) {
             String[] parts = fullName.trim().split("\\s+");
             if (parts.length < 2) {
-                model.addAttribute("errorMessage", "Each author must have both a first name and a last name.");
+                model.addAttribute("authorErrorMessage", "Each author must have both a first name and a last name.");
                 model.addAttribute("book", book);
-                return "upload";
+                return "uploadBook";
             }
             String firstName = parts[0];
             String lastName = parts[1]; // Taking the second part as the last name, assuming no middle name

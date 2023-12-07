@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
   <meta charset="UTF-8">
   <title>Upload Book</title>
   <link rel="stylesheet" th:href="@{/css/general.css}" />
@@ -48,6 +51,12 @@
     }
     return true;
   }
+  $(document).ready(function() {
+    var isbnErrorMessage = [[${isbnErrorMessage}]];
+    if(isbnErrorMessage) {
+      toastr.error(isbnErrorMessage);
+    }
+  });
 </script>
 <body>
 <div class="form-container">
@@ -112,6 +121,20 @@
 
     <div class="form-group">
       <input type="submit" value="Upload Book" class="button" />
+      <th:block th:if="${authorErrorMessage != null}">
+        <script th:inline="javascript">
+          $(document).ready(function() {
+            toastr.error([[${authorErrorMessage}]]);
+          });
+        </script>
+      </th:block>
+      <th:block th:if="${isbnErrorMessage != null}">
+        <script th:inline="javascript">
+          $(document).ready(function() {
+            toastr.error([[${isbnErrorMessage}]]);
+          });
+        </script>
+      </th:block>
     </div>
   </form>
 </div>
