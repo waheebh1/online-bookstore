@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
     <meta charset="UTF-8">
     <title>Edit Book</title>
     <link rel="stylesheet" th:href="@{/css/general.css}" />
@@ -35,6 +38,26 @@
         }
     </style>
 </head>
+<script>
+    function validateAuthors() {
+        var authorsInput = document.getElementById("authors").value;
+        var authorNames = authorsInput.split(",");
+        for (var i = 0; i < authorNames.length; i++) {
+            var nameParts = authorNames[i].trim().split(" ");
+            if (nameParts.length < 2) {
+                alert("Please provide both first and last names for each author.");
+                return false;
+            }
+        }
+        return true;
+    }
+    $(document).ready(function() {
+        var authorErrorMessage = [[${authorErrorMessage}]];
+        if(authorErrorMessage) {
+            toastr.error(authorErrorMessage);
+        }
+    });
+</script>
 <body>
 <div class="form-container">
     <div class="header">
@@ -44,7 +67,7 @@
     <div th:if="${errorMessage}" style="background-color: #ffcccc; border: 1px solid #ff0000; padding: 10px; margin-bottom: 20px;">
         <p th:text="${errorMessage}">Error message here.</p>
     </div>
-    <form action="#" th:action="@{/book/edit}" th:object="${book}" method="post">
+    <form action="#" th:action="@{/book/edit}" th:object="${book}" method="post"  onsubmit="return validateAuthors()">
         <div class="form-row">
             <div class="form-group">
                 <label for="isbn">ISBN:</label>
@@ -101,6 +124,13 @@
 
         <div class="form-group">
             <input type="submit" value="Save Changes" class="button" />
+            <th:block th:if="${authorErrorMessage != null}">
+                <script th:inline="javascript">
+                    $(document).ready(function() {
+                        toastr.error([[${authorErrorMessage}]]);
+                    });
+                </script>
+            </th:block>
         </div>
     </form>
 </div>
