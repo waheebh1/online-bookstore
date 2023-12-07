@@ -440,7 +440,9 @@ public class CheckoutController {
                 if (!otherUser.getId().equals(userId)) {
                     Set<Book> otherUserBooks = getBooksInCartByUserId(otherUser.getId());
                     double distance = userController.calculateJaccardDistance(userBooks, otherUserBooks);
-                    userDistances.put(otherUser.getId(), distance);
+                    if (distance < 1) {
+                        userDistances.put(otherUser.getId(), distance);
+                    }
                 }
             }
 
