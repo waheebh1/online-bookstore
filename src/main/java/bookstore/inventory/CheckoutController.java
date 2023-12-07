@@ -412,13 +412,17 @@ public class CheckoutController {
         Set<Book> recommendedBooks = new HashSet<>();
         if(userId != null){
             Set<Book> userBooks = getBooksInCartByUserId(userId);
+            if (userBooks.size() != 0) {
+
             Map<Long, Double> userDistances = new HashMap<>();
 
             for (BookUser otherUser : userRepository.findAll()) {
                 if (!otherUser.getId().equals(userId)) {
                     Set<Book> otherUserBooks = getBooksInCartByUserId(otherUser.getId());
                     double distance = userController.calculateJaccardDistance(userBooks, otherUserBooks);
-                    userDistances.put(otherUser.getId(), distance);
+                    if (distance < 1) {
+                        userDistances.put(otherUser.getId(), distance);
+                    }
                 }
             }
 
@@ -436,8 +440,9 @@ public class CheckoutController {
             recommendedBooks.addAll(books);
         }
     }
-    return new ArrayList<>(recommendedBooks);
-   }
+}
+    return new ArrayList<Book>(recommendedBooks);
+}
 
    /**
     * Method that gets the books in the shopping cart by user id
