@@ -109,4 +109,18 @@ public class InventoryTest {
         assertTrue(inventory.reduceFromInventory(book1, 2));
         assertEquals(0,inventory.getAvailableBooks().size());
     }
+
+    @Test
+    public void testPutBackIntoInventory(){
+        ArrayList<InventoryItem> availableBooks = new ArrayList<>();
+        Inventory inventory = new Inventory(availableBooks);
+
+        assertEquals(0,inventory.getAvailableBooks().size());
+        inventory.addItemToInventory(item1);
+
+        inventory.putBackIntoInventory(book1, 10);
+        assertEquals(1,inventory.getAvailableBooks().size());
+
+        assertEquals(15, inventory.getAvailableBooks().get(0).getQuantity());
+    }
 }

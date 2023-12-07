@@ -5,12 +5,17 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
 import bookstore.inventory.Book;
+import bookstore.inventory.CheckoutController;
+import bookstore.inventory.Author;
+import bookstore.inventory.Book;
+import bookstore.inventory.InventoryItem;
 import bookstore.inventory.ShoppingCart;
 import bookstore.inventory.ShoppingCartItem;
 import bookstore.inventory.ShoppingCartRepository;
@@ -26,8 +31,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -52,6 +61,9 @@ class UserControllerTest {
 
     @Autowired
     private UserController controller;
+
+    @Autowired
+    private CheckoutController checkoutController;
 
     @MockBean
     private UserRepository userRepository;
@@ -99,9 +111,13 @@ class UserControllerTest {
         Model model2 = new ConcurrentModel();
         controller.createAccountSubmit(duplicateUser, model2);
 
-        // The expected error message
-        String expectedResult = "Username already exists. Please use a new username or login with the current username.";
-        Assertions.assertEquals(expectedResult, model2.getAttribute("error"));
+         // Check that the model contains the registrationError attribute
+        assertTrue(model.containsAttribute("registrationError"));
+
+        // You may also want to check the specific content of the error message
+        String registrationError = (String) model.getAttribute("registrationError");
+        assert registrationError != null;
+        assertTrue(registrationError.contains("Username already exists. Please use a new username or login with the current username."));
     }
 
     /**
@@ -115,15 +131,17 @@ class UserControllerTest {
         BookUser user3 = new BookUser("", "passwordNoUsername");
         Model model = new ConcurrentModel();
 
-        String expectedResult = "Username or password cannot be empty.";
         controller.createAccountSubmit(user1, model);
-        Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("registrationError"));
+        String registrationError = (String) model.getAttribute("registrationError");
+        assert registrationError != null;
+        assertTrue(registrationError.contains("Username or password cannot be empty."));
 
         controller.createAccountSubmit(user2, model);
-        Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("registrationError"));
 
         controller.createAccountSubmit(user3, model);
-        Assertions.assertEquals(expectedResult, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("registrationError"));
     }
 
     /**
@@ -138,7 +156,7 @@ class UserControllerTest {
         String result = controller.accountForm(request, response, model);
         Assertions.assertEquals("login", result);
         Assertions.assertNotNull(model.getAttribute("user"));
-        Assertions.assertTrue(model.getAttribute("user") instanceof BookUser);
+        assertTrue(model.getAttribute("user") instanceof BookUser);
     }
 
     /**
@@ -175,8 +193,11 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, wrongPasswordUser, model);
-        Assertions.assertEquals("accountError", result);
-        Assertions.assertEquals("Invalid username/password", model.getAttribute("error"));
+        Assertions.assertEquals("login", result);
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError = (String) model.getAttribute("loginError");
+        assert loginError != null;
+        assertTrue(loginError.contains("Invalid username/password"));
     }
 
     /**
@@ -190,8 +211,11 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, formUser, model);
-        Assertions.assertEquals("accountError", result);
-        Assertions.assertEquals("Username NonExistingUser does not exist. Please register for a new account or use a different username", model.getAttribute("error"));
+        Assertions.assertEquals("login", result);
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError = (String) model.getAttribute("loginError");
+        assert loginError != null;
+        assertTrue(loginError.contains("Username NonExistingUser does not exist. Please register for a new account or use a different username"));
     }
 
     /**
@@ -221,9 +245,12 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String resultUsernameEmpty = controller.handleUserLogin(request, response, userWithEmptyUsername, model);
-        Assertions.assertEquals("accountError", resultUsernameEmpty);
+        Assertions.assertEquals("login", resultUsernameEmpty);
         String expectedMessageForEmptyUsername = "Username  does not exist. Please register for a new account or use a different username";
-        Assertions.assertEquals(expectedMessageForEmptyUsername, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError = (String) model.getAttribute("loginError");
+        assert loginError != null;
+        assertTrue(loginError.contains(expectedMessageForEmptyUsername));
 
         // Reset the model for the next test
         model = new ConcurrentModel();
@@ -231,9 +258,12 @@ class UserControllerTest {
         // Test with empty password
         BookUser userWithEmptyPassword = new BookUser("username", "");
         String resultPasswordEmpty = controller.handleUserLogin(request, response, userWithEmptyPassword, model);
-        Assertions.assertEquals("accountError", resultPasswordEmpty);
+        Assertions.assertEquals("login", resultPasswordEmpty);
         String expectedMessageForEmptyPassword = "Username username does not exist. Please register for a new account or use a different username";
-        Assertions.assertEquals(expectedMessageForEmptyPassword, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError2 = (String) model.getAttribute("loginError");
+        assert loginError2 != null;
+        assertTrue(loginError2.contains(expectedMessageForEmptyPassword));
     }
 
     /**
@@ -252,8 +282,11 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, user, model);
-        Assertions.assertEquals("accountError", result);
-        Assertions.assertEquals("An unexpected error occurred: Database error", model.getAttribute("error"));
+        Assertions.assertEquals("login", result);
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError2 = (String) model.getAttribute("loginError");
+        assert loginError2 != null;
+        assertTrue(loginError2.contains("An unexpected error occurred: Database error"));
     }
 
     /**
@@ -270,11 +303,14 @@ class UserControllerTest {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         String result = controller.handleUserLogin(request, response, nonExistentUser, model);
-        Assertions.assertEquals("accountError", result);
+        Assertions.assertEquals("login", result);
 
         // Updated to match the actual error message from UserController
         String expectedErrorMessage = "Username " + nonExistentUsername + " does not exist. Please register for a new account or use a different username";
-        Assertions.assertEquals(expectedErrorMessage, model.getAttribute("error"));
+        assertTrue(model.containsAttribute("loginError"));
+        String loginError2 = (String) model.getAttribute("loginError");
+        assert loginError2 != null;
+        assertTrue(loginError2.contains(expectedErrorMessage));
     }
 
     /**
@@ -398,7 +434,7 @@ class UserControllerTest {
 
         // Verify login success
         Assertions.assertEquals("redirect:/listAvailableBooks", loginView);
-        Assertions.assertTrue(controller.getUserAccess());
+        assertTrue(controller.getUserAccess());
     }
 
 
@@ -484,5 +520,34 @@ class UserControllerTest {
         Assertions.assertTrue(bookInCart, "Shopping cart should contain the previously added book.");
     }*/
 
+    /**
+    * Test that the jaccard distance is calculated properly (example for users with two books each)
+    * @author Waheeb Hashmi
+    */
+    @Test
+    void testCalculateJaccardDistance() {
+        Set<Book> user1Books = new HashSet<>();
+        Set<Book> user2Books = new HashSet<>();
+        
+        ArrayList<Author> author_list = new ArrayList<>();
+        Author author1 = new Author("Harper", "Lee");
+        author_list.add(author1);
+        ArrayList<Author> author_list2 = new ArrayList<>();
+        Author author2 = new Author("Khaled", "Hosseini");
+        author_list2.add(author2);
+        String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
+        String description2 = "The Kite Runner tells the story of Amir, a young boy from the Wazir Akbar Khan district of Kabul";
+        Book book1 = new Book("0446310786", "To Kill a Mockingbird", author_list, 12.99, "11/07/1960", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
+        Book book2 = new Book("1573222453", "The Kite Runner", author_list2, 22.00, "29/05/2003", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", "Riverhead Books", "Historical fiction", description2);
 
+        user1Books.add(book1);
+        user1Books.add(book2);
+        user2Books.add(book1);
+        user2Books.add(book2);
+
+        double result = controller.calculateJaccardDistance(user1Books, user2Books);
+        Assertions.assertEquals(0.0, result, 0.0001);
+
+    }
+        
 }

@@ -165,5 +165,18 @@
     <p th:text="${error}" />
 
 </div>
+<h1>Recommended Books</h1>
+<div class="recommended-books">
+    <ul>
+       <li th:each="book : ${books}">
+           <div class="book-block">
+               <img th:src="${book.getCover()}" alt="Book Cover" class="book-cover">
+               <h3 th:text="${book.getTitle()}">Book Title</h3>
+               <p th:text="${book.getAuthor()[0].fullName}">Book Author</p>
+           </div>
+       </li>
+    </ul>
+</div>
+
 </body>
 </html>
