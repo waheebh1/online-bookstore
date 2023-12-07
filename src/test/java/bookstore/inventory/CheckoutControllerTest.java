@@ -1,14 +1,21 @@
 package bookstore.inventory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.ExpectedCount.times;
+
+import java.util.Optional;
 
 import bookstore.mockservlet.MockHttpServletRequest;
 import bookstore.mockservlet.MockHttpServletResponse;
 import bookstore.users.BookUser;
+import bookstore.users.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 
@@ -23,12 +31,13 @@ import bookstore.users.UserController;
 import bookstore.users.UserRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 
 
 /**
@@ -58,9 +67,19 @@ class CheckoutControllerTest {
     @Mock
     private ShoppingCartItemRepository shoppingCartItemRepository;
 
+    @Mock
+    private InventoryItemRepository inventoryItemRepository;
+
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private HttpServletResponse response;
+
     private Book book1;
     private Book book2;
     private Inventory inventory;
+    private InventoryItem invItem1;
 
     /**
      * Method to set up the books and inventory before each test method
@@ -179,6 +198,96 @@ class CheckoutControllerTest {
     }
 
     /**
+     * Test method to add to cart
+     * @author Maisha Abdullah
+     */
+    @Test
+    void testAddToCart() {
+        when(userController.getUserAccess()).thenReturn(true);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
+
+        Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+
+        // Create an inventory item
+        InventoryItem invItem1 = new InventoryItem(book1, 5, inventory);
+        invItem1.setId(1L);
+
+        // Create a shopping cart
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+
+        // Add an item to the shopping cart
+        shoppingCart.addToCart(book1, 1);
+
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        when(inventoryItemRepository.findById(1)).thenReturn(invItem1);
+
+        String[] selectedItems = new String[]{"1"};
+        String view = controller.addToCart(request, response, selectedItems, model);
+
+        model.addAttribute("items", shoppingCart.getBooksInCart());
+        model.addAttribute("quantity", inventory.findAvailableBook("0446310786").getQuantity());
+
+        Assertions.assertEquals("home", view);
+        Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
+        Assertions.assertEquals(inventory.findAvailableBook("0446310786").getQuantity(), model.getAttribute("quantity"));
+
+        verify(inventoryItemRepository).save(invItem1);
+        verify(shoppingCartRepository).save(shoppingCart);
+        verify(shoppingCartItemRepository).saveAll(shoppingCart.getBooksInCart());
+    }
+
+    /**
+     * Test method to remove from cart
+     * @author Maisha Abdullah
+     */
+    @Test
+    void testRemoveFromCart() {
+        when(userController.getUserAccess()).thenReturn(true);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
+
+        Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+
+
+        // Create an inventory item
+        InventoryItem invItem1 = new InventoryItem(book1, 5, inventory);
+        invItem1.setId(1L);
+
+        // Create a shopping cart
+        ShoppingCart shoppingCart = new ShoppingCart(inventory);
+
+        // Add an item to the shopping cart then remove
+        shoppingCart.addToCart(book1, 1);
+        shoppingCart.removeFromCart(book1, 1);
+
+        BookUser bookUser = new BookUser("testUser", "password123");
+        bookUser.setShoppingCart(shoppingCart);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
+
+        when(inventoryItemRepository.findById(1)).thenReturn(invItem1);
+
+        String[] selectedItems = new String[]{"1"};
+        String view = controller.removeFromCart(request, response, selectedItems, model);
+
+        model.addAttribute("items", shoppingCart.getBooksInCart());
+        model.addAttribute("quantity", inventory.findAvailableBook("0446310786").getQuantity());
+
+        Assertions.assertEquals("home", view);
+        Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
+        Assertions.assertEquals(inventory.findAvailableBook("0446310786").getQuantity(), model.getAttribute("quantity"));
+
+        verify(inventoryItemRepository).save(invItem1);
+        verify(shoppingCartRepository).save(shoppingCart);
+        verify(shoppingCartItemRepository).saveAll(shoppingCart.getBooksInCart());
+    }
+
+    /**
      * Test method to get recommended books
      * @author Waheeb Hashmi
      */
@@ -242,5 +351,5 @@ class CheckoutControllerTest {
     
     }
     
-    
+   
 }
