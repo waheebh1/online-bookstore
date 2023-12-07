@@ -41,12 +41,18 @@ public class BookFiltering {
      * @param authors list of authors to filter by
      * @param genres list of genres to filter by
      * @param publishers list of publishers to filter by
+     * @param price_range max price to filter by
      * @return list of inventory items that match all the selected filters
      * @author Shrimei Chock
      */
-    public static List<InventoryItem> getItemsMatchingFilters(List<InventoryItem> inventoryItems, List<String> authors, List<String> genres, List<String> publishers) {
+    public static List<InventoryItem> getItemsMatchingFilters(List<InventoryItem> inventoryItems, List<String> authors, List<String> genres, List<String> publishers, Double price_range) {
         return inventoryItems.stream()
-                .filter(item -> (authors == null || item.getBook().getAuthor().stream().anyMatch(author -> authors.contains(author.getFullName()))) && (genres==null || genres.contains(item.getBook().getGenre())) && (publishers==null || publishers.contains(item.getBook().getPublisher())))
+                .filter(item -> (
+                        authors == null || item.getBook().getAuthor().stream().anyMatch(author -> authors.contains(author.getFullName())))
+                        && (genres==null || genres.contains(item.getBook().getGenre()))
+                        && (publishers==null || publishers.contains(item.getBook().getPublisher()))
+                        && (item.getBook().getPrice() <= price_range)
+                )
                 .collect(Collectors.toList());
     }
 

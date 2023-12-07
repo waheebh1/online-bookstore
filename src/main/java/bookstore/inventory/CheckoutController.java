@@ -61,6 +61,7 @@ public class CheckoutController {
      @RequestParam(name = "author", required = false) List<String> authors,
      @RequestParam(name = "genre", required = false) List<String> genres,
      @RequestParam(name = "publisher", required = false) List<String> publishers,
+     @RequestParam(name = "priceRange", required = false) String price, //default is max price
      Model model) {
         checkoutFlag = false;
         BookUser loggedInUser = userController.getLoggedInUser(request.getCookies());
@@ -100,7 +101,13 @@ public class CheckoutController {
             String min_price = BookFiltering.getBookWithLowestPrice(bookList).getPrice().toString();
             String max_price = BookFiltering.getBookWithHighestPrice(bookList).getPrice().toString();
 
-            inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers);
+            //price stuff
+            if (price == null){
+                price = max_price;
+            }
+            System.out.println("---PRICE: " + price);
+
+            inventoryItems = BookFiltering.getItemsMatchingFilters(inventoryItems, authors, genres, publishers, Double.parseDouble(price));
 
             model.addAttribute("user", loggedInUser);
             model.addAttribute("inventoryItems", inventoryItems);
