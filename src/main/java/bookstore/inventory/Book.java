@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 public class Book {
@@ -243,4 +244,17 @@ public class Book {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    /**
+     * Get all author names
+     * @return collected authors
+     *
+     * @author Sabah Samwatin
+     */
+    public String getAllAuthorNames() {
+        return this.author.stream()
+                .map(author -> author.getFirstName() + " " + author.getLastName())
+                .collect(Collectors.joining(", "));
+    }
+
 }

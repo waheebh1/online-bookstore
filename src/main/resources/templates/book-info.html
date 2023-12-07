@@ -14,12 +14,18 @@
 <form th:action="@{/listAvailableBooks}" method="get">
     <button type="submit">Back to Home</button>
 </form>
+<!-- Only show Edit button if the user is a bookstore owner -->
+<div th:if="${userType == 'BOOKOWNER'}">
+    <a th:href="@{/book/edit/{isbn}(isbn=${book.isbn})}">
+        <button type="button">Edit Book Details</button>
+    </a>
+</div>
 <div class="book-info">
     <div class="book-title">
         <h2 th:text="${book.getTitle()}"> </h2>
     </div>
     <div class="book-author">
-        <p th:text="${book.getAuthor()[0].getFullName()}"> </p>
+        <p>Authors: <span th:text="${authors}"></span></p>
     </div>
     <img th:src="${book.getCover()}" alt="Book Cover">
     <div class="book-year">
@@ -31,7 +37,9 @@
     <div class="book-genre">
         <p th:text="'Genre: ' + ${book.getGenre()}"></p>
     </div>
-
+    <div class="book-price">
+        <p th:text="'Price: $' + ${book.getPrice()}"></p>
+    </div>
     <div class="book-description">
         <div>
             <p th:text="${book.getDescription()}"></p>
