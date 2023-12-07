@@ -232,7 +232,7 @@ class CheckoutControllerTest {
         model.addAttribute("items", shoppingCart.getBooksInCart());
         model.addAttribute("quantity", inventory.findAvailableBook("0446310786").getQuantity());
 
-        Assertions.assertEquals("home", view);
+        Assertions.assertEquals("redirect:/listAvailableBooks", view);
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
         Assertions.assertEquals(inventory.findAvailableBook("0446310786").getQuantity(), model.getAttribute("quantity"));
 
@@ -278,7 +278,7 @@ class CheckoutControllerTest {
         model.addAttribute("items", shoppingCart.getBooksInCart());
         model.addAttribute("quantity", inventory.findAvailableBook("0446310786").getQuantity());
 
-        Assertions.assertEquals("home", view);
+        Assertions.assertEquals("redirect:/listAvailableBooks", view);
         Assertions.assertEquals(shoppingCart.getBooksInCart(), model.getAttribute("items"));
         Assertions.assertEquals(inventory.findAvailableBook("0446310786").getQuantity(), model.getAttribute("quantity"));
 

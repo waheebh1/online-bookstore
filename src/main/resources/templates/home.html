@@ -23,9 +23,9 @@
             updateTotalInCart();
 
             // Handle form submission
-            $('#addToCartForm, #removeFromCartForm').submit(function(event) {
+            $('#addToCartForm, #removeFromCartForm').submit(function() {
                 // Collect selected items
-                var selectedItems = [];
+                let selectedItems = [];
                 $('input[name="selectedItems"]:checked').each(function() {
                     selectedItems.push($(this).val());
                 });
@@ -40,13 +40,18 @@
 
             $(document).ready(function() {
                 $('#sort').change(function() {
-                    // Trigger form submission
                     // Set selected attribute directly on the selected option
                     $('#sort option:selected').removeAttr('selected');
                     $('#sort option[value="' + $(this).val() + '"]').attr('selected', 'selected');
-                    $('#sortForm').submit();
                 });
             });
+
+            let priceRange = document.getElementById("priceRange");
+            let priceOutput = document.getElementById("priceOutput");
+            priceOutput.innerHTML = priceRange.value;
+            priceRange.oninput = function() {
+                priceOutput.innerHTML = this.value;
+            };
         });
     </script>
     <link rel="stylesheet" th:href="@{/css/general.css}" />
@@ -100,6 +105,11 @@
                 <input type="checkbox" th:id="${'checkbox-' + publisher}" th:name="publisher" th:value="${publisher}" />
                 <br>
             </span>
+
+            <h3>Price</h3>
+            <label for="priceRange">Select Price Range:</label>
+            <input type="range" id="priceRange" name="priceRange" th:min="${min}" th:max="${max}" step="0.01" th:value="${max}">
+            <output for="priceRange" id="priceOutput">0</output>
 
         </div>
     </form>

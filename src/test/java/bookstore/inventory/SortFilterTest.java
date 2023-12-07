@@ -94,7 +94,6 @@ public class SortFilterTest {
         authorList.add(book2.getAuthor().get(0).getFullName());
         authorList.add(book3.getAuthor().get(0).getFullName());
 
-
         List<String> genreList = new ArrayList<>();
         genreList.add(book1.getGenre());
         genreList.add(book2.getGenre());
@@ -135,21 +134,21 @@ public class SortFilterTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+        String view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
 
         //Test high_to_low
         filter_option = SortCriteria.HIGH_TO_LOW.label;
-        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
 
         //Test alphabetical
         filter_option = SortCriteria.ALPHABETICAL.label;
-        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), model);
+        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
@@ -179,7 +178,7 @@ public class SortFilterTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response, "", filter_option, authorList, defaultFilters.get(1), defaultFilters.get(2), model);
+        String view = controller.listAvailableBooks(request, response, "", filter_option, authorList, defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         //hardcode expected value
         ArrayList<InventoryItem> expected = new ArrayList<>();
@@ -193,7 +192,7 @@ public class SortFilterTest {
         List<String> genreList = new ArrayList<>();
         genreList.add(book2.getGenre());
 
-        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), genreList, defaultFilters.get(2), model);
+        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), genreList, defaultFilters.get(2), null, model);
 
         //hardcode expected value
         expected = new ArrayList<>();
@@ -207,10 +206,23 @@ public class SortFilterTest {
         List<String> publisherList = new ArrayList<>();
         publisherList.add(book3.getPublisher());
 
-        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), publisherList, model);
+        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1), publisherList, null, model);
 
         //hardcode expected value
         expected = new ArrayList<>();
+        expected.add(item3);
+
+        Assertions.assertEquals("home", view);
+        Assertions.assertEquals(expected, model.getAttribute("inventoryItems"));
+
+        //Change filters for price
+        String mid_price = String.valueOf(book3.getPrice());
+
+        view = controller.listAvailableBooks(request, response, "", filter_option, defaultFilters.get(0), defaultFilters.get(1),  defaultFilters.get(2), mid_price, model);
+
+        //hardcode expected value
+        expected = new ArrayList<>();
+        expected.add(item1);
         expected.add(item3);
 
         Assertions.assertEquals("home", view);
@@ -225,10 +237,11 @@ public class SortFilterTest {
     void testViewAvailableBooksWithSortFilter(){
         List<List<String>> defaultFilters = getDefaultFilterValues();
 
-        //high_to_low with genre filter
+        //high_to_low with genre and price filter
         String filter_option = SortCriteria.HIGH_TO_LOW.label;
         List<String> genreList = new ArrayList<>();
         genreList.add(book2.getGenre());
+        String mid_price = String.valueOf(book3.getPrice());
 
         //give user access and set inventory to the main inventory
         when(userController.getUserAccess()).thenReturn(true);
@@ -241,12 +254,11 @@ public class SortFilterTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response,"", filter_option, defaultFilters.get(0), genreList, defaultFilters.get(2), model);
+        String view = controller.listAvailableBooks(request, response,"", filter_option, defaultFilters.get(0), genreList, defaultFilters.get(2), mid_price, model);
 
         //hardcode expected value
         ArrayList<InventoryItem> expected = new ArrayList<>();
-        expected.add(item2);
-        expected.add(item3); //order for high_to_low
+        expected.add(item3);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(expected, model.getAttribute("inventoryItems"));
@@ -266,6 +278,7 @@ public class SortFilterTest {
         publisherList.add(book1.getGenre());
         List<String> authorList = new ArrayList<>();
         authorList.add(book2.getGenre());
+        String min_price = String.valueOf(book1.getPrice());
 
         //give user access and set inventory to the main inventory
         when(userController.getUserAccess()).thenReturn(true);
@@ -278,7 +291,7 @@ public class SortFilterTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response,"", filter_option, authorList, defaultFilters.get(0), publisherList, model);
+        String view = controller.listAvailableBooks(request, response,"", filter_option, authorList, defaultFilters.get(0), publisherList, min_price, model);
 
         //expecting no books to show up
         ArrayList<InventoryItem> expected = new ArrayList<>();
