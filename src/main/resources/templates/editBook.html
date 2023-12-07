@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Book</title>
+    <link rel="stylesheet" th:href="@{/css/general.css}" />
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .form-container {
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .form-container form {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <div class="header">
+        <h1>Edit Book Information</h1>
+    </div>
+    <!-- Error Message Display -->
+    <div th:if="${errorMessage}" style="background-color: #ffcccc; border: 1px solid #ff0000; padding: 10px; margin-bottom: 20px;">
+        <p th:text="${errorMessage}">Error message here.</p>
+    </div>
+    <form action="#" th:action="@{/book/edit}" th:object="${book}" method="post">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="isbn">ISBN:</label>
+                <input type="text" id="isbn" name="isbn" th:value="*{isbn}" required readonly />
+            </div>
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" th:value="*{title}" required />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="authors">Authors:</label>
+                <input type="text" id="authors" name="authorsInput" th:value="${authorsList}" required />
+            </div>
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" th:value="*{price}" step="0.01" min="0.01" required />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="date">Publication Date:</label>
+                <input type="date" id="date" name="date" th:value="*{date}" />
+            </div>
+            <div class="form-group">
+                <label for="cover">Cover URL:</label>
+                <input type="url" id="cover" name="cover" th:value="*{cover}" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="publisher">Publisher:</label>
+                <input type="text" id="publisher" name="publisher" th:value="*{publisher}" />
+            </div>
+            <div class="form-group">
+                <label for="genre">Genre:</label>
+                <input type="text" id="genre" name="genre" th:value="*{genre}" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" th:text="*{description}" style="height: 100px;"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" th:value="${quantity}" min="1" required />
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Save Changes" class="button" />
+        </div>
+    </form>
+</div>
+</body>
+</html>

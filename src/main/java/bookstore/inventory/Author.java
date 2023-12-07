@@ -101,7 +101,7 @@ public class Author {
      * @author Shrimei Chock
      */
     public String getFullName(){
-        return this.lastName + ". " + this.firstName;
+        return this.firstName + " " + this.lastName;
     }
 
     /**

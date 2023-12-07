@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Upload Book</title>
+  <link rel="stylesheet" th:href="@{/css/general.css}" />
+  <style>
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .form-container {
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    .form-container form {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+  </style>
+</head>
+<script>
+  function validateAuthors() {
+    var authorsInput = document.getElementById("authors").value;
+    var authorNames = authorsInput.split(",");
+    for (var i = 0; i < authorNames.length; i++) {
+      var nameParts = authorNames[i].trim().split(" ");
+      if (nameParts.length < 2) {
+        alert("Please provide both first and last names for each author.");
+        return false;
+      }
+    }
+    return true;
+  }
+  $(document).ready(function() {
+    var isbnErrorMessage = [[${isbnErrorMessage}]];
+    if(isbnErrorMessage) {
+      toastr.error(isbnErrorMessage);
+    }
+  });
+</script>
+<body>
+<div class="form-container">
+  <div class="header">
+    <h1>Upload a New Book</h1>
+  </div>
+  <form action="#" th:action="@{/book/upload}" th:object="${book}" method="post" onsubmit="return validateAuthors()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="isbn">ISBN:</label>
+        <input type="text" id="isbn" name="isbn" th:value="*{isbn}" required />
+      </div>
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" th:value="*{title}" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="authors">Authors (comma-separated)</label>
+        <input type="text" id="authors" name="authorsInput" required />
+      </div>
+      <div class="form-group">
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" th:value="*{price}" step="0.01" min="0.01" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="date">Publication Date:</label>
+        <input type="date" id="date" name="date" th:value="*{date}" />
+      </div>
+      <div class="form-group">
+        <label for="cover">Cover URL:</label>
+        <input type="url" id="cover" name="cover" th:value="*{cover}" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="publisher">Publisher:</label>
+        <input type="text" id="publisher" name="publisher" th:value="*{publisher}" />
+      </div>
+      <div class="form-group">
+        <label for="genre">Genre:</label>
+        <input type="text" id="genre" name="genre" th:value="*{genre}" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" th:text="*{description}" style="height: 100px;"></textarea>
+
+    </div>
+
+    <div class="form-group">
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" name="quantity" min="1" required />
+    </div>
+
+    <div class="form-group">
+      <input type="submit" value="Upload Book" class="button" />
+      <th:block th:if="${authorErrorMessage != null}">
+        <script th:inline="javascript">
+          $(document).ready(function() {
+            toastr.error([[${authorErrorMessage}]]);
+          });
+        </script>
+      </th:block>
+      <th:block th:if="${isbnErrorMessage != null}">
+        <script th:inline="javascript">
+          $(document).ready(function() {
+            toastr.error([[${isbnErrorMessage}]]);
+          });
+        </script>
+      </th:block>
+    </div>
+  </form>
+</div>
+</body>
+</html>

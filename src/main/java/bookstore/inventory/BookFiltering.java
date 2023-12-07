@@ -72,6 +72,7 @@ public class BookFiltering {
     public static List<String> getAllGenres(List<Book> books) {
         return books.stream()
                 .map(Book::getGenre)
+                .filter(genre -> genre != null && !genre.isEmpty())
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -85,6 +86,7 @@ public class BookFiltering {
     public static List<String> getAllPublishers(List<Book> books) {
         return books.stream()
                 .map(Book::getPublisher)
+                .filter(publisher -> publisher != null && !publisher.isEmpty())
                 .distinct()
                 .collect(Collectors.toList());
     }

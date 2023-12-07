@@ -105,6 +105,13 @@
     </form>
 </div>
 
+<!-- Check if the logged-in user is a Bookstore Owner and display the Upload button -->
+<div th:if="${user.getUserType().name() == 'BOOKOWNER'}" class="upload-button-container">
+    <a th:href="@{/book/upload}">
+        <button class="button">Upload New Book</button>
+    </a>
+</div>
+
 <div class="books-quantity">
     <h2>Total in Cart: <span th:id="totalInCart"></span></h2>
 </div>
@@ -146,7 +153,7 @@
             <td>
                 <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
             </td>
-            <td th:text="${inventoryItem.getBook().getAuthor()[0].fullName}"></td>
+            <td th:text="${inventoryItem.book.getAllAuthorNames()}"></td>
             <td>$<span th:text="${inventoryItem.getBook().getPrice()}"></span></td>
         </tr>
         </tbody>

@@ -144,9 +144,23 @@ public class CheckoutController {
         if(loggedInUser == null){
             return "access-denied";
         }
-        Book bookToDisplay = bookRepository.findByIsbn(isbn);
-        model.addAttribute("book", bookToDisplay);
-        return "book-info";
+        Book book = bookRepository.findByIsbn(isbn);
+        if (book != null) {
+            String authors = book.getAuthor().stream()
+                    .map(author -> author.getFirstName() + " " + author.getLastName())
+                    .collect(Collectors.joining(", "));
+            model.addAttribute("book", book);
+            model.addAttribute("authors", authors);
+
+            // Determine the user type
+            String userType = loggedInUser.getUserType().name();
+            // Store the userType in the session
+            model.addAttribute("userType", userType);
+
+            return "book-info";
+        }
+        return "redirect:/"; // if the book doesn't exist, redirect to the home page
+
     }
 
     /**
