@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import java.util.stream.Collectors;
 
 @Controller
 public class CheckoutController {
