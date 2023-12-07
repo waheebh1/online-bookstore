@@ -108,7 +108,7 @@
 
             <h3>Price</h3>
             <label for="priceRange">Select Price Range:</label>
-            <input type="range" id="priceRange" name="priceRange" th:min="${min}" th:max="${max}" step="1" th:value="${max}">
+            <input type="range" id="priceRange" name="priceRange" th:min="${min}" th:max="${max}" step="0.01" th:value="${max}">
             <output for="priceRange" id="priceOutput">0</output>
 
         </div>

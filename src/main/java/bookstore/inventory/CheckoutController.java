@@ -6,16 +6,13 @@ import bookstore.users.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -213,8 +210,8 @@ public class CheckoutController {
             }
         }
         
-        List<Book> x = recommendBooks(loggedInUser.getId());
-        model.addAttribute("books", x);
+//        List<Book> x = recommendBooks(loggedInUser.getId());
+//        model.addAttribute("books", x);
       
         return "redirect:/listAvailableBooks";
     }
@@ -250,8 +247,9 @@ public class CheckoutController {
         }
 
         model.addAttribute("inventory", inventoryItemRepository.findAll());
-        List<Book> x = recommendBooks(loggedInUser.getId());
-        model.addAttribute("books", x);
+
+//        List<Book> x = recommendBooks(loggedInUser.getId());
+//        model.addAttribute("books", x);
 
         return "home";
     }
@@ -311,8 +309,8 @@ public class CheckoutController {
             }
         }
         
-        List<Book> x = recommendBooks(loggedInUser.getId());
-        model.addAttribute("books", x);
+//        List<Book> x = recommendBooks(loggedInUser.getId());
+//        model.addAttribute("books", x);
       
         //if on checkout page, recalculate total price
         if(checkoutFlag){
@@ -392,7 +390,7 @@ public class CheckoutController {
     /**
      * Method that recommends the books based on the jaccard dizstance between a user and other users
      * @author Waheeb Hashmi
-     * @param userId
+     * @param userId user's id
      * @return ArrayList<Book>
      */
   public ArrayList<Book> recommendBooks(Long userId) {
@@ -413,8 +411,8 @@ public class CheckoutController {
             List<Map.Entry<Long, Double>> entries = new ArrayList<>(userDistances.entrySet());
             entries.sort(Map.Entry.comparingByValue());
 
-            for (int i = 0; i < entries.size(); i++) {
-                similarUserIds.add(entries.get(i).getKey());
+            for (Map.Entry<Long, Double> entry : entries) {
+                similarUserIds.add(entry.getKey());
             }
             
         for (Long similarUserId : similarUserIds) {
@@ -423,13 +421,13 @@ public class CheckoutController {
             recommendedBooks.addAll(books);
         }
     }
-    return new ArrayList<Book>(recommendedBooks);
+    return new ArrayList<>(recommendedBooks);
    }
 
    /**
     * Method that gets the books in the shopping cart by user id
     * @author Waheeb Hashmi
-    * @param userId
+    * @param userId user's id
     * @return Set<Book>
     */
    public Set<Book> getBooksInCartByUserId(long userId) {
