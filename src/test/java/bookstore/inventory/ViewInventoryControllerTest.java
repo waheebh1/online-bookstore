@@ -45,7 +45,6 @@ public class ViewInventoryControllerTest {
     private Book book1;
     private Book book2;
     private Inventory inventory;
-    String max_price;
 
 
     /**
@@ -68,8 +67,6 @@ public class ViewInventoryControllerTest {
         String description2 = "The Kite Runner tells the story of Amir, a young boy from the Wazir Akbar Khan district of Kabul";
         book2 = new Book("1573222453", "The Kite Runner", author_list2, 22.00, "29/05/2003", "https://upload.wikimedia.org/wikipedia/en/6/62/Kite_runner.jpg", "Riverhead Books", "Historical fiction", description2);
         InventoryItem item2 = new InventoryItem(book2, 10);
-
-        max_price = String.valueOf(Math.max(book1.getPrice(), book2.getPrice()));
 
         ArrayList<InventoryItem> availableBooks = new ArrayList<>();
         inventory = new Inventory(availableBooks);
@@ -136,7 +133,7 @@ public class ViewInventoryControllerTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), max_price, model);
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
@@ -160,7 +157,7 @@ public class ViewInventoryControllerTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(null);
 
-        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), max_price, model);
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("access-denied", view);
     }
@@ -184,7 +181,7 @@ public class ViewInventoryControllerTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), max_price, model);
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(inventory.getAvailableBooks(), model.getAttribute("inventoryItems"));
@@ -209,7 +206,7 @@ public class ViewInventoryControllerTest {
         HttpServletResponse response = new MockHttpServletResponse();
         when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookUser);
 
-        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), max_price, model);
+        String view = controller.listAvailableBooks(request, response, searchValue, "low_to_high", defaultFilters.get(0), defaultFilters.get(1), defaultFilters.get(2), null, model);
 
         Assertions.assertEquals("home", view);
         Assertions.assertEquals(Collections.singletonList(inventory.getAvailableBooks().get(0)), model.getAttribute("inventoryItems"));

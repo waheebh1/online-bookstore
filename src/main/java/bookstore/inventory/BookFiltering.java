@@ -23,19 +23,6 @@ public class BookFiltering {
     }
 
     /**
-     * Return a list of inventory items that are in stock
-     * @param inventoryItems list of inventory items
-     * @return list of inventory items with quantity > 0
-     * @author Shrimei Chock
-     */
-    public static List<InventoryItem> getItemsInStock(List<InventoryItem> inventoryItems) {
-        // Filter out items with quantity < 0
-        return inventoryItems.stream()
-                .filter(item -> item.getQuantity() > 0)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Return a list of inventory items that match the given filters
      * @param inventoryItems list of inventory items
      * @param authors list of authors to filter by
@@ -53,6 +40,7 @@ public class BookFiltering {
                         && (publishers==null || publishers.contains(item.getBook().getPublisher()))
                         && (item.getBook().getPrice() <= price_range)
                 )
+                .peek(item -> System.out.println(item.getBook().getTitle())) // Print the title of each matching item
                 .collect(Collectors.toList());
     }
 
