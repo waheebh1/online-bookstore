@@ -1,4 +1,6 @@
 package bookstore.inventory;
+import bookstore.mockservlet.MockHttpServletRequest;
+import bookstore.mockservlet.MockHttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
@@ -76,7 +79,7 @@ public class BookControllerTest {
         inventory = new Inventory();
         inventoryItem = new InventoryItem(book, QUANTITY, inventory);
 
-        Inventory inventory = new Inventory();
+        //Inventory inventory = new Inventory();
         when(inventoryRepository.findById(1L)).thenReturn(inventory);
 
     }
@@ -146,6 +149,55 @@ public class BookControllerTest {
     }
 
     @Test
+    public void testCanOnlyUploadEditAsOwner(){
+        BookUser bookOwnerUser = new BookUser();
+        bookOwnerUser.setUsername("ownerUsername");
+        bookOwnerUser.setUserType(UserType.BOOKOWNER);
+
+        Book book = new Book();
+        book.setIsbn("1234");
+
+        Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+
+        bookRepository.save(book);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookOwnerUser);
+        when(bookRepository.findByIsbn(book.getIsbn())).thenReturn(book);
+
+        String viewName = bookController.showUploadForm(model, request, response);
+        assertNotEquals("access-denied", viewName);
+        assertEquals("uploadBook", viewName);
+
+        viewName = bookController.showEditForm(book.getIsbn(), model, request, response);
+        assertNotEquals("access-denied", viewName);
+        //assertEquals("editBook", viewName);
+    }
+
+    @Test
+    public void testCannotUploadEditAsUser(){
+        BookUser bookOwnerUser = new BookUser();
+        bookOwnerUser.setUsername("ownerUsername");
+
+        Book book = new Book();
+        book.setIsbn("1234");
+
+        Model model = new ConcurrentModel();
+        HttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = new MockHttpServletResponse();
+
+        bookRepository.save(book);
+        when(userController.getLoggedInUser(request.getCookies())).thenReturn(bookOwnerUser);
+        when(bookRepository.findByIsbn(book.getIsbn())).thenReturn(book);
+
+        String viewName = bookController.showUploadForm(model, request, response);
+        assertEquals("access-denied", viewName);
+
+        viewName = bookController.showEditForm(book.getIsbn(), model, request, response);
+        assertEquals("access-denied", viewName);
+    }
+
+    @Test
     public void testHandleUploadForm_WithNewBook() {
         // Arrange
         Book book = new Book();
@@ -178,6 +230,7 @@ public class BookControllerTest {
         existingBook.setTitle("Existing Book Title");
 
         when(bookRepository.findByIsbn(ISBN)).thenReturn(existingBook);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
 
         Book book = new Book();
         book.setIsbn(ISBN);
