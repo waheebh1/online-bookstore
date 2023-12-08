@@ -49,12 +49,4 @@ public class BookOwner extends BookUser {
         this(0L, "", "");
     }
 
-    // add other methods here
-    public void uploadBookInfo(){
-        throw new UnsupportedOperationException("uploadBookInfo not yet supported");
-    }
-    public void editBookInfo(){
-        throw new UnsupportedOperationException("editBookInfo not yet supported");
-    }
-
 }

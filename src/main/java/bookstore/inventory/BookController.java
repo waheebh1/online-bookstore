@@ -114,8 +114,10 @@ public class BookController {
         InventoryItem inventoryItem = new InventoryItem(book, quantity, inventory); // Assuming the default quantity is 1
         inventoryItemRepository.save(inventoryItem); // Save the new inventory item
 
-        inventory.addItemToInventory(inventoryItem);
-        inventoryRepository.save(inventory);
+        if (inventory != null) {
+            inventory.addItemToInventory(inventoryItem);
+            inventoryRepository.save(inventory);
+        }
 
         // Redirecting to homepage which should now include the new book
         return "redirect:/listAvailableBooks";
