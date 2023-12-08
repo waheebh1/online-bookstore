@@ -5,7 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="index.js"></script>
     <script th:inline="javascript">
         $(document).ready(function() {
             function updateTotalInCart() {
@@ -165,7 +164,7 @@
                 <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
             </td>
             <td th:text="${inventoryItem.book.getAllAuthorNames()}"></td>
-            <td>$<span th:text="${inventoryItem.getBook().getPrice()}"></span></td>
+            <td>$<span th:text="${inventoryItem.getBook().getFormattedPrice()}"></span></td>
         </tr>
         </tbody>
     </table>

@@ -215,6 +215,10 @@ public class Book {
         return price;
     }
 
+    public String getFormattedPrice() {
+        return String.format("%.2f", price);
+    }
+
     /**
      * Set price
      * @param price cost of book
