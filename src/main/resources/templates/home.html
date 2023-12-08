@@ -62,7 +62,11 @@
 <div class="header">
     <div class="top-bar">
         <h1>Online Book Store</h1>
-        <h2>Total in Cart: <span th:id="totalInCart"></span></h2>
+        <h2>
+            <img src="/images/cart.png" alt="Cart icon" class="cart-image">
+            Total in Cart:
+            <span th:id="totalInCart"></span>
+        </h2>
     </div>
     <th:block th:if="${user}">
         <h3 th:text="'Logged in as: ' + ${user.getUsername()}" />

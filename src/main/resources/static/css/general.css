@@ -24,6 +24,11 @@ body {
     font-weight: bold;
 }
 
+.cart-image{
+    width: 40px;
+    margin-right: 5px;
+}
+
 .user-options{
     display: flex;
     gap: 10px;
@@ -58,7 +63,7 @@ body {
 .books-header{
     align-content: center;
     background-color: #333; /* Background color for the banner */
-    padding: 10px 5px; /* Add some padding to the header */
+    padding: 10px 20px; /* Add some padding to the header */
     color: #fff; /* Text color */
     margin-top: 20px;
     margin-bottom: 10px;
@@ -73,7 +78,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background-color: #333; /* Background color for the banner */
-    padding: 10px; /* Add some padding to the header */
+    padding: 10px 20px; /* Add some padding to the header */
     color: #fff; /* Text color */
     margin: 0;
 }
