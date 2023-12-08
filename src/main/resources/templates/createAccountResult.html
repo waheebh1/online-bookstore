@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <title>Created User</title>
     <link rel="stylesheet" th:href="@{../css/register-login.css}" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 </head>
 <body>
 <div class="header">
     <h1>Online Book Store</h1>
 </div>
-<p th:text="'Created new user: ' + ${user.getUsername()}" />
+<p th:text="'Created new user: ' + ${user.getUsername()}"></p>
 <div class="container-register-login">
     <a th:href="@{register}">
         <input type="submit" value="Register" class="button" />
