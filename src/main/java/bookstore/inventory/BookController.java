@@ -75,6 +75,7 @@ public class BookController {
     @PostMapping("/upload")
     public String handleUploadForm(@ModelAttribute Book book, @RequestParam String authorsInput, @RequestParam int quantity, Model model) {
         // Check for existing book with the same ISBN
+        System.out.println("add w quantity " + quantity);
         Book existingBook = bookRepository.findByIsbn(book.getIsbn());
         if (existingBook != null) {
             model.addAttribute("isbnErrorMessage", "ISBN should be unique, \nExisting ISBN for " + existingBook.getIsbn() + ": " + existingBook.getTitle());
@@ -112,7 +113,7 @@ public class BookController {
 
         // Assuming the book is successfully saved, create a new InventoryItem
         InventoryItem inventoryItem = new InventoryItem(book, quantity, inventory); // Assuming the default quantity is 1
-        inventoryItemRepository.save(inventoryItem); // Save the new inventory item
+//        inventoryItemRepository.save(inventoryItem); // Save the new inventory item
 
         if (inventory != null) {
             inventory.addItemToInventory(inventoryItem);
