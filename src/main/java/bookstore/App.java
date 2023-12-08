@@ -42,7 +42,7 @@ public class App
             author_list1.add(author1);
 
             String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
-            book1 = new Book("0446310786", "To Kill a Mockingbird", author_list1, 12.99, "1960-07-11", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
+            book1 = new Book("0446310786", "To Kill a Mockingbird", author_list1, 12.99, "1960-07-11", "https://media.glamour.com/photos/56e1f3c4bebf143c52613c0b/master/w_1600%2Cc_limit/entertainment-2016-02-next-main.jpg", "Grand Central Publishing", "Classical", description1);
             author1.addBook(book1); //add to bibliography
             authorRepo.save(author1);
             bookRepo.save(book1);

@@ -188,15 +188,14 @@
 
 <div class="recommended-books">
     <h1>Recommended Books</h1>
-    <ul>
-       <li th:each="book : ${books}">
-           <div class="book-block">
+    <div class="book-recs-list">
+       <div th:each="book : ${books}">
+           <a th:href="@{/viewBook(isbn=${book.getIsbn()})}">
                <img th:src="${book.getCover()}" alt="Book Cover" class="book-cover">
-               <h3 th:text="${book.getTitle()}">Book Title</h3>
-               <p th:text="${book.getAuthor()[0].fullName}">Book Author</p>
-           </div>
-       </li>
-    </ul>
+               <p th:text="${book.getTitle()}"></p>
+           </a>
+       </div>
+    </div>
 </div>
 
 </body>
