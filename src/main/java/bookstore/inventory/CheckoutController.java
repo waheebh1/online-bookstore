@@ -207,26 +207,46 @@ public class CheckoutController {
 
         if (selectedItems != null) {
             for (String selectedItem : selectedItems) {
+                if (checkoutFlag) {
+                    ShoppingCartItem cartItem = shoppingCartItemRepository.findById(Integer.parseInt(selectedItem));
+                    if (cartItem != null) {
+                        shoppingCart.addToCart(cartItem.getBook(), 1);
+//                        shoppingCartItemRepository.save(cartItem);
+                    }
+                } else {
 
-                //find item in inventory and add to cart
-                InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
-                System.out.println("\tINVENTORY ITEM QUANTITY --BEFORE-- ADD TO CART: " + invItem.getQuantity());
-                shoppingCart.addToCart(invItem.getBook(), 1);
-                System.out.println("\tINVENTORY ITEM QUANTITY --AFTER-- ADD TO CART: " + invItem.getQuantity());
+                    //find item in inventory and add to cart
+                    InventoryItem invItem = inventoryItemRepository.findById(Integer.parseInt(selectedItem));
+                    System.out.println("\tINVENTORY ITEM QUANTITY --BEFORE-- ADD TO CART: " + invItem.getQuantity());
+                    shoppingCart.addToCart(invItem.getBook(), 1);
+                    System.out.println("\tINVENTORY ITEM QUANTITY --AFTER-- ADD TO CART: " + invItem.getQuantity());
 
+                    inventoryItemRepository.save(invItem);
+
+                    //print number of books in cart
+                    System.out.println("\tTOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
+                }
                 //update the user's shopping cart and inventory
                 shoppingCartRepository.save(shoppingCart);
                 shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
-                inventoryItemRepository.save(invItem);
                 inventoryRepository.save(inventoryRepository.findById(1));
-
-                //print number of books in cart
-                System.out.println("\tTOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
             }
         }
-        
-//        List<Book> x = recommendBooks(loggedInUser.getId());
-//        model.addAttribute("books", x);
+
+        //if on checkout page, recalculate total price
+        if(checkoutFlag){
+            double totalPrice = 0;
+            for (ShoppingCartItem item : shoppingCart.getBooksInCart()) {
+                totalPrice += item.getBook().getPrice() * item.getQuantity();
+            }
+
+            double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
+
+            model.addAttribute("items", shoppingCart.getBooksInCart());
+            model.addAttribute("totalPrice", roundedPrice);
+
+            return "checkout";
+        }
       
         return "redirect:/listAvailableBooks";
     }
@@ -412,7 +432,7 @@ public class CheckoutController {
         Set<Book> recommendedBooks = new HashSet<>();
         if(userId != null){
             Set<Book> userBooks = getBooksInCartByUserId(userId);
-            if (userBooks.size() != 0) {
+            if (!userBooks.isEmpty()) {
 
             Map<Long, Double> userDistances = new HashMap<>();
 
@@ -441,7 +461,7 @@ public class CheckoutController {
         }
     }
 }
-    return new ArrayList<Book>(recommendedBooks);
+    return new ArrayList<>(recommendedBooks);
 }
 
    /**
