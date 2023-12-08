@@ -86,7 +86,7 @@
                         <th>Book Title</th>
                         <th>Quantity</th>
                         <th>Price</th>
-                        <th>Remove</th> 
+                        <th>Add/Remove</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -96,13 +96,13 @@
                             <td>$<span th:text="${item.getBook().getFormattedPrice()}"></span></td>
                             <td>
                                 <div class="add-remove-buttons">
-                                    <form th:action="@{/removeFromCart}" method="post" th:id="removeFromCartForm">
-                                        <input type="hidden" th:name="'selectedItems'" th:value="${item.getId()}">
-                                        <button type="submit">-</button>
-                                    </form>
                                     <form th:action="@{/addToCart}" method="post" th:id="addToCartForm">
                                         <input type="hidden" th:name="'selectedItems'" th:value="${item.getId()}">
                                         <button type="submit">+</button>
+                                    </form>
+                                    <form th:action="@{/removeFromCart}" method="post" th:id="removeFromCartForm">
+                                        <input type="hidden" th:name="'selectedItems'" th:value="${item.getId()}">
+                                        <button type="submit">-</button>
                                     </form>
                                 </div>
                             </td>
