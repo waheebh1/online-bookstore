@@ -40,3 +40,8 @@ h1, h2 {
 .form-container, .cart-info-container {
     width: 45%; 
 }
+
+.add-remove-buttons{
+    display:flex;
+    gap: 5px;
+}
