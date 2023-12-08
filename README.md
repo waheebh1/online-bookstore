@@ -19,7 +19,8 @@ The Amazin Online Bookstore Management System is a web application designed to f
 - Book Reccomendations
 
 ## Database Schema
-![online-bookstore-database-schema-m2](https://github.com/waheebh1/online-bookstore/assets/49663595/0ed4487a-a9b6-4a75-b04e-2954c280dd12)
+![online-bookstore-m3](https://github.com/waheebh1/online-bookstore/assets/49663595/2ba464a2-7cc5-4d8b-b6a8-e744f5ea692b)
+
 
 
 ## UML Class Diagram
