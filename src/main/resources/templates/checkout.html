@@ -19,25 +19,9 @@
                     }
                 });
             }
+
             updateTotalInCart();
-
-            // Handle form submission
-            $('#addToCartForm, #removeFromCartForm').submit(function() {
-                // Collect selected items
-                var selectedItems = [];
-                $('input[name="selectedItems"]:checked').each(function() {
-                    selectedItems.push($(this).val());
-                });
-
-                // Add selected items to a hidden field within the form
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'selectedItems',
-                    value: selectedItems.join(',')
-                }).appendTo($(this)); // Append to the current form
-            });
-        });
-        session.setAttribute("currentPage", "checkout");
+        })
 
     </script>
 </head>

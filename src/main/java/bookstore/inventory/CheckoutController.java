@@ -242,10 +242,10 @@ public class CheckoutController {
 
             double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
 
-            model.addAttribute("items", shoppingCart.getBooksInCart());
-            model.addAttribute("totalPrice", roundedPrice);
+//            model.addAttribute("items", shoppingCart.getBooksInCart());
+//            model.addAttribute("totalPrice", roundedPrice);
 
-            return "checkout";
+            return "redirect:/checkout";
         }
       
         return "redirect:/listAvailableBooks";
@@ -325,10 +325,6 @@ public class CheckoutController {
                     shoppingCart.removeFromCart(invItem.getBook(), 1);
                     System.out.println("\tINVENTORY ITEM QUANTITY --AFTER-- REMOVE FROM CART: " + invItem.getQuantity());
 
-                    //update shopping cart in repo
-                    shoppingCartRepository.save(shoppingCart);
-                    shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
-
                     //remove items from cart that have a quantity of 0
                     for (ShoppingCartItem shoppingCartItem : shoppingCartItemRepository.findByQuantity(0)){
                         System.out.println("\tFOUND EMPTY ITEM, WILL DELETE " + shoppingCartItem.getBook().getTitle());
@@ -337,15 +333,18 @@ public class CheckoutController {
 
                     //update inventory
                     inventoryItemRepository.save(invItem);
-                    inventoryRepository.save(inventoryRepository.findById(1));
 
                     System.out.println("\tTOTAL IN CART: " + shoppingCart.getTotalQuantityOfCart());
                 }
+
+                //update shopping cart in repo
+                shoppingCartRepository.save(shoppingCart);
+                shoppingCartItemRepository.saveAll(shoppingCart.getBooksInCart());
+
+                //update inventory
+                inventoryRepository.save(inventoryRepository.findById(1));
             }
         }
-        
-//        List<Book> x = recommendBooks(loggedInUser.getId());
-//        model.addAttribute("books", x);
       
         //if on checkout page, recalculate total price
         if(checkoutFlag){
@@ -356,11 +355,12 @@ public class CheckoutController {
     
             double roundedPrice = Math.round(totalPrice * 100.0) / 100.0;
             
-            model.addAttribute("items", shoppingCart.getBooksInCart());
-            model.addAttribute("totalPrice", roundedPrice);
+//            model.addAttribute("items", shoppingCart.getBooksInCart());
+//            model.addAttribute("totalPrice", roundedPrice);
     
-            return "checkout";
+            return "redirect:/checkout";
         }
+
         return "redirect:/listAvailableBooks";
     }
 

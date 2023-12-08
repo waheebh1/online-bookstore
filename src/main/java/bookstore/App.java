@@ -32,12 +32,8 @@ public class App
     public CommandLineRunner demoInventory(InventoryRepository inventoryRepository, BookRepository bookRepo, AuthorRepository authorRepo, InventoryItemRepository itemRepository,
                                            UserRepository userRepository, ShoppingCartRepository shoppingCartRepository) {
         return (args) -> {
-            Book book1;
-            Book book2;
-            Book book3;
-            InventoryItem item1;
-            InventoryItem item2;
-            InventoryItem item3;
+            Book book1, book2, book3, book4;
+            InventoryItem item1, item2, item3, item4;
             Inventory inventory = new Inventory();
             inventoryRepository.save(inventory);
 
@@ -70,9 +66,24 @@ public class App
             item3 = new InventoryItem(book3, 2, inventory);
             itemRepository.save(item3);
 
+            ArrayList<Author> author_list3 = new ArrayList<>();
+            Author author3 = new Author("Jane", "Austen");
+            Author author4 = new Author("Vivien", "Jones");
+            author_list3.add(author3);
+            author_list3.add(author4);
+
+            String description4 = "When Elizabeth Bennet first meets eligible bachelor Fitzwilliam Darcy, she thinks him arrogant and conceited; he is indifferent to her good looks and lively mind";
+            book4 = new Book("9780141439518", "Pride and Prejudice", author_list3, 12.00, "2002-12-13", "https://m.media-amazon.com/images/I/910oVuxR8lS._SL1500_.jpg", "Penguin Classics", "Historical fiction", description4);
+            authorRepo.save(author3);
+            authorRepo.save(author4);
+            bookRepo.save(book4);
+            item4 = new InventoryItem(book4, 20, inventory);
+            itemRepository.save(item4);
+
             inventory.addItemToInventory(item1);
             inventory.addItemToInventory(item2);
             inventory.addItemToInventory(item3);
+            inventory.addItemToInventory(item4);
 
             inventoryRepository.save(inventory);
 
