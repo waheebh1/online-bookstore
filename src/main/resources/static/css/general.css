@@ -98,8 +98,12 @@ table {
 }
 
 th, td {
-    border: 3px solid #333333;
+    border: 2px solid lightgray;
     padding: 12px;
+}
+
+thead {
+    background-color: lightgray;
 }
 
 input[type="text"] {
