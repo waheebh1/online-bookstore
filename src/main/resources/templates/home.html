@@ -5,6 +5,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/general.css}" />
+
     <script th:inline="javascript">
         $(document).ready(function() {
             function updateTotalInCart() {
@@ -54,83 +56,94 @@
             };
         });
     </script>
-    <link rel="stylesheet" th:href="@{/css/general.css}" />
 </head>
+
 <body>
 <div class="header">
-    <h1>Online Book Store</h1>
+    <div class="top-bar">
+        <h1>Online Book Store</h1>
+        <h2>Total in Cart: <span th:id="totalInCart"></span></h2>
+    </div>
+    <th:block th:if="${user}">
+        <h3 th:text="'Logged in as: ' + ${user.getUsername()}" />
+        <div class="user-options">
+            <form action="/logout" method="post">
+                <button type="submit" class="button">Logout</button>
+            </form>
+            <!-- Check if the logged-in user is a Bookstore Owner and display the Upload button -->
+            <div th:if="${user.getUserType().name() == 'BOOKOWNER'}" class="upload-button-container">
+                <a th:href="@{/book/upload}">
+                    <button class="button">Upload New Book</button>
+                </a>
+            </div>
+        </div>
+        <br>
+    </th:block>
 </div>
-<th:block th:if="${user}">
-    <form action="/logout" method="post">
-        <button type="submit">Logout</button>
-    </form>
-</th:block>
-<p th:text="'Logged in as: ' + ${user.getUsername()}" />
 
-<div>
+
+<div class="filter-sort-container">
     <form id="sortForm" th:action="@{/listAvailableBooks}" method="get">
         <div class="searchContainer">
             <label>
                 <input type="text" placeholder="Search" name="searchValue">
             </label>
-            <button type="submit">Submit</button>
+            <button type="submit" class="button">Submit</button>
         </div>
+
         <div class="sortContainer">
             <label for="sort">Sort by:</label>
-
             <select name="sort" id="sort">
                 <option value="low_to_high" th:selected="${sort == 'low_to_high'}">Price: Low to High</option>
                 <option value="high_to_low" th:selected="${sort == 'high_to_low'}">Price: High to Low</option>
                 <option value="alphabetical" th:selected="${sort == 'alphabetical'}">Alphabetical</option>
             </select>
         </div>
+
         <div class="filterContainer">
-            <h3>Author</h3>
-            <span th:each="author : ${authors}" >
-                <label th:for="${'checkbox-' + author}" th:text="${author}"></label>
-                <input type="checkbox" th:id="${'checkbox-' + author}" th:name="author" th:value="${author}" />
-                <br>
-            </span>
+            <div class="filter-section">
+                <h3>Author</h3>
+                <span th:each="author : ${authors}" >
+                    <label th:for="${'checkbox-' + author}" th:text="${author}"></label>
+                    <input type="checkbox" th:id="${'checkbox-' + author}" th:name="author" th:value="${author}" />
+                    <br>
+                </span>
+            </div>
 
-            <h3>Genre</h3>
-            <span th:each="genre : ${genres}" >
-                <label th:for="${'checkbox-' + genre}" th:text="${genre}"></label>
-                <input type="checkbox" th:id="${'checkbox-' + genre}" th:name="genre" th:value="${genre}" />
-                <br>
-            </span>
+            <div class="filter-section">
+                <h3>Genre</h3>
+                <span th:each="genre : ${genres}" >
+                    <label th:for="${'checkbox-' + genre}" th:text="${genre}"></label>
+                    <input type="checkbox" th:id="${'checkbox-' + genre}" th:name="genre" th:value="${genre}" />
+                    <br>
+                </span>
+            </div>
 
-            <h3>Publisher</h3>
-            <span th:each="publisher : ${publishers}" >
-                <label th:for="${'checkbox-' + publisher}" th:text="${publisher}"></label>
-                <input type="checkbox" th:id="${'checkbox-' + publisher}" th:name="publisher" th:value="${publisher}" />
-                <br>
-            </span>
+            <div class="filter-section">
+                <h3>Publisher</h3>
+                <span th:each="publisher : ${publishers}" >
+                    <label th:for="${'checkbox-' + publisher}" th:text="${publisher}"></label>
+                    <input type="checkbox" th:id="${'checkbox-' + publisher}" th:name="publisher" th:value="${publisher}" />
+                    <br>
+                </span>
+            </div>
 
-            <h3>Price</h3>
-            <label for="priceRange">Select Price Range:</label>
-            <input type="range" id="priceRange" name="priceRange" th:min="${min}" th:max="${max}" step="0.01" th:value="${max}">
-            <output for="priceRange" id="priceOutput">0</output>
-
+            <div class="filter-section">
+                <h3>Price</h3>
+                <label for="priceRange">Select Price Range:</label>
+                <input type="range" id="priceRange" name="priceRange" th:min="${min}" th:max="${max}" step="0.01" th:value="${max}">
+                <output for="priceRange" id="priceOutput">0</output>
+            </div>
         </div>
     </form>
 </div>
 
-<!-- Check if the logged-in user is a Bookstore Owner and display the Upload button -->
-<div th:if="${user.getUserType().name() == 'BOOKOWNER'}" class="upload-button-container">
-    <a th:href="@{/book/upload}">
-        <button class="button">Upload New Book</button>
-    </a>
-</div>
 
-<div class="books-quantity">
-    <h2>Total in Cart: <span th:id="totalInCart"></span></h2>
-</div>
-
-<div class="books-list">
+<div class="books-header">
     <h2>List of Books</h2>
 </div>
 
-<div class="container">
+<div class="options-container">
     <form th:action="@{/addToCart}" method="post" th:id="addToCartForm">
         <input type="submit" value="Add to Cart" class="button" />
     </form>
@@ -142,38 +155,35 @@
     </form>
 </div>
 
-<div class="container">
-
+<div class="books-container">
     <table>
         <thead>
-        <tr>
-            <th>Select</th>
-            <th>Cover</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Price</th>
-        </tr>
+            <tr>
+                <th>Select</th>
+                <th>Cover</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Price</th>
+            </tr>
         </thead>
         <tbody>
-        <tr th:each="inventoryItem : ${inventoryItems}" th:if="${inventoryItem.quantity > 0}">
-            <td><input type="checkbox" th:name="'selectedItems'" th:value="${inventoryItem.getId()}" /></td>
-            <td>
-                <img th:src="${inventoryItem.getBook().getCover()}" alt="Book Cover">
-            </td>
-            <td>
-                <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
-            </td>
-            <td th:text="${inventoryItem.book.getAllAuthorNames()}"></td>
-            <td>$<span th:text="${inventoryItem.getBook().getFormattedPrice()}"></span></td>
-        </tr>
+            <tr th:each="inventoryItem : ${inventoryItems}" th:if="${inventoryItem.quantity > 0}">
+                <td><input type="checkbox" th:name="'selectedItems'" th:value="${inventoryItem.getId()}" /></td>
+                <td>
+                    <img th:src="${inventoryItem.getBook().getCover()}" alt="Book Cover">
+                </td>
+                <td>
+                    <a th:href="@{/viewBook(isbn=${inventoryItem.getBook().getIsbn()})}" th:text="${inventoryItem.getBook().getTitle()}"></a>
+                </td>
+                <td th:text="${inventoryItem.book.getAllAuthorNames()}"></td>
+                <td>$<span th:text="${inventoryItem.getBook().getFormattedPrice()}"></span></td>
+            </tr>
         </tbody>
     </table>
-
-    <p th:text="${error}" />
-
 </div>
-<h1>Recommended Books</h1>
+
 <div class="recommended-books">
+    <h1>Recommended Books</h1>
     <ul>
        <li th:each="book : ${books}">
            <div class="book-block">
