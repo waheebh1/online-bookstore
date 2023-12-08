@@ -63,6 +63,7 @@ public class BookControllerTest {
     private static final int QUANTITY = 5;
     private static final String ISBN = "123456789";
     private static final String AUTHORS_INPUT = "John Doe,Jane Smith";
+    private static final String INVALID_AUTHORS_INPUT = "John Doe,Jane ";
 
 
     @Before
@@ -248,36 +249,68 @@ public class BookControllerTest {
 //        // No inventory items should be saved
 //        verify(inventoryItemRepository, never()).save(any(InventoryItem.class));
 //    }
-//
-//    @Test
-//    public void testHandleEditForm_Success() {
-//        // Arrange
-//        Book book = new Book(ISBN, "Test Book", new ArrayList<>(), 10.99, "2023-01-01");
-//        when(bookRepository.findByIsbn(ISBN)).thenReturn(book);
-//
-//        Author author1 = new Author("John", "Doe");
-//        Author author2 = new Author("Jane", "Smith");
-//        when(authorRepository.findByFirstNameAndLastName("John", "Doe"))
-//                .thenReturn(Collections.singletonList(author1));
-//        when(authorRepository.findByFirstNameAndLastName("Jane", "Smith"))
-//                .thenReturn(Collections.singletonList(author2));
-//
-//        when(bookRepository.save(any(Book.class))).thenReturn(book);
-//
-//        InventoryItem inventoryItem = new InventoryItem(book, QUANTITY);
-//        when(inventoryItemRepository.findByBook(book)).thenReturn(Collections.singletonList(inventoryItem));
-//        when(inventoryItemRepository.save(any(InventoryItem.class))).thenReturn(inventoryItem);
-//
-//        // Act
-//        String viewName = bookController.handleEditForm(book, AUTHORS_INPUT, QUANTITY, model);
-//
-//        // Assert
-//        assertEquals("redirect:/viewBook?isbn=" + ISBN, viewName);
-//        verify(bookRepository).save(book);
-//        verify(inventoryItemRepository).save(inventoryItem);
-//        verify(model, never()).addAttribute(eq("errorMessage"), anyString());
-//        assertEquals(2, book.getAuthor().size()); // Check that two authors are now associated with the book
-//    }
+
+    @Test
+    public void testHandleUploadForm_WithInvalidAuthorFormat() {
+        // Arrange
+        Book existingBook = new Book();
+        existingBook.setIsbn(ISBN);
+        existingBook.setTitle("Existing Book Title");
+
+        when(bookRepository.findByIsbn(ISBN)).thenReturn(existingBook);
+        when(inventoryRepository.findById(1)).thenReturn(inventory);
+
+        Book book = new Book();
+        book.setIsbn(ISBN);
+
+        Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
+
+        // Act
+        String viewName = bookController.handleUploadForm(book, INVALID_AUTHORS_INPUT, QUANTITY, model);
+
+        // Assert
+        assertEquals("uploadBook", viewName);
+        verify(model).addAttribute(eq("authorErrorMessage"), anyString());
+        // Book should not be saved since ISBN exists
+        verify(bookRepository, never()).save(book);
+        // No inventory items should be saved
+        verify(inventoryItemRepository, never()).save(any(InventoryItem.class));
+    }
+
+
+    @Test
+    public void testHandleEditForm_Success() {
+        // Arrange
+        Book book = new Book(ISBN, "Test Book", new ArrayList<>(), 10.99, "2023-01-01");
+        when(bookRepository.findByIsbn(ISBN)).thenReturn(book);
+
+        Author author1 = new Author("John", "Doe");
+        Author author2 = new Author("Jane", "Smith");
+        when(authorRepository.findByFirstNameAndLastName("John", "Doe"))
+                .thenReturn(Collections.singletonList(author1));
+        when(authorRepository.findByFirstNameAndLastName("Jane", "Smith"))
+                .thenReturn(Collections.singletonList(author2));
+
+        when(bookRepository.save(any(Book.class))).thenReturn(book);
+
+        InventoryItem inventoryItem = new InventoryItem(book, QUANTITY);
+        when(inventoryItemRepository.findByBook(book)).thenReturn(Collections.singletonList(inventoryItem));
+        when(inventoryItemRepository.save(any(InventoryItem.class))).thenReturn(inventoryItem);
+
+        // Act
+        String viewName = bookController.handleEditForm(book, AUTHORS_INPUT, QUANTITY, model);
+
+        // Assert
+        assertEquals("redirect:/viewBook?isbn=" + ISBN, viewName);
+        //verify(bookRepository).save(book);
+        //verify(inventoryItemRepository).save(inventoryItem);
+        verify(model, never()).addAttribute(eq("errorMessage"), anyString());
+
+        // check authors added
+        assertEquals(2, book.getAuthor().size()); // Check that two authors are now associated with the book
+        assertEquals("John Doe", book.getAuthor().get(0).getFullName());
+        assertEquals("Jane Smith", book.getAuthor().get(1).getFullName());
+    }
 }
 
 
