@@ -119,6 +119,7 @@ img {
 .button:hover {
     background-color: black;
 }
+
 .books-quantity {
     position: relative;
     /*top: 5px;*/
