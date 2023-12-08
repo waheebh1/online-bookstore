@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +20,6 @@ import jakarta.servlet.http.Cookie;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import bookstore.inventory.*;
 import bookstore.users.*;
 
 import java.util.*;
@@ -198,58 +195,6 @@ public class BookControllerTest {
         assertEquals("access-denied", viewName);
     }
 
-//    @Test
-//    public void testHandleUploadForm_WithNewBook() {
-//        // Arrange
-//        Book book = new Book();
-//        book.setIsbn(ISBN);
-//
-//        when(bookRepository.findByIsbn(ISBN)).thenReturn(null);
-//        when(authorRepository.findByFirstNameAndLastName("John", "Doe")).thenReturn(Collections.emptyList());
-//        when(authorRepository.findByFirstNameAndLastName("Jane", "Smith")).thenReturn(Collections.emptyList());
-//        Inventory inventory = new Inventory();
-//        when(inventoryRepository.findById(1L)).thenReturn(inventory);
-//
-//        // Act
-//        String viewName = bookController.handleUploadForm(book, AUTHORS_INPUT, QUANTITY, model);
-//
-//        // Assert
-//        assertEquals("redirect:/listAvailableBooks", viewName);
-//        verify(bookRepository).save(any(Book.class));
-//        verify(inventoryItemRepository).save(any(InventoryItem.class));
-//        verify(inventoryRepository).save(any(Inventory.class));
-//        // No errors should be added to the model
-//        verify(model, never()).addAttribute(eq("isbnErrorMessage"), any());
-//        verify(model, never()).addAttribute(eq("authorErrorMessage"), any());
-//    }
-
-//    @Test
-//    public void testHandleUploadForm_WithExistingISBN() {
-//        // Arrange
-//        Book existingBook = new Book();
-//        existingBook.setIsbn(ISBN);
-//        existingBook.setTitle("Existing Book Title");
-//
-//        when(bookRepository.findByIsbn(ISBN)).thenReturn(existingBook);
-//        when(inventoryRepository.findById(1)).thenReturn(inventory);
-//
-//        Book book = new Book();
-//        book.setIsbn(ISBN);
-//
-//        Inventory inventory = inventoryRepository.findById(1); // assuming one inventory
-//
-//        // Act
-//        String viewName = bookController.handleUploadForm(book, AUTHORS_INPUT, QUANTITY, model);
-//
-//        // Assert
-//        assertEquals("uploadBook", viewName);
-//        verify(model).addAttribute(eq("isbnErrorMessage"), anyString());
-//        // Book should not be saved since ISBN exists
-//        verify(bookRepository, never()).save(book);
-//        // No inventory items should be saved
-//        verify(inventoryItemRepository, never()).save(any(InventoryItem.class));
-//    }
-
     @Test
     public void testHandleUploadForm_WithInvalidAuthorFormat() {
         // Arrange
@@ -312,9 +257,3 @@ public class BookControllerTest {
         assertEquals("Jane Smith", book.getAuthor().get(1).getFullName());
     }
 }
-
-
-
-
-
-
