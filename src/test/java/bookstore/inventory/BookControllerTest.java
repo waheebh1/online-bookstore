@@ -140,7 +140,6 @@ public class BookControllerTest {
         verify(model).addAttribute("book", mockBook);
         verify(model).addAttribute("authorsList", mockBook.getAllAuthorNames());
         verify(model).addAttribute("quantity", mockInventoryItem.getQuantity());
-
     }
 
     @Test
