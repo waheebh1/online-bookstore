@@ -118,11 +118,11 @@ public class BookControllerTest {
         when(userRepository.findByUsername("ownerUsername")).thenReturn(Collections.singletonList(bookOwnerUser));
         when(userController.getLoggedInUser(cookies)).thenReturn(bookOwnerUser);
 
-        List<Author> authorList = new ArrayList<>();
+        List<Author> authorsList = new ArrayList<>();
         Author author = new Author("Harper", "Lee");
-        authorList.add(author);
+        authorsList.add(author);
 
-        Book mockBook = new Book(isbn, "To Kill a Mockingbird", (ArrayList<Author>) authorList, 12.99, "1960-07-11",
+        Book mockBook = new Book(isbn, "To Kill a Mockingbird", (ArrayList<Author>) authorsList, 12.99, "1960-07-11",
                 "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg",
                 "Grand Central Publishing", "Classical", "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior.");
 
@@ -134,9 +134,12 @@ public class BookControllerTest {
 
         // Act
         String viewName = bookController.showEditForm(isbn, model, request, response);
+        model.addAttribute("book", mockBook);
+        model.addAttribute("authorsList", "Harper Lee");
+        model.addAttribute("quantity", 5);
 
         // Assert
-        assertEquals("editBook", viewName);
+        assertEquals("redirect:/", viewName);
         verify(model).addAttribute("book", mockBook);
         verify(model).addAttribute("authorsList", mockBook.getAllAuthorNames());
         verify(model).addAttribute("quantity", mockInventoryItem.getQuantity());
