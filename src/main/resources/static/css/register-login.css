@@ -40,3 +40,17 @@ h1, h2 {
 .form-container, .cart-info-container {
     width: 45%; 
 }
+
+.add-remove-buttons{
+    display:flex;
+    gap: 5px;
+}
+
+.button {
+    padding: 10px;
+    background-color: rgb(89, 89, 100);
+    color: white;
+}
+.button:hover {
+    background-color: black;
+}

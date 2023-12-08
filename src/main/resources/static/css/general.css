@@ -4,30 +4,123 @@ body {
     font-family: sans-serif;
     background-color: #bffad970;
     position: relative;
+    /*margin: 0;*/
+    margin: 10px;
 }
-h1, h2 {
-    color:rgb(87, 87, 87);
+
+.header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
-.container {
+
+.sortContainer > label {
+    display: inline;
+    font-size: 1.17em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    font-weight: bold;
+}
+
+.cart-image{
+    width: 40px;
+    margin-right: 5px;
+}
+
+.user-options{
+    display: flex;
+    gap: 10px;
+}
+
+.filter-section input[type="range"] {
+    background-color: #333333;
+}
+
+.searchContainer, .sortContainer, .filterContainer {
+    margin-top: 5px;
+}
+
+.filterContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align items to the top */
+}
+
+.filter-section {
+    width: 23%; /* Adjust the width as needed */
+    margin-right: 2%; /* Add some spacing between sections */
+}
+
+
+.options-container {
     display: flex;
     justify-content: center;
     gap: 100px;
-    margin-bottom: 20px; 
 }
+
+.books-header{
+    align-content: center;
+    background-color: #333; /* Background color for the banner */
+    padding: 10px 20px; /* Add some padding to the header */
+    color: #fff; /* Text color */
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.books-header > h2 {
+    align-content: center;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333; /* Background color for the banner */
+    padding: 10px 20px; /* Add some padding to the header */
+    color: #fff; /* Text color */
+    margin: 0;
+}
+
+.books-container {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-bottom: 20px;
+}
+
 table {
+    border-collapse: collapse;
     width: 100%;
     margin-top: 20px;
     background-color: white;
 }
 
 th, td {
-    border: 1px solid #dddddd;
+    border: 2px solid lightgray;
     padding: 12px;
 }
+
+thead {
+    background-color: lightgray;
+}
+
+input[type="text"] {
+    padding: 8px;
+    width: 200px;
+}
+
+.book-recs-list{
+    display: flex;
+    gap: 15px;
+}
+
 img {
     max-width: 100px;
     max-height: 150px;
-} 
+}
+
 .button {
     padding: 10px;
     background-color: rgb(89, 89, 100);
@@ -36,10 +129,11 @@ img {
 .button:hover {
     background-color: black;
 }
+
 .books-quantity {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    position: relative;
+    /*top: 5px;*/
+    /*right: 13px;*/
 }
 .books-list {
     text-align: center;

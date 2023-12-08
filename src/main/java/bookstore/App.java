@@ -32,12 +32,8 @@ public class App
     public CommandLineRunner demoInventory(InventoryRepository inventoryRepository, BookRepository bookRepo, AuthorRepository authorRepo, InventoryItemRepository itemRepository,
                                            UserRepository userRepository, ShoppingCartRepository shoppingCartRepository) {
         return (args) -> {
-            Book book1;
-            Book book2;
-            Book book3;
-            InventoryItem item1;
-            InventoryItem item2;
-            InventoryItem item3;
+            Book book1, book2, book3, book4;
+            InventoryItem item1, item2, item3, item4;
             Inventory inventory = new Inventory();
             inventoryRepository.save(inventory);
 
@@ -46,7 +42,7 @@ public class App
             author_list1.add(author1);
 
             String description1 = "Compassionate, dramatic, and deeply moving, To Kill A Mockingbird takes readers to the roots of human behavior - to innocence and experience, kindness and cruelty, love and hatred, humor and pathos.";
-            book1 = new Book("0446310786", "To Kill a Mockingbird", author_list1, 12.99, "1960-07-11", "https://m.media-amazon.com/images/W/AVIF_800250-T2/images/I/71FxgtFKcQL._SL1500_.jpg", "Grand Central Publishing", "Classical", description1);
+            book1 = new Book("0446310786", "To Kill a Mockingbird", author_list1, 12.99, "1960-07-11", "https://media.glamour.com/photos/56e1f3c4bebf143c52613c0b/master/w_1600%2Cc_limit/entertainment-2016-02-next-main.jpg", "Grand Central Publishing", "Classical", description1);
             author1.addBook(book1); //add to bibliography
             authorRepo.save(author1);
             bookRepo.save(book1);
@@ -70,9 +66,24 @@ public class App
             item3 = new InventoryItem(book3, 2, inventory);
             itemRepository.save(item3);
 
+            ArrayList<Author> author_list3 = new ArrayList<>();
+            Author author3 = new Author("Jane", "Austen");
+            Author author4 = new Author("Vivien", "Jones");
+            author_list3.add(author3);
+            author_list3.add(author4);
+
+            String description4 = "When Elizabeth Bennet first meets eligible bachelor Fitzwilliam Darcy, she thinks him arrogant and conceited; he is indifferent to her good looks and lively mind";
+            book4 = new Book("9780141439518", "Pride and Prejudice", author_list3, 12.00, "2002-12-13", "https://m.media-amazon.com/images/I/910oVuxR8lS._SL1500_.jpg", "Penguin Classics", "Historical fiction", description4);
+            authorRepo.save(author3);
+            authorRepo.save(author4);
+            bookRepo.save(book4);
+            item4 = new InventoryItem(book4, 20, inventory);
+            itemRepository.save(item4);
+
             inventory.addItemToInventory(item1);
             inventory.addItemToInventory(item2);
             inventory.addItemToInventory(item3);
+            inventory.addItemToInventory(item4);
 
             inventoryRepository.save(inventory);
 
